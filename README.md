@@ -1,6 +1,6 @@
 # Executive Decision
 
-An unofficial hobby Swift implementation of the boardgame by "Sid Sackson"
+An unofficial hobby Swift implementation of the board game by "Sid Sackson".
 
 This will be a minimalist game, with no multiplayer mode.
 
