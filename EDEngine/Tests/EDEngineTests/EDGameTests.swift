@@ -75,4 +75,26 @@ final class EDGameTests: XCTestCase {
         XCTAssertEqual(decoded.monthlyRecords[0].finishedGoodsOffers.first?.units, 3)
         XCTAssertEqual(decoded.monthlyRecords[0].finishedGoodsOffers.first?.askPrice, 145)
     }
+
+    func testGameHistoryRecordsMovesAndClearsOnOverflow() throws {
+        var history = EDGameHistory()
+
+        for index in 1...EDGameHistory.maxMessages {
+            history.append(type: .info, message: "Move \(index)")
+        }
+
+        XCTAssertEqual(history.messages.count, EDGameHistory.maxMessages)
+
+        history.append(type: .info, message: "Move overflow")
+
+        XCTAssertEqual(history.messages.count, 1)
+        XCTAssertEqual(history.messages.first?.message, "Move overflow")
+
+        let data = try history.serialized()
+        let loaded = try EDGameHistory.load(from: data)
+
+        XCTAssertEqual(loaded, history)
+        XCTAssertEqual(loaded.messages.first?.type, .info)
+        XCTAssertEqual(loaded.messages.first?.message, "Move overflow")
+    }
 }

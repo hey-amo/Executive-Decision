@@ -37,7 +37,7 @@ public final class ExecutiveDecisionGame {
     public private(set) var state: GameState
     public private(set) var decisionState: DecisionState
     public private(set) var players: [Player]
-    public private(set) var gameMessageLog: [String]
+    public private(set) var gameHistory: EDGameHistory
     public private(set) var turnOrderManager: TurnOrderManager<Player>
     public private(set) var currentMonthIndex: Int
     public let setup: EDGameSetup
@@ -47,7 +47,7 @@ public final class ExecutiveDecisionGame {
         setup.months[currentMonthIndex]
     }
 
-    public init(players: [Player], setup: EDGameSetup, turnOrderManager: TurnOrderManager<Player>, phase: GamePhase = .setup, state: GameState = .setup, decisionState: DecisionState = .idle, currentMonthIndex: Int = 0, gameMessageLog: [EDGameMessage] = []()) {
+    public init(players: [Player], setup: EDGameSetup, turnOrderManager: TurnOrderManager<Player>, phase: GamePhase = .setup, state: GameState = .setup, decisionState: DecisionState = .idle, currentMonthIndex: Int = 0, gameHistory: EDGameHistory = EDGameHistory()) {
         self.players = players
         self.setup = setup
         self.boardReference = setup.boardReference
@@ -56,11 +56,19 @@ public final class ExecutiveDecisionGame {
         self.state = state
         self.decisionState = decisionState
         self.currentMonthIndex = currentMonthIndex
-        self.gameMessageLog = gameMessageLog
+        self.gameHistory = gameHistory
     }
 
     public func isGameOver() -> Bool {
         return (phase == .gameOver)
+    }
+
+    public func recordGameHistory(message: String, type: EDGameMessageType = .info) {
+        gameHistory.append(type: type, message: message)
+    }
+
+    public func clearGameHistory() {
+        gameHistory.clear()
     }
 
     public static func newGame(players: [Player], monthCount: Int = 12) -> ExecutiveDecisionGame {
