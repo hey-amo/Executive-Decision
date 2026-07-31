@@ -21,6 +21,8 @@ This will be a minimalist game, with no multiplayer mode.
 
 # Game Overview
 
+In Executive Decision, each player takes the role of a CEO of a manufacturing firm . You need to decide how much of each type of raw materialto buy, how much you are willing to pay for it, how much of each product you are going to make using those raw materials, and how much you are going to sell them for.
+
 In the game Executive Decision, players manage a business by bidding on raw materials and finished goods, aiming to make the most profit. 
 
 Prices fluctuate based on supply and demand, making strategic decision-making crucial. 
@@ -55,10 +57,11 @@ Easy to learn, but interesting strategies. Somewhat mechanical, but a good game 
 The game is for 2-6 players.
 
 Players decide how many months will constitute a game. 
+Min 6 months, max 12 months.
 
 Generally a game consists of 12 months; however, beginners may prefer a shorter game until they become familiar with the play. 
 
-Each player receives a Tally sheet and the following amount of money:
+Each player receives a `Tally sheet` and the following amount of money:
 - 2 players $900 
 - 3 players $600 
 - 4 players $450
@@ -77,6 +80,7 @@ One player is chosen to be the Broker; throughout the game, he handles the Raw M
 - B, Opening price: 115
 - C, Opening price: 90
 
+### Recipes
 Good A is made up of { XFine, XFine, Fine }
 Good B is made up of { Fine, Fine, Standard }
 Good C is made up of { Fine, Standard, Standard }
