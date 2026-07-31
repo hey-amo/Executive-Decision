@@ -1,6 +1,6 @@
 import Foundation
 
-public enum RawMaterial: Int, Codable, CaseIterable {
+public enum RawMaterial: Int, Codable, Sendable, CaseIterable {
     case xfine, fine, standard
     
     public var openingPrice: Int {
@@ -22,7 +22,7 @@ extension RawMaterial: CustomStringConvertible {
     }
 }
 
-public enum ProductType: Int, Codable, CaseIterable {
+public enum ProductType: Int, Codable, Sendable, CaseIterable {
     case a,b,c
     
     public var openingPrice: Int {

@@ -179,7 +179,7 @@ When determining the current Market Prices, amounts shown on the market calculat
 ## ENDING THE GAME
 Whe the number of months agreed upon has been reached, players sell any unused Raw Material Certificates to the Broker at the final month's market price.  
 
-The player who has made the most profit for their corporation is the winner.
+The player who has made the most money for their corporation is the winner.
 
 ## VARIATIONS
 When players become familiar with the basic game, they may wish to try the following variations (which may be used separately or together):
