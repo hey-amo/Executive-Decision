@@ -1,6 +1,6 @@
 import Foundation
 
-public struct EDRawMaterialBid: Codable, Equatable {
+public struct EDRawMaterialBid: Codable, Equatable, Sendable {
     public let material: RawMaterial
     public let units: Int
     public let bidPrice: Int
@@ -12,7 +12,7 @@ public struct EDRawMaterialBid: Codable, Equatable {
     }
 }
 
-public struct EDFinishedGoodsOffer: Codable, Equatable {
+public struct EDFinishedGoodsOffer: Codable, Equatable, Sendable {
     public let product: ProductType
     public let units: Int
     public let askPrice: Int
