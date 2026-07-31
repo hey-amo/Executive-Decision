@@ -29,6 +29,12 @@ Prices fluctuate based on supply and demand, making strategic decision-making cr
 
 Players determine what raw materials they need, how many units of each product they will produce, and what prices they are willing to pay and sell at. 
 
+The game plays out a year in the life of your company and, at the start of each month, each player secretly writes down their answer to each of those decisions.
+
+However, your decisions are not made in a vacuum. After everyone has written down their business plan for the month, they all get revealed. And the market reacts.
+
+Using the chart, the cruel, uncaring laws of supply and demand have their way. If a lot of people want to buy a lot of a raw material, its price gets driven up. If it costs more than you were willing to pay, you don’t get any. If people flood the market with a given product, the demand and the price drops. If your price was too high, you don’t sell any.
+
 ### Raw Materials:
 Players bid on raw materials (Standard, Fine, and Extra Fine) to produce their finished goods. 
 

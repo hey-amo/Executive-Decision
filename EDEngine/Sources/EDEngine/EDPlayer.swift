@@ -1,18 +1,70 @@
 import Foundation
 import GameplayKit
 
-public class Player: GKPlayer, Identifiable, Codable, Sendable, TurnOrderPlayer {
+public final class Player: NSObject, GKGameModelPlayer, Identifiable, Codable, @unchecked Sendable, TurnOrderPlayer {
     public typealias ID = UUID
-    public var cash: Int
-    public var isAI: Bool
 
-    public init(playerId: UUID = UUID(), cash: Int = 0, isAI: Bool = false  ) {
+    public let id: UUID
+    public let playerId: Int
+    private let stateLock = NSLock()
+    private var _cash: Int
+    private var _isAI: Bool
+
+    public init(id: UUID = UUID(), playerId: Int, cash: Int = 0, isAI: Bool = false) {
+        self.id = id
         self.playerId = playerId
-        self.cash = cash
-        self.isAI = isAI
+        self._cash = cash
+        self._isAI = isAI
+        super.init()
+    }
+
+    public enum CodingKeys: String, CodingKey {
+        case id
+        case playerId
+        case cash
+        case isAI
+    }
+
+    public required init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.id = try container.decode(UUID.self, forKey: .id)
+        self.playerId = try container.decode(Int.self, forKey: .playerId)
+        self._cash = try container.decode(Int.self, forKey: .cash)
+        self._isAI = try container.decode(Bool.self, forKey: .isAI)
+        super.init()
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(id, forKey: .id)
+        try container.encode(playerId, forKey: .playerId)
+        try container.encode(_cash, forKey: .cash)
+        try container.encode(_isAI, forKey: .isAI)
+    }
+
+    public var cash: Int {
+        get {
+            stateLock.lock(); defer { stateLock.unlock() }
+            return _cash
+        }
+        set {
+            stateLock.lock(); defer { stateLock.unlock() }
+            _cash = newValue
+        }
+    }
+
+    public var isAI: Bool {
+        get {
+            stateLock.lock(); defer { stateLock.unlock() }
+            return _isAI
+        }
+        set {
+            stateLock.lock(); defer { stateLock.unlock() }
+            _isAI = newValue
+        }
     }
 
     public static func == (lhs: Player, rhs: Player) -> Bool {
-        return lhs.playerId == rhs.playerId
+        lhs.playerId == rhs.playerId
     }
 }
