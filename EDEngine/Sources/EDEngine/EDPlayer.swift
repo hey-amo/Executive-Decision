@@ -126,3 +126,5 @@ public final class Player: NSObject, GKGameModelPlayer, Identifiable, Codable, @
         lhs.playerId == rhs.playerId
     }
 }
+
+extension Player: EDRawMaterialHandReceiver {}

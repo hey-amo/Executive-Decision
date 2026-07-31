@@ -49,10 +49,12 @@ AI / game actors
  AIPlayer is empty and not implemented
  AI bidding/production logic absent
  No game loop or turn execution that uses AI or player input
+
 Persistence
  Game-wide save/load beyond Codable support for individual structs
  No persistence API for full ExecutiveDecisionGame
  No disk or storage adapter
+ 
 Rules coverage
  No raw material certificate handling
  No enforcement of “if price drops below $1, stabilize at $1”

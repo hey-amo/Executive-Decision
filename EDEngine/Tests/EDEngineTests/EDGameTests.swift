@@ -56,7 +56,7 @@ final class EDGameTests: XCTestCase {
         ]
 
         let game = ExecutiveDecisionGame.newGame(players: players)
-        let player = game.players[0]
+        let player: Player = game.players[0]
 
         XCTAssertTrue(game.dealRawMaterialCards(to: player, material: .fine, count: 3))
         XCTAssertEqual(player.rawMaterialHand.count, 3)
