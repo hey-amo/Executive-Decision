@@ -9,12 +9,14 @@ public final class Player: NSObject, GKGameModelPlayer, Identifiable, Codable, @
     private let stateLock = NSLock()
     private var _cash: Int
     private var _isAI: Bool
+    private var _tallySheet: EDTallySheet
 
-    public init(id: UUID = UUID(), playerId: Int, cash: Int = 0, isAI: Bool = false) {
+    public init(id: UUID = UUID(), playerId: Int, cash: Int = 0, isAI: Bool = false, tallySheet: EDTallySheet = EDTallySheet()) {
         self.id = id
         self.playerId = playerId
         self._cash = cash
         self._isAI = isAI
+        self._tallySheet = tallySheet
         super.init()
     }
 
@@ -23,6 +25,7 @@ public final class Player: NSObject, GKGameModelPlayer, Identifiable, Codable, @
         case playerId
         case cash
         case isAI
+        case tallySheet
     }
 
     public required init(from decoder: Decoder) throws {
@@ -31,6 +34,7 @@ public final class Player: NSObject, GKGameModelPlayer, Identifiable, Codable, @
         self.playerId = try container.decode(Int.self, forKey: .playerId)
         self._cash = try container.decode(Int.self, forKey: .cash)
         self._isAI = try container.decode(Bool.self, forKey: .isAI)
+        self._tallySheet = try container.decode(EDTallySheet.self, forKey: .tallySheet)
         super.init()
     }
 
@@ -40,6 +44,7 @@ public final class Player: NSObject, GKGameModelPlayer, Identifiable, Codable, @
         try container.encode(playerId, forKey: .playerId)
         try container.encode(_cash, forKey: .cash)
         try container.encode(_isAI, forKey: .isAI)
+        try container.encode(_tallySheet, forKey: .tallySheet)
     }
 
     public var cash: Int {
@@ -61,6 +66,17 @@ public final class Player: NSObject, GKGameModelPlayer, Identifiable, Codable, @
         set {
             stateLock.lock(); defer { stateLock.unlock() }
             _isAI = newValue
+        }
+    }
+
+    public var tallySheet: EDTallySheet {
+        get {
+            stateLock.lock(); defer { stateLock.unlock() }
+            return _tallySheet
+        }
+        set {
+            stateLock.lock(); defer { stateLock.unlock() }
+            _tallySheet = newValue
         }
     }
 

@@ -1,6 +1,6 @@
 import Foundation
 
-public enum RawMaterial: Int, CaseIterable {
+public enum RawMaterial: Int, Codable, CaseIterable {
     case xfine, fine, standard
     
     public var openingPrice: Int {
@@ -22,7 +22,7 @@ extension RawMaterial: CustomStringConvertible {
     }
 }
 
-public enum ProductType: Int, CaseIterable {
+public enum ProductType: Int, Codable, CaseIterable {
     case a,b,c
     
     public var openingPrice: Int {
@@ -123,6 +123,8 @@ public struct EDMainBoardReference {
         )
     }
 }
+
+// MARK: EDGameSetup
 
 public struct EDGameSetup {
     public let months: [EDGameMonth]
