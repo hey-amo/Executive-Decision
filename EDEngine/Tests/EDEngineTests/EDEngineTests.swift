@@ -39,4 +39,28 @@ final class EDEngineTests: XCTestCase {
         XCTAssertEqual(setup.boardReference.finishedGoodsOpeningPrices[.b], 115)
         XCTAssertEqual(setup.boardReference.finishedGoodsOpeningPrices[.c], 90)
     }
+
+    func testBankCreditThrowsForNegativeAmount() {
+        let bank = EDBank(cash: 100)
+
+        XCTAssertThrowsError(try bank.credit(amount: -10)) { error in
+            XCTAssertEqual(error as? EDValueError, .numericBelowZero(value: -10))
+        }
+    }
+
+    func testBankDebitThrowsForNegativeAmount() {
+        let bank = EDBank(cash: 100)
+
+        XCTAssertThrowsError(try bank.debit(amount: -5)) { error in
+            XCTAssertEqual(error as? EDValueError, .numericBelowZero(value: -5))
+        }
+    }
+
+    func testBankDebitThrowsForInsufficientFunds() {
+        let bank = EDBank(cash: 20)
+
+        XCTAssertThrowsError(try bank.debit(amount: 50)) { error in
+            XCTAssertEqual(error as? EDValueError, .insufficientFunds(required: 50, available: 20))
+        }
+    }
 }

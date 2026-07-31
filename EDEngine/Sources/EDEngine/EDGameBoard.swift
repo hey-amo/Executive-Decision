@@ -1,5 +1,39 @@
 import Foundation
 
+public enum RawMaterial: Int, CaseIterable {
+    case xfine, fine, standard
+    
+    public var openingPrice: Int {
+        switch self {
+        case .xfine: return 40
+        case .fine: return 30
+        case .standard: return 20
+        }
+    }
+}
+
+extension RawMaterial: CustomStringConvertible {
+    public var description: String {
+        switch self {
+        case .xfine: return "X-Fine"
+        case .fine: return "Fine"
+        case .standard: return "Standard"
+        }
+    }
+}
+
+public enum ProductType: Int, CaseIterable {
+    case a,b,c
+    
+    public var openingPrice: Int {
+        switch self {
+        case .a: return 140
+        case .b: return 115
+        case .c: return 90
+        }
+    }
+}
+
 public enum EDPlayPhase: CaseIterable, Equatable {
     case purchase
     case manufacture
