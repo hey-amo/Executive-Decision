@@ -43,10 +43,10 @@ final class EDGameTests: XCTestCase {
 
         let game = ExecutiveDecisionGame.newGame(players: players)
 
-        XCTAssertEqual(game.rawMaterialDeck.totalCards, 84)
-        XCTAssertEqual(game.rawMaterialDeck.materialCounts[.xfine], 28)
-        XCTAssertEqual(game.rawMaterialDeck.materialCounts[.fine], 28)
-        XCTAssertEqual(game.rawMaterialDeck.materialCounts[.standard], 28)
+        XCTAssertEqual(game.cardManager.deck.totalCards, 84)
+        XCTAssertEqual(game.cardManager.deck.materialCounts[.xfine], 28)
+        XCTAssertEqual(game.cardManager.deck.materialCounts[.fine], 28)
+        XCTAssertEqual(game.cardManager.deck.materialCounts[.standard], 28)
     }
 
     func testDealRawMaterialCardsAddsToPlayerHand() {
@@ -60,8 +60,8 @@ final class EDGameTests: XCTestCase {
 
         XCTAssertTrue(game.dealRawMaterialCards(to: player, material: .fine, count: 3))
         XCTAssertEqual(player.rawMaterialHand.count, 3)
-        XCTAssertEqual(player.rawMaterialHandCounts[.fine], 3)
-        XCTAssertEqual(game.rawMaterialDeck.materialCounts[.fine], 25)
+        XCTAssertEqual(player.rawMaterialHand.materialCounts[.fine], 3)
+        XCTAssertEqual(game.cardManager.deck.materialCounts[.fine], 25)
     }
 
     func testNewGamePreservesPlayerSetAndRandomizesStartPlayer() {

@@ -11,9 +11,9 @@ public final class Player: NSObject, GKGameModelPlayer, Identifiable, Codable, @
     private var _isAI: Bool
     private var _tallySheet: EDTallySheet
     private var _bidSession: EDPlayerBidSession
-    private var _rawMaterialHand: [EDRawMaterialCard]
+    private var _rawMaterialHand: EDRawMaterialHand
 
-    public init(id: UUID = UUID(), playerId: Int, cash: Int = 0, isAI: Bool = false, tallySheet: EDTallySheet = EDTallySheet(), bidSession: EDPlayerBidSession = EDPlayerBidSession(monthIndex: 1), rawMaterialHand: [EDRawMaterialCard] = []) {
+    public init(id: UUID = UUID(), playerId: Int, cash: Int = 0, isAI: Bool = false, tallySheet: EDTallySheet = EDTallySheet(), bidSession: EDPlayerBidSession = EDPlayerBidSession(monthIndex: 1), rawMaterialHand: EDRawMaterialHand = EDRawMaterialHand()) {
         self.id = id
         self.playerId = playerId
         self._cash = cash
@@ -42,7 +42,7 @@ public final class Player: NSObject, GKGameModelPlayer, Identifiable, Codable, @
         self._isAI = try container.decode(Bool.self, forKey: .isAI)
         self._tallySheet = try container.decode(EDTallySheet.self, forKey: .tallySheet)
         self._bidSession = try container.decode(EDPlayerBidSession.self, forKey: .bidSession)
-        self._rawMaterialHand = try container.decode([EDRawMaterialCard].self, forKey: .rawMaterialHand)
+        self._rawMaterialHand = try container.decode(EDRawMaterialHand.self, forKey: .rawMaterialHand)
         super.init()
     }
 
@@ -101,7 +101,7 @@ public final class Player: NSObject, GKGameModelPlayer, Identifiable, Codable, @
         }
     }
 
-    public var rawMaterialHand: [EDRawMaterialCard] {
+    public var rawMaterialHand: EDRawMaterialHand {
         get {
             stateLock.lock(); defer { stateLock.unlock() }
             return _rawMaterialHand
@@ -112,39 +112,9 @@ public final class Player: NSObject, GKGameModelPlayer, Identifiable, Codable, @
         }
     }
 
-    public var rawMaterialHandCounts: [RawMaterial: Int] {
+    public func didUpdateRawMaterialHand(_ hand: EDRawMaterialHand) {
         stateLock.lock(); defer { stateLock.unlock() }
-        return _rawMaterialHand.reduce(into: [RawMaterial: Int]()) { counts, card in
-            counts[card.material, default: 0] += 1
-        }
-    }
-
-    public func receiveRawMaterialCards(_ cards: [EDRawMaterialCard]) {
-        stateLock.lock(); defer { stateLock.unlock() }
-        _rawMaterialHand.append(contentsOf: cards)
-    }
-
-    public func removeRawMaterialCards(of material: RawMaterial, count: Int) -> [EDRawMaterialCard]? {
-        stateLock.lock()
-        defer { stateLock.unlock() }
-
-        guard count > 0 else { return [] }
-        var removed: [EDRawMaterialCard] = []
-        var remaining: [EDRawMaterialCard] = []
-        var toRemove = count
-
-        for card in _rawMaterialHand {
-            if card.material == material && toRemove > 0 {
-                removed.append(card)
-                toRemove -= 1
-            } else {
-                remaining.append(card)
-            }
-        }
-
-        guard toRemove == 0 else { return nil }
-        _rawMaterialHand = remaining
-        return removed
+        _rawMaterialHand = hand
     }
 
     public func canSubmitBid(playersCount: Int) -> Bool {

@@ -39,7 +39,7 @@ public final class ExecutiveDecisionGame {
     public private(set) var players: [Player]
     public private(set) var gameHistory: EDGameHistory
     public private(set) var turnOrderManager: TurnOrderManager<Player>
-    public private(set) var rawMaterialDeck: EDRawMaterialDeck
+    public private(set) var cardManager: EDRawMaterialCardManager
     public private(set) var currentMonthIndex: Int
     public let setup: EDGameSetup
     public let boardReference: EDMainBoardReference
@@ -48,12 +48,12 @@ public final class ExecutiveDecisionGame {
         setup.months[currentMonthIndex]
     }
 
-    public init(players: [Player], setup: EDGameSetup, turnOrderManager: TurnOrderManager<Player>, rawMaterialDeck: EDRawMaterialDeck, phase: GamePhase = .setup, state: GameState = .setup, decisionState: DecisionState = .idle, currentMonthIndex: Int = 0, gameHistory: EDGameHistory = EDGameHistory()) {
+    public init(players: [Player], setup: EDGameSetup, turnOrderManager: TurnOrderManager<Player>, cardManager: EDRawMaterialCardManager, phase: GamePhase = .setup, state: GameState = .setup, decisionState: DecisionState = .idle, currentMonthIndex: Int = 0, gameHistory: EDGameHistory = EDGameHistory()) {
         self.players = players
         self.setup = setup
         self.boardReference = setup.boardReference
         self.turnOrderManager = turnOrderManager
-        self.rawMaterialDeck = rawMaterialDeck
+        self.cardManager = cardManager
         self.phase = phase
         self.state = state
         self.decisionState = decisionState
@@ -73,17 +73,12 @@ public final class ExecutiveDecisionGame {
         gameHistory.clear()
     }
 
-    public func dealRawMaterialCards(to player: Player, material: RawMaterial, count: Int) -> Bool {
-        guard let cards = rawMaterialDeck.drawCards(of: material, count: count) else {
-            return false
-        }
-
-        player.receiveRawMaterialCards(cards)
-        return true
+    public func dealRawMaterialCards(to receiver: EDRawMaterialHandReceiver, material: RawMaterial, count: Int) -> Bool {
+        cardManager.dealCards(to: receiver, material: material, count: count)
     }
 
     public func drawRawMaterialCards(of material: RawMaterial, count: Int) -> [EDRawMaterialCard]? {
-        rawMaterialDeck.drawCards(of: material, count: count)
+        cardManager.drawCards(of: material, count: count)
     }
 
     public static func newGame(players: [Player], monthCount: Int = 12) -> ExecutiveDecisionGame {
@@ -102,7 +97,7 @@ public final class ExecutiveDecisionGame {
             players: shuffledPlayers,
             setup: setup,
             turnOrderManager: turnOrderManager,
-            rawMaterialDeck: EDRawMaterialDeck.standardDeck(),
+            cardManager: EDRawMaterialCardManager(),
             phase: .setup,
             state: .setup,
             decisionState: .idle,
