@@ -11,14 +11,16 @@ public final class Player: NSObject, GKGameModelPlayer, Identifiable, Codable, @
     private var _isAI: Bool
     private var _tallySheet: EDTallySheet
     private var _bidSession: EDPlayerBidSession
+    private var _rawMaterialHand: [EDRawMaterialCard]
 
-    public init(id: UUID = UUID(), playerId: Int, cash: Int = 0, isAI: Bool = false, tallySheet: EDTallySheet = EDTallySheet(), bidSession: EDPlayerBidSession = EDPlayerBidSession(monthIndex: 1)) {
+    public init(id: UUID = UUID(), playerId: Int, cash: Int = 0, isAI: Bool = false, tallySheet: EDTallySheet = EDTallySheet(), bidSession: EDPlayerBidSession = EDPlayerBidSession(monthIndex: 1), rawMaterialHand: [EDRawMaterialCard] = []) {
         self.id = id
         self.playerId = playerId
         self._cash = cash
         self._isAI = isAI
         self._tallySheet = tallySheet
         self._bidSession = bidSession
+        self._rawMaterialHand = rawMaterialHand
         super.init()
     }
 
@@ -29,6 +31,7 @@ public final class Player: NSObject, GKGameModelPlayer, Identifiable, Codable, @
         case isAI
         case tallySheet
         case bidSession
+        case rawMaterialHand
     }
 
     public required init(from decoder: Decoder) throws {
@@ -39,6 +42,7 @@ public final class Player: NSObject, GKGameModelPlayer, Identifiable, Codable, @
         self._isAI = try container.decode(Bool.self, forKey: .isAI)
         self._tallySheet = try container.decode(EDTallySheet.self, forKey: .tallySheet)
         self._bidSession = try container.decode(EDPlayerBidSession.self, forKey: .bidSession)
+        self._rawMaterialHand = try container.decode([EDRawMaterialCard].self, forKey: .rawMaterialHand)
         super.init()
     }
 
@@ -50,6 +54,7 @@ public final class Player: NSObject, GKGameModelPlayer, Identifiable, Codable, @
         try container.encode(_isAI, forKey: .isAI)
         try container.encode(_tallySheet, forKey: .tallySheet)
         try container.encode(_bidSession, forKey: .bidSession)
+        try container.encode(_rawMaterialHand, forKey: .rawMaterialHand)
     }
 
     public var cash: Int {
@@ -94,6 +99,52 @@ public final class Player: NSObject, GKGameModelPlayer, Identifiable, Codable, @
             stateLock.lock(); defer { stateLock.unlock() }
             _bidSession = newValue
         }
+    }
+
+    public var rawMaterialHand: [EDRawMaterialCard] {
+        get {
+            stateLock.lock(); defer { stateLock.unlock() }
+            return _rawMaterialHand
+        }
+        set {
+            stateLock.lock(); defer { stateLock.unlock() }
+            _rawMaterialHand = newValue
+        }
+    }
+
+    public var rawMaterialHandCounts: [RawMaterial: Int] {
+        stateLock.lock(); defer { stateLock.unlock() }
+        return _rawMaterialHand.reduce(into: [RawMaterial: Int]()) { counts, card in
+            counts[card.material, default: 0] += 1
+        }
+    }
+
+    public func receiveRawMaterialCards(_ cards: [EDRawMaterialCard]) {
+        stateLock.lock(); defer { stateLock.unlock() }
+        _rawMaterialHand.append(contentsOf: cards)
+    }
+
+    public func removeRawMaterialCards(of material: RawMaterial, count: Int) -> [EDRawMaterialCard]? {
+        stateLock.lock()
+        defer { stateLock.unlock() }
+
+        guard count > 0 else { return [] }
+        var removed: [EDRawMaterialCard] = []
+        var remaining: [EDRawMaterialCard] = []
+        var toRemove = count
+
+        for card in _rawMaterialHand {
+            if card.material == material && toRemove > 0 {
+                removed.append(card)
+                toRemove -= 1
+            } else {
+                remaining.append(card)
+            }
+        }
+
+        guard toRemove == 0 else { return nil }
+        _rawMaterialHand = remaining
+        return removed
     }
 
     public func canSubmitBid(playersCount: Int) -> Bool {

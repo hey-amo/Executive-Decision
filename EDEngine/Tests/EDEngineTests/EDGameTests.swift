@@ -35,6 +35,35 @@ final class EDGameTests: XCTestCase {
         XCTAssertTrue(game.players.allSatisfy { $0.cash == 900 })
     }
 
+    func testNewGameInitializesRawMaterialDeck() {
+        let players = [
+            Player(playerId: 1, cash: 0),
+            Player(playerId: 2, cash: 0)
+        ]
+
+        let game = ExecutiveDecisionGame.newGame(players: players)
+
+        XCTAssertEqual(game.rawMaterialDeck.totalCards, 84)
+        XCTAssertEqual(game.rawMaterialDeck.materialCounts[.xfine], 28)
+        XCTAssertEqual(game.rawMaterialDeck.materialCounts[.fine], 28)
+        XCTAssertEqual(game.rawMaterialDeck.materialCounts[.standard], 28)
+    }
+
+    func testDealRawMaterialCardsAddsToPlayerHand() {
+        let players = [
+            Player(playerId: 1, cash: 0),
+            Player(playerId: 2, cash: 0)
+        ]
+
+        let game = ExecutiveDecisionGame.newGame(players: players)
+        let player = game.players[0]
+
+        XCTAssertTrue(game.dealRawMaterialCards(to: player, material: .fine, count: 3))
+        XCTAssertEqual(player.rawMaterialHand.count, 3)
+        XCTAssertEqual(player.rawMaterialHandCounts[.fine], 3)
+        XCTAssertEqual(game.rawMaterialDeck.materialCounts[.fine], 25)
+    }
+
     func testNewGamePreservesPlayerSetAndRandomizesStartPlayer() {
         let players = [
             Player(playerId: 1, cash: 0),

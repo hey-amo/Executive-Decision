@@ -22,6 +22,77 @@ extension RawMaterial: CustomStringConvertible {
     }
 }
 
+public struct EDRawMaterialCard: Codable, Equatable, Sendable, Hashable {
+    public let material: RawMaterial
+
+    public init(material: RawMaterial) {
+        self.material = material
+    }
+}
+
+public struct EDRawMaterialDeck: Codable, Equatable, Sendable {
+    public static let cardsPerGrade: Int = 28
+    public private(set) var cards: [EDRawMaterialCard]
+
+    public init(cards: [EDRawMaterialCard] = []) {
+        self.cards = cards
+    }
+
+    public static func standardDeck() -> EDRawMaterialDeck {
+        let cards = RawMaterial.allCases.flatMap { material in
+            Array(repeating: EDRawMaterialCard(material: material), count: cardsPerGrade)
+        }
+        return EDRawMaterialDeck(cards: cards)
+    }
+
+    public var totalCards: Int {
+        cards.count
+    }
+
+    public var materialCounts: [RawMaterial: Int] {
+        cards.reduce(into: [RawMaterial: Int]()) { counts, card in
+            counts[card.material, default: 0] += 1
+        }
+    }
+
+    public var isEmpty: Bool {
+        cards.isEmpty
+    }
+
+    public mutating func drawCard() -> EDRawMaterialCard? {
+        guard !cards.isEmpty else { return nil }
+        return cards.removeFirst()
+    }
+
+    public mutating func drawCards(count: Int) -> [EDRawMaterialCard] {
+        guard count > 0 else { return [] }
+        let drawn = Array(cards.prefix(count))
+        cards.removeFirst(min(count, cards.count))
+        return drawn
+    }
+
+    public mutating func drawCards(of material: RawMaterial, count: Int) -> [EDRawMaterialCard]? {
+        guard count > 0 else { return [] }
+
+        var drawn: [EDRawMaterialCard] = []
+        var remaining: [EDRawMaterialCard] = []
+        var toDraw = count
+
+        for card in cards {
+            if card.material == material && toDraw > 0 {
+                drawn.append(card)
+                toDraw -= 1
+            } else {
+                remaining.append(card)
+            }
+        }
+
+        guard toDraw == 0 else { return nil }
+        cards = remaining
+        return drawn
+    }
+}
+
 public enum ProductType: Int, Codable, Sendable, CaseIterable {
     case a,b,c
     

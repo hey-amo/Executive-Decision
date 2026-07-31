@@ -38,11 +38,13 @@ finished goods market resolution
 sales success rules based on market price
  No broker/market clearing logic
  No final end-of-game profit tally or winner selection
+
 Bid & tally integration
  Finished goods offer validation is present in bid session storage but not fully enforced
  Tally sheet update on bid submission and result resolution is not integrated
  No cross-player “all ready” synchronization workflow in game engine
  No explicit game state transition for “waiting for all players to be ready”
+
 AI / game actors
  AIPlayer is empty and not implemented
  AI bidding/production logic absent
