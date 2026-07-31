@@ -42,11 +42,7 @@ Players bid on the raw materials they want and the prices they are willing to se
 Prices for raw materials and finished goods are determined by the total number of bids and purchases, creating a dynamic pricing environment. 
 
 ### Profit:
-The goal is to maximize profit by making strategic decisions about raw material purchases, production levels, and selling prices. 
-
-Easy to learn, but interesting strategies. Somewhat mechanical, but a good game by "Sid Sackson".
-
-@BGG Link: https://boardgamegeek.com/boardgame/1518/executive-decision 
+The goal is to maximise profit by making strategic decisions about raw material purchases, production levels, and selling prices. 
 
 --
 
