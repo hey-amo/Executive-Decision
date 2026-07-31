@@ -34,16 +34,6 @@ public enum ProductType: Int, Codable, CaseIterable {
     }
 }
 
-public enum EDPlayPhase: CaseIterable, Equatable {
-    case purchase
-    case manufacture
-    case selling
-
-    public static var allPhases: [EDPlayPhase] {
-        Self.allCases
-    }
-}
-
 public struct EDMarketCalculator {
     public static let rawMaterialUnits = Array(0...24)
     public static let rawMaterialMovements = [-10, -9, -8, -7, -6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]

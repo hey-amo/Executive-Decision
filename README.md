@@ -124,7 +124,7 @@ Number of Players	 	Total Per Player
 	5			 7 units 
 	6			 6 Units 
 
-When two play, no player may order more than 12 units of one grade of MaterIal.
+When two play, no player may order more than 12 units of one grade of Material.
 
 When all bids have been recorded. each player, in turn. announces how many units of X-FINE Material he has ordered.
 

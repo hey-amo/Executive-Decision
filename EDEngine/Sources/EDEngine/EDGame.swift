@@ -1,15 +1,35 @@
 import Foundation
 
-public enum GamePhase: Int, Codable, Sendable, Equatable {
+// Executive Decision Game
+/**
+Game is over 12 rounds (months). 2-6 players.
+Most money wins.
+Each month of play consists of: 
+1. Purchase: Purchasing Raw Materials which are used in 
+2. Manufacturing: Manufacturing the products of your choice and 
+3. Selling: Selling of Finished Goods in an attempt to make the greatest profits for your corporation. 
+*/
+
+public enum GamePhase: Int, CaseIterable, Codable, Sendable, Equatable {
     case setup, main, gameOver
 }
 
-public enum GameState: Sendable, Equatable {
+public enum GameState: CaseIterable, Sendable, Equatable {
     case setup, running, paused, finished
 }
 
-public enum DecisionState: Sendable, Equatable {
+public enum DecisionState: CaseIterable, Sendable, Equatable {
     case idle, thinking, playing, completed
+}
+
+public enum EDPlayPhase: CaseIterable, Equatable {
+    case purchase
+    case manufacture
+    case selling
+
+    public static var allPhases: [EDPlayPhase] {
+        Self.allCases
+    }
 }
 
 public final class ExecutiveDecisionGame {
@@ -17,6 +37,7 @@ public final class ExecutiveDecisionGame {
     public private(set) var state: GameState
     public private(set) var decisionState: DecisionState
     public private(set) var players: [Player]
+    public private(set) var gameMessageLog: [String]
     public private(set) var turnOrderManager: TurnOrderManager<Player>
     public private(set) var currentMonthIndex: Int
     public let setup: EDGameSetup
@@ -26,7 +47,7 @@ public final class ExecutiveDecisionGame {
         setup.months[currentMonthIndex]
     }
 
-    public init(players: [Player], setup: EDGameSetup, turnOrderManager: TurnOrderManager<Player>, phase: GamePhase = .setup, state: GameState = .setup, decisionState: DecisionState = .idle, currentMonthIndex: Int = 0) {
+    public init(players: [Player], setup: EDGameSetup, turnOrderManager: TurnOrderManager<Player>, phase: GamePhase = .setup, state: GameState = .setup, decisionState: DecisionState = .idle, currentMonthIndex: Int = 0, gameMessageLog: [EDGameMessage] = []()) {
         self.players = players
         self.setup = setup
         self.boardReference = setup.boardReference
@@ -35,6 +56,7 @@ public final class ExecutiveDecisionGame {
         self.state = state
         self.decisionState = decisionState
         self.currentMonthIndex = currentMonthIndex
+        self.gameMessageLog = gameMessageLog
     }
 
     public func isGameOver() -> Bool {
