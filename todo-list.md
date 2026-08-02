@@ -2,9 +2,7 @@
  Core game object and setup builder
  Player model with cash, tally sheet, bid session, thread-safe properties
  Dedicated bid session states (thinking, ready)
- Raw material bid validation for:
-unit limits
-per-grade limit in 2-player games
+ Raw material bid validation for: unit limits per-grade limit in 2-player games
 minimum bid price
 cash affordability
  Tally sheet serialization and monthly record storage
