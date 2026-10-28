@@ -8,6 +8,14 @@
 import XCTest
 @testable import EDEngine
 
+private final class DummyPlayer: UpdateWalletDelegate {
+    var coins = 0
+
+    func walletDidUpdate(balance: Int) {
+        coins = balance
+    }
+}
+
 final class EDWalletAPITests: XCTestCase {
 
     func testCreditAddsAmountToBalance() throws {
@@ -116,5 +124,17 @@ final class EDWalletAPITests: XCTestCase {
             XCTAssertEqual(error as? IntegerError, .notEnoughFunds)
         }
         XCTAssertEqual(wallet.balance, 0)
+    }
+
+    func testDelegateTracksPlayerCoinsAfterCreditAndDebit() throws {
+        var wallet = try WalletAPI(_balance: 0)
+        let player = DummyPlayer()
+
+        try wallet.apply(t: .credit(100), notifying: player)
+        XCTAssertEqual(player.coins, 100)
+
+        try wallet.apply(t: .debit(50), notifying: player)
+        XCTAssertEqual(player.coins, 50)
+        XCTAssertEqual(wallet.balance, 50)
     }
 }

@@ -13,6 +13,10 @@ public enum IntegerError: Error, Equatable {
     case maximumBalanceExceeded
 }
 
+public protocol UpdateWalletDelegate: AnyObject {
+    func walletDidUpdate(balance: Int)
+}
+
 public enum Transaction {
     case credit(_ amount: Int)
     case debit(_ amount: Int)
@@ -45,6 +49,11 @@ public struct WalletAPI {
         case .debit(let amount):
             try self.debit(amount)
         }
+    }
+
+    public mutating func apply(t: Transaction, notifying delegate: UpdateWalletDelegate) throws {
+        try self.apply(t: t)
+        delegate.walletDidUpdate(balance: self.balance)
     }
     
     private mutating func credit(_ amount: Int = 0) throws {
