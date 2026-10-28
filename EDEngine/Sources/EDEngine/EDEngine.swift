@@ -2,3 +2,5 @@
 // Swift package
 
 
+public enum GameConstants {
+}
