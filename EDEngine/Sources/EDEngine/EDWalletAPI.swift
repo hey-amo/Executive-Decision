@@ -6,13 +6,11 @@
 //
 import Foundation
 
-// Handles in game 'banking' like features:
-// credit,
-// debit
-
-public enum IntegerError {
+public enum IntegerError: Error, Equatable {
     case negativeNumber
+    case zeroAmount
     case notEnoughFunds
+    case maximumBalanceExceeded
 }
 
 public enum Transaction {
@@ -23,12 +21,20 @@ public enum Transaction {
 public typealias Bank = WalletAPI
 
 public struct WalletAPI {
+    public static let maximumBalance = 100_000
+
     private var _balance: Int = 0
     public var balance: Int {
         get { return self._balance }
     }
     
-    public init(_balance: Int) {
+    public init(_balance: Int) throws {
+        guard _balance >= 0 else {
+            throw IntegerError.negativeNumber
+        }
+        guard _balance <= Self.maximumBalance else {
+            throw IntegerError.maximumBalanceExceeded
+        }
         self._balance = _balance
     }
         
@@ -42,13 +48,29 @@ public struct WalletAPI {
     }
     
     private mutating func credit(_ amount: Int = 0) throws {
-        guard amount > 0 else { return }
+        guard amount >= 0 else {
+            throw IntegerError.negativeNumber
+        }
+        guard amount > 0 else {
+            throw IntegerError.zeroAmount
+        }
+
+        guard amount <= Self.maximumBalance - self._balance else {
+            throw IntegerError.maximumBalanceExceeded
+        }
         self._balance += amount
     }
     
     public mutating func debit(_ amount: Int = 0) throws {
-        guard amount > 0 else { return }
-        guard _balance >= amount else { return }
+        guard amount >= 0 else {
+            throw IntegerError.negativeNumber
+        }
+        guard amount > 0 else {
+            throw IntegerError.zeroAmount
+        }
+        guard _balance >= amount else {
+            throw IntegerError.notEnoughFunds
+        }
         self._balance -= amount
     }
 }
