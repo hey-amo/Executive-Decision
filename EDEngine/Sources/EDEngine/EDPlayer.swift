@@ -22,13 +22,13 @@ public class EDPlayer: GKPlayer, Identifiable {
     public var tallySheet = EDTallySheet()
     private var coins: Int = 0
     public var isBankrupt: Bool = false // not implemented
-    public var loans: [EDLoan] = []
+    public var loans: [EDLoanEntry] = []
 
     public init(name: String, 
         avatar: Avatar? = nil, 
         coins: Int = 0, 
         isBankrupt: Bool = false,
-        loans: [EDLoan] = []) {
+        loans: [EDLoanEntry] = []) {
         self.name = name
         self.avatar = avatar
         self.coins = coins

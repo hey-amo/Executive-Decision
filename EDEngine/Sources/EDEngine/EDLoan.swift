@@ -1,5 +1,5 @@
-// EDLoan.swift
+// EDLoanEntry.swift
 
-public struct EDLoan: Codable, Equatable, Sendable {
+public struct EDLoanEntry: Codable, Equatable, Sendable {
     public let amount: Int
 }
