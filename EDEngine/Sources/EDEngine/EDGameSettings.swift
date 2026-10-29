@@ -1,4 +1,4 @@
-// gamae settings
+// In-game settings
 
 public struct EDGameSettings: Sendable {
     public var allowLoans: Bool

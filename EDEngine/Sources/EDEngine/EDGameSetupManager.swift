@@ -13,11 +13,14 @@ extension EDGameSetupError: LocalizedError {
     public var errorDescription: String? {
         switch self {
         case .invalidPlayerCount(let count):
-            return "Invalid player count: \(count). Must be between \(kConstants.minPlayers) and \(kConstants.maxPlayers)."
+            let msg: String = "Invalid player count: \(count). Must be between \(kConstants.minPlayers) and \(kConstants.maxPlayers)."
+            return NSLocalizedString("invalidPlayerCount", value: msg, comment: "invalidPlayerCount")
         case .invalidGameDuration(let duration):
-            return "Invalid game duration: \(duration). Must be either \(kConstants.durationShortGame) or \(kConstants.durationLongGame) months."
+            let msg = "Invalid game duration: \(duration). Must be either \(kConstants.durationShortGame) or \(kConstants.durationLongGame) months."
+            return NSLocalizedString("invalidGameDuration", value: msg, comment: "invalidGameDuration")
         case .gameAlreadyInProgress:
-            return "A game is already in progress."
+            let msg = "A game is already in progress."
+            return NSLocalizedString("gameAlreadyInProgress", value: msg, comment: "gameAlreadyInProgress")
         }
     }
 }
