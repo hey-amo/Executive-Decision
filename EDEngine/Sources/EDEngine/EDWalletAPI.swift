@@ -37,26 +37,34 @@ public enum Transaction {
 
 public typealias Bank = WalletAPI
 
-public struct WalletAPI {
-    public static let allowNegativeNumbers = false
+public struct WalletAPI {    
+    public static let allowNegativeBalance = false
     public static let minimumBalance = -5000
     public static let maximumBalance = 100_000
 
+    public let allowsNegativeBalance: Bool
     private var _balance: Int = 0
     public var balance: Int {
         get { return self._balance }
     }
     
     public init(_balance: Int) throws {
-        guard _balance >= 0 else {
-            throw IntegerError.negativeNumber
+        if Self.allowNegativeBalance {
+            guard _balance >= Self.minimumBalance else {
+                throw IntegerError.minBalancedReached
+            }
+        } else {
+            guard _balance >= 0 else {
+                throw IntegerError.negativeNumber
+            }
         }
         guard _balance <= Self.maximumBalance else {
             throw IntegerError.maxBalancedReached
         }
+        self.allowsNegativeBalance = Self.allowNegativeBalance
         self._balance = _balance
     }
-        
+
     public mutating func apply(t: Transaction) throws {
         switch t {
         case .credit(let amount):
@@ -70,7 +78,8 @@ public struct WalletAPI {
         try self.apply(t: t)
         delegate.walletDidUpdate(balance: self.balance)
     }
-    
+
+    // Cannot credit negative or zero amounts, or exceed the maximum balance.
     private mutating func credit(_ amount: Int = 0) throws {
         guard amount >= 0 else {
             throw IntegerError.negativeNumber
@@ -84,7 +93,8 @@ public struct WalletAPI {
         }
         self._balance += amount
     }
-    
+
+    // Cannot debit negative or zero amounts. Negative balances are bounded by minimumBalance.
     public mutating func debit(_ amount: Int = 0) throws {
         guard amount >= 0 else {
             throw IntegerError.negativeNumber
@@ -92,8 +102,15 @@ public struct WalletAPI {
         guard amount > 0 else {
             throw IntegerError.zeroAmount
         }
-        guard _balance >= amount else {
-            throw IntegerError.notEnoughFunds
+
+        if allowsNegativeBalance {
+            guard amount <= _balance - Self.minimumBalance else {
+                throw IntegerError.minBalancedReached
+            }
+        } else {
+            guard amount <= _balance else {
+                throw IntegerError.notEnoughFunds
+            }
         }
         self._balance -= amount
     }

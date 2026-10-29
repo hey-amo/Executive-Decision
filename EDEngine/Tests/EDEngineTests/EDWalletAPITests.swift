@@ -40,6 +40,24 @@ final class EDWalletAPITests: XCTestCase {
         }
     }
 
+    func testNegativeInitialBalanceIsAllowedWhenConfigured() throws {
+        let wallet = try WalletAPI(_balance: -100, allowNegativeBalance: true)
+
+        XCTAssertEqual(wallet.balance, -100)
+        XCTAssertTrue(wallet.allowsNegativeBalance)
+    }
+
+    func testInitialBalanceBelowMinimumThrowsWhenNegativeBalancesAreAllowed() {
+        XCTAssertThrowsError(
+            try WalletAPI(
+                _balance: WalletAPI.minimumBalance - 1,
+                allowNegativeBalance: true
+            )
+        ) { error in
+            XCTAssertEqual(error as? IntegerError, .minBalancedReached)
+        }
+    }
+
     func testNegativeCreditThrowsWithoutChangingBalance() throws {
         var wallet = try WalletAPI(_balance: 100)
 
@@ -47,6 +65,15 @@ final class EDWalletAPITests: XCTestCase {
             XCTAssertEqual(error as? IntegerError, .negativeNumber)
         }
         XCTAssertEqual(wallet.balance, 100)
+    }
+
+    func testNegativeCreditIsRejectedWhenNegativeBalancesAreAllowed() throws {
+        var wallet = try WalletAPI(_balance: -100, allowNegativeBalance: true)
+
+        XCTAssertThrowsError(try wallet.apply(t: .credit(-1))) { error in
+            XCTAssertEqual(error as? IntegerError, .negativeNumber)
+        }
+        XCTAssertEqual(wallet.balance, -100)
     }
 
     func testNegativeDebitThrowsWithoutChangingBalance() throws {
@@ -73,6 +100,32 @@ final class EDWalletAPITests: XCTestCase {
         try wallet.debit(50)
 
         XCTAssertEqual(wallet.balance, 0)
+    }
+
+    func testDebitCanReduceBalanceToMinimumWhenNegativeBalancesAreAllowed() throws {
+        var wallet = try WalletAPI(_balance: 0, allowNegativeBalance: true)
+
+        try wallet.debit(-WalletAPI.minimumBalance)
+
+        XCTAssertEqual(wallet.balance, WalletAPI.minimumBalance)
+    }
+
+    func testDebitCannotReduceBalanceBelowMinimumWhenNegativeBalancesAreAllowed() throws {
+        var wallet = try WalletAPI(_balance: 0, allowNegativeBalance: true)
+
+        XCTAssertThrowsError(try wallet.debit(-WalletAPI.minimumBalance + 1)) { error in
+            XCTAssertEqual(error as? IntegerError, .minBalancedReached)
+        }
+        XCTAssertEqual(wallet.balance, 0)
+    }
+
+    func testDebitFromNegativeBalanceCannotCrossMinimum() throws {
+        var wallet = try WalletAPI(_balance: -4_900, allowNegativeBalance: true)
+
+        XCTAssertThrowsError(try wallet.debit(101)) { error in
+            XCTAssertEqual(error as? IntegerError, .minBalancedReached)
+        }
+        XCTAssertEqual(wallet.balance, -4_900)
     }
 
     func testInitialBalanceAboveMaximumThrows() {
