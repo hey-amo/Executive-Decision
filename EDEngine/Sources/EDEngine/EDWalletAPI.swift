@@ -50,7 +50,7 @@ public struct EDWalletAPI {
     
     public init(_ balance: Int = 0, allowNegativeBalance: Bool = false) throws {
         if allowNegativeBalance {
-            guard _balance >= Self.minimumBalance else {
+            guard balance >= Self.minimumBalance else {
                 throw IntegerError.minBalancedReached
             }
         } else {
@@ -63,6 +63,10 @@ public struct EDWalletAPI {
         }
         self.allowsNegativeBalance = allowNegativeBalance
         self._balance = balance
+    }
+
+    public init(_balance: Int, allowNegativeBalance: Bool = false) throws {
+        try self.init(_balance, allowNegativeBalance: allowNegativeBalance)
     }
 
     public mutating func apply(t: Transaction) throws {
