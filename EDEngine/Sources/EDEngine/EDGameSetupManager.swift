@@ -22,17 +22,12 @@ extension EDGameSetupError: LocalizedError {
     }
 }
 
-public final class EDGameSetupManager: @unchecked Sendable {
-    public static let shared = EDGameSetupManager()
-
-    private let lock = NSLock()
+public final class EDGameSetupManager {
     private var storedActiveGame: ExecutiveDecisionGame?
 
-    private init() {}
+    public init() {}
 
     public var activeGame: ExecutiveDecisionGame? {
-        lock.lock()
-        defer { lock.unlock() }
         return storedActiveGame
     }
 
@@ -42,9 +37,6 @@ public final class EDGameSetupManager: @unchecked Sendable {
         settings: EDGameSettings = EDGameSettings()
     ) throws -> ExecutiveDecisionGame {
         try Self.validate(playerCount: playerCount, durationMonths: durationMonths)
-
-        lock.lock()
-        defer { lock.unlock() }
 
         if let storedActiveGame, storedActiveGame.gameState != .gameOver {
             throw EDGameSetupError.gameAlreadyInProgress

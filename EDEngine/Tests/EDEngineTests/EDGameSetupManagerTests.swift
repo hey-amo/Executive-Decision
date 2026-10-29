@@ -47,10 +47,6 @@ final class EDGameSetupManagerTests: XCTestCase {
     }
 
     func testStartGameSpawnsConfiguredGameAndRejectsAnotherUntilGameOver() throws {
-        if let oldGame = EDGameSetupManager.shared.activeGame {
-            oldGame.gameState = .gameOver
-        }
-
         let settings = EDGameSettings(
             allowLoans: true,
             allowPartialRawMaterialPurchases: true,
@@ -58,7 +54,7 @@ final class EDGameSetupManagerTests: XCTestCase {
             musicEnabled: true,
             hapticFeedbackEnabled: true
         )
-        let manager = EDGameSetupManager.shared
+        let manager = EDGameSetupManager()
         let game = try manager.startGame(playerCount: 3, settings: settings)
         defer { game.gameState = .gameOver }
 
@@ -81,10 +77,7 @@ final class EDGameSetupManagerTests: XCTestCase {
     }
 
     func testCanStartNewGameAfterCurrentGameIsOver() throws {
-        let manager = EDGameSetupManager.shared
-        if let oldGame = manager.activeGame {
-            oldGame.gameState = .gameOver
-        }
+        let manager = EDGameSetupManager()
 
         let firstGame = try manager.startGame(playerCount: 2)
         firstGame.gameState = .gameOver
@@ -99,5 +92,20 @@ final class EDGameSetupManagerTests: XCTestCase {
         XCTAssertTrue(manager.activeGame === secondGame)
         XCTAssertEqual(secondGame.players.count, 4)
         XCTAssertEqual(secondGame.maxMonths, kConstants.durationShortGame)
+    }
+
+    func testSeparateSetupManagersManageSeparateGames() throws {
+        let firstManager = EDGameSetupManager()
+        let secondManager = EDGameSetupManager()
+
+        let firstGame = try firstManager.startGame(playerCount: 2)
+        let secondGame = try secondManager.startGame(playerCount: 3)
+
+        XCTAssertFalse(firstGame === secondGame)
+        XCTAssertTrue(firstManager.activeGame === firstGame)
+        XCTAssertTrue(secondManager.activeGame === secondGame)
+
+        firstGame.gameState = .gameOver
+        secondGame.gameState = .gameOver
     }
 }
