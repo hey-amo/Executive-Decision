@@ -11,7 +11,8 @@ Statuses:
 ## 1. Game setup and initial state
 
 1.1: **Complete** — Validate a configured player count of 2–6 and a game
-  duration of 6 or 12 months; retain the selected game settings.
+  duration of 6 or 12 months; retain settings and create one active game through
+  the shared setup manager.
 1.2: **In progress** — Assign starting cash by player count ($900, $600, $450,
   $350, or $300).
 1.3: **In progress** — Initialize the opening market prices for all raw materials

@@ -4,42 +4,53 @@ import XCTest
 final class EDGameSetupManagerTests: XCTestCase {
     func testAcceptsPlayerCountsFromTwoThroughSixWithoutPlayerObjects() throws {
         for playerCount in kConstants.minPlayers...kConstants.maxPlayers {
-            let setup = try EDGameSetupManager(playerCount: playerCount)
-            XCTAssertEqual(setup.playerCount, playerCount)
+            try EDGameSetupManager.validate(
+                playerCount: playerCount,
+                durationMonths: kConstants.durationLongGame
+            )
         }
     }
 
     func testRejectsPlayerCountsOutsideSupportedRange() {
         for playerCount in [kConstants.minPlayers - 1, kConstants.maxPlayers + 1] {
-            XCTAssertThrowsError(try EDGameSetupManager(playerCount: playerCount)) { error in
+            XCTAssertThrowsError(
+                try EDGameSetupManager.validate(
+                    playerCount: playerCount,
+                    durationMonths: kConstants.durationLongGame
+                )
+            ) { error in
                 XCTAssertEqual(error as? EDGameSetupError, .invalidPlayerCount(playerCount))
             }
         }
     }
 
     func testSupportsSixOrTwelveMonthGameDuration() throws {
-        let shortGame = try EDGameSetupManager(
+        try EDGameSetupManager.validate(
             playerCount: kConstants.minPlayers,
             durationMonths: kConstants.durationShortGame
         )
-        let longGame = try EDGameSetupManager(
+        try EDGameSetupManager.validate(
             playerCount: kConstants.maxPlayers,
             durationMonths: kConstants.durationLongGame
         )
-
-        XCTAssertEqual(shortGame.durationMonths, 6)
-        XCTAssertEqual(longGame.durationMonths, 12)
     }
 
     func testRejectsUnsupportedGameDuration() {
         XCTAssertThrowsError(
-            try EDGameSetupManager(playerCount: kConstants.minPlayers, durationMonths: 9)
+            try EDGameSetupManager.validate(
+                playerCount: kConstants.minPlayers,
+                durationMonths: 9
+            )
         ) { error in
             XCTAssertEqual(error as? EDGameSetupError, .invalidGameDuration(9))
         }
     }
 
-    func testUsesDefaultDurationAndPreservesProvidedSettings() throws {
+    func testStartGameSpawnsConfiguredGameAndRejectsAnotherUntilGameOver() throws {
+        if let oldGame = EDGameSetupManager.shared.activeGame {
+            oldGame.gameState = .gameOver
+        }
+
         let settings = EDGameSettings(
             allowLoans: true,
             allowPartialRawMaterialPurchases: true,
@@ -47,13 +58,46 @@ final class EDGameSetupManagerTests: XCTestCase {
             musicEnabled: true,
             hapticFeedbackEnabled: true
         )
-        let setup = try EDGameSetupManager(playerCount: 3, settings: settings)
+        let manager = EDGameSetupManager.shared
+        let game = try manager.startGame(playerCount: 3, settings: settings)
+        defer { game.gameState = .gameOver }
 
-        XCTAssertEqual(setup.durationMonths, kConstants.durationLongGame)
-        XCTAssertTrue(setup.settings.allowLoans)
-        XCTAssertTrue(setup.settings.allowPartialRawMaterialPurchases)
-        XCTAssertFalse(setup.settings.soundEnabled)
-        XCTAssertTrue(setup.settings.musicEnabled)
-        XCTAssertTrue(setup.settings.hapticFeedbackEnabled)
+        XCTAssertTrue(manager.activeGame === game)
+        XCTAssertEqual(game.currentMonth, 1)
+        XCTAssertEqual(game.maxMonths, kConstants.durationLongGame)
+        XCTAssertEqual(game.gameState, .setup)
+        XCTAssertEqual(game.players.count, 3)
+        XCTAssertEqual(game.players.map(\.name), ["Player 1", "Player 2", "Player 3"])
+        XCTAssertTrue(game.settings.allowLoans)
+        XCTAssertTrue(game.settings.allowPartialRawMaterialPurchases)
+        XCTAssertFalse(game.settings.soundEnabled)
+        XCTAssertTrue(game.settings.musicEnabled)
+        XCTAssertTrue(game.settings.hapticFeedbackEnabled)
+
+        XCTAssertThrowsError(try manager.startGame(playerCount: 2)) { error in
+            XCTAssertEqual(error as? EDGameSetupError, .gameAlreadyInProgress)
+        }
+        XCTAssertTrue(manager.activeGame === game)
+    }
+
+    func testCanStartNewGameAfterCurrentGameIsOver() throws {
+        let manager = EDGameSetupManager.shared
+        if let oldGame = manager.activeGame {
+            oldGame.gameState = .gameOver
+        }
+
+        let firstGame = try manager.startGame(playerCount: 2)
+        firstGame.gameState = .gameOver
+
+        let secondGame = try manager.startGame(
+            playerCount: 4,
+            durationMonths: kConstants.durationShortGame
+        )
+        defer { secondGame.gameState = .gameOver }
+
+        XCTAssertFalse(firstGame === secondGame)
+        XCTAssertTrue(manager.activeGame === secondGame)
+        XCTAssertEqual(secondGame.players.count, 4)
+        XCTAssertEqual(secondGame.maxMonths, kConstants.durationShortGame)
     }
 }
