@@ -10,7 +10,18 @@ public enum IntegerError: Error, Equatable {
     case negativeNumber
     case zeroAmount
     case notEnoughFunds
-    case maximumBalanceExceeded
+    case maxBalancedReached
+}
+
+extension IntegerError: LocalizedError {
+    public var errorDescription: String? {
+        switch self {
+        case .negativeNumber: return NSLocalizedString("negativeNumber", value: "Received negative number", comment: "negativeNumber")
+        case .zeroAmount: return NSLocalizedString("zeroAmount", value: "Zero amount entered", comment: "zeroAmount")
+        case .notEnoughFunds: return NSLocalizedString("notEnoughFunds", value: "Not enough funds", comment: "notEnoughFunds")
+        case .maxBalancedReached: return NSLocalizedString("maxBalanceReached", value: "Reached max number", comment: "maxBalanceReached")
+        }
+    }
 }
 
 public protocol UpdateWalletDelegate: AnyObject {
@@ -37,7 +48,7 @@ public struct WalletAPI {
             throw IntegerError.negativeNumber
         }
         guard _balance <= Self.maximumBalance else {
-            throw IntegerError.maximumBalanceExceeded
+            throw IntegerError.maxBalancedReached
         }
         self._balance = _balance
     }
@@ -65,7 +76,7 @@ public struct WalletAPI {
         }
 
         guard amount <= Self.maximumBalance - self._balance else {
-            throw IntegerError.maximumBalanceExceeded
+            throw IntegerError.maxBalancedReached
         }
         self._balance += amount
     }

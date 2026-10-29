@@ -21,7 +21,7 @@ final class EDMarketRulesTests: XCTestCase {
         XCTAssertEqual(FinishedGood.c.recipe.ingredients, [.fine: 1, .standard: 2])
     }
 
-    func testEachRecipeCanBeMadeFromItsExactIngredients() throws {
+    func testEachRecipeIsMadeFromIngredients() throws {
         for good in FinishedGood.allCases {
             let consumed = try good.recipe.materialsToConsume(from: good.recipe.ingredients)
             XCTAssertEqual(consumed, good.recipe.ingredients)

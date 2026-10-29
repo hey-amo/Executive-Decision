@@ -77,7 +77,7 @@ final class EDWalletAPITests: XCTestCase {
 
     func testInitialBalanceAboveMaximumThrows() {
         XCTAssertThrowsError(try WalletAPI(_balance: WalletAPI.maximumBalance + 1)) { error in
-            XCTAssertEqual(error as? IntegerError, .maximumBalanceExceeded)
+            XCTAssertEqual(error as? IntegerError, .maxBalancedReached)
         }
     }
 
@@ -85,7 +85,7 @@ final class EDWalletAPITests: XCTestCase {
         var wallet = try WalletAPI(_balance: WalletAPI.maximumBalance - 1)
 
         XCTAssertThrowsError(try wallet.apply(t: .credit(2))) { error in
-            XCTAssertEqual(error as? IntegerError, .maximumBalanceExceeded)
+            XCTAssertEqual(error as? IntegerError, .maxBalancedReached)
         }
         XCTAssertEqual(wallet.balance, WalletAPI.maximumBalance - 1)
     }
