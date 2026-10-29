@@ -1,3 +1,5 @@
+// # Market rules (swift)
+
 public enum MarketItemCategory: Equatable {
     case rawMaterial
     case finishedGood
@@ -8,7 +10,7 @@ public protocol MarketItem {
     var marketItemCategory: MarketItemCategory { get }
 }
 
-public enum RawMaterial: String, CaseIterable, MarketItem {
+public enum RawMaterial: String, CaseIterable, MarketItem, Sendable {
     case standard
     case fine
     case extraFine
@@ -82,7 +84,7 @@ public enum RecipeError: Error, Equatable {
     case negativeInventory
 }
 
-public enum FinishedGood: String, CaseIterable, MarketItem, RecipeProviding {
+public enum FinishedGood: String, CaseIterable, MarketItem, RecipeProviding, Sendable {
     case a
     case b
     case c

@@ -1,4 +1,4 @@
-// EDPlayer.swift
+// EDPlayer (swift)
 
 import Foundation
 import GameKit
@@ -7,6 +7,7 @@ public typealias Player = EDPlayer
 
 public class EDPlayer: GKPlayer, Identifiable {
     public var name: String
+    public var tallySheet = EDTallySheet()
     private var coins: Int = 0
     public var isBankrupt: Bool = false // not implemented
 
