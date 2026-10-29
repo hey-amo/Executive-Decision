@@ -7,12 +7,14 @@ public typealias Player = EDPlayer
 
 public class EDPlayer: GKPlayer, Identifiable {
     public var name: String
+    public let avatar: String?
     public var tallySheet = EDTallySheet()
     private var coins: Int = 0
     public var isBankrupt: Bool = false // not implemented
 
-    public init(name: String, coins: Int = 0, isBankrupt: Bool = false) {
+    public init(name: String, avatar: String? = nil, coins: Int = 0, isBankrupt: Bool = false) {
         self.name = name
+        self.avatar = avatar
         self.coins = coins
         self.isBankrupt = isBankrupt
     }
