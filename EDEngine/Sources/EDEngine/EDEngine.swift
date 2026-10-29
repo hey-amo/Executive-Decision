@@ -9,6 +9,7 @@ public struct kConstants {
     public static let durationLongGame: Int = 12
     
     public static let maxMaterialUnitsCanHold: Int = 12
+    public static let repaymentAmountPerLoan: Int = 125 // how much a player must pay per loan they have 
 }
 
 public enum EDGameState: Int, CaseIterable, Codable, Sendable {
@@ -28,14 +29,17 @@ public class ExecutiveDecisionGame {
     public let maxMonths: Int
     public var players: [Player]?
     public var gameState: EDGameState
+    public var settings: EDGameSettings
 
     public init(currentMonth: Int = 1,
                 maxMonths: Int = kConstants.durationLongGame,
                 players: [Player],
-                gameState: EDGameState = .setup) {
+                gameState: EDGameState = .setup,
+                settings: EDGameSettings = EDGameSettings()) {
         self.currentMonth = currentMonth
         self.maxMonths = maxMonths
         self.players = players
         self.gameState = gameState
+        self.settings = settings
     }
 }

@@ -1,0 +1,33 @@
+// gmae settings
+
+public struct EDGameSettings: Sendable {
+    public var allowLoans: Bool
+    public var allowPartialRawMaterialPurchases: Bool
+    public var soundEnabled: Bool
+    public var musicEnabled: Bool
+
+    public init(
+        allowLoans: Bool = false,
+        allowPartialRawMaterialPurchases: Bool = false,
+        soundEnabled: Bool = true,
+        musicEnabled: Bool = true
+    ) {
+        self.allowLoans = allowLoans
+        self.allowPartialRawMaterialPurchases = allowPartialRawMaterialPurchases
+        self.soundEnabled = soundEnabled
+        self.musicEnabled = musicEnabled
+    }
+
+    public mutating func toggleAllowLoans() {
+        self.allowLoans.toggle()
+    }
+    public mutating func toggleAllowPartialRawMaterialPurchases() {
+        self.allowPartialRawMaterialPurchases.toggle()
+    }
+    public mutating func toggleSoundEnabled() {
+        self.soundEnabled.toggle()
+    }
+    public mutating func toggleMusicEnabled() {
+        self.musicEnabled.toggle()
+    }
+}

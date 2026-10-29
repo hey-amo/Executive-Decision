@@ -38,7 +38,7 @@ public enum Transaction {
 public typealias Bank = WalletAPI
 
 public struct WalletAPI {    
-    public static let allowNegativeBalance = false
+    public static let allowNegativeBalance: Bool = false
     public static let minimumBalance = -5000
     public static let maximumBalance = 100_000
 
@@ -48,8 +48,8 @@ public struct WalletAPI {
         get { return self._balance }
     }
     
-    public init(_balance: Int) throws {
-        if Self.allowNegativeBalance {
+    public init(_balance: Int, allowNegativeBalance: Bool = false) throws {
+        if allowNegativeBalance {
             guard _balance >= Self.minimumBalance else {
                 throw IntegerError.minBalancedReached
             }
@@ -61,7 +61,7 @@ public struct WalletAPI {
         guard _balance <= Self.maximumBalance else {
             throw IntegerError.maxBalancedReached
         }
-        self.allowsNegativeBalance = Self.allowNegativeBalance
+        self.allowsNegativeBalance = allowNegativeBalance
         self._balance = _balance
     }
 

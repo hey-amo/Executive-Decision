@@ -181,15 +181,15 @@ Whe the number of months agreed upon has been reached, players sell any unused R
 
 The player who has made the most money for their corporation is the winner.
 
-## VARIATIONS
-When players become familiar with the basic game, they may wish to try the following variations (which may be used separately or together):
+## OPTIONAL GAME SETTINGS
+These optional rules can be enabled or disabled independently for each game. Both are off by default.
  
-### VARIATION I: PURCHASING RAW MATERIAL CERTIFICATES.
-If a player does not have sufficient funds to pay for the total amount of his purchase, he must take a loan from the Broker. Loans are made only in increments of $100 ($100, $200, $300, etc.). A player may only borrow enough to cover the remainder of his payment. 
+### Allow loans
+When enabled, a player who cannot afford the full cost of a raw-material purchase must take a `loan` from the Broker. Loans are made in increments of $100, and the player may borrow only enough to cover the shortfall.
 A record of all loans is kept by the Broker and, at the end of the game, he collects $125 for each $100 borrowed.
  
-### VARIATION 2: PURCHASING RAW MATERIAL CERTIFICATES.
-If a player's  bid is lower than Market Price, he is not successful in purchasing his entire order of that grade. He may, however, purchase some of that order at his bid price. He loses one unit for each dollar his Bid Price is below the Market Price. 
+### Allow partial raw-material purchases (Variation II)
+When enabled, a bid below the Market Price may still purchase part of the order at the bid price. The player loses one unit from the order for each dollar the bid is below the Market Price.
 
 ## Tally sheet info
 
