@@ -5,22 +5,19 @@ import GameKit
 
 public typealias Player = EDPlayer
 
-public class EDPlayer: Equatable, Hashable, Identifiable {
-    public let id: UUID = UUID()
+public class EDPlayer: GKPlayer, Identifiable {
     public var name: String
     private var coins: Int = 0
+    public var isBankrupt: Bool = false // not implemented
 
-    public init(name: String, coins: Int = 0) {
+    public init(name: String, coins: Int = 0, isBankrupt: Bool = false) {
         self.name = name
         self.coins = coins
+        self.isBankrupt = isBankrupt
     }
 
     public static func == (lhs: EDPlayer, rhs: EDPlayer) -> Bool {
         return lhs.id == rhs.id
-    }
-
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(id)
     }
 }
 

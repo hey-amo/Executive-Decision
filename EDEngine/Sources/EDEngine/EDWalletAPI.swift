@@ -10,6 +10,7 @@ public enum IntegerError: Error, Equatable {
     case negativeNumber
     case zeroAmount
     case notEnoughFunds
+    case minBalancedReached
     case maxBalancedReached
 }
 
@@ -19,7 +20,8 @@ extension IntegerError: LocalizedError {
         case .negativeNumber: return NSLocalizedString("negativeNumber", value: "Received negative number", comment: "negativeNumber")
         case .zeroAmount: return NSLocalizedString("zeroAmount", value: "Zero amount entered", comment: "zeroAmount")
         case .notEnoughFunds: return NSLocalizedString("notEnoughFunds", value: "Not enough funds", comment: "notEnoughFunds")
-        case .maxBalancedReached: return NSLocalizedString("maxBalanceReached", value: "Reached max number", comment: "maxBalanceReached")
+        case .minBalancedReached: return NSLocalizedString("minBalancedReached", value: "Reached minimum valid number", comment: "minBalancedReached")
+        case .maxBalancedReached: return NSLocalizedString("maxBalanceReached", value: "Cannot exceed maximum number", comment: "maxBalanceReached")
         }
     }
 }
@@ -36,6 +38,8 @@ public enum Transaction {
 public typealias Bank = WalletAPI
 
 public struct WalletAPI {
+    public static let allowNegativeNumbers = false
+    public static let minimumBalance = -5000
     public static let maximumBalance = 100_000
 
     private var _balance: Int = 0

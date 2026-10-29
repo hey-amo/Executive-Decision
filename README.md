@@ -54,7 +54,7 @@ The goal is to maximise profit by making strategic decisions about raw material 
 
 # Rules
 
-## SETUP 
+## SETUP
 
 The game is for 2-6 players.
 
@@ -82,7 +82,7 @@ One player is chosen to be the Broker; throughout the game, he handles the Raw M
 - B, Opening price: 115
 - C, Opening price: 90
 
-### Recipes
+### Recipes
 Good A is made up of { XFine, XFine, Fine }
 Good B is made up of { Fine, Fine, Standard }
 Good C is made up of { Fine, Standard, Standard }
