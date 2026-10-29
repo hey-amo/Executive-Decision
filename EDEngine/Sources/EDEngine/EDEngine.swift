@@ -23,6 +23,9 @@ public enum EDGameState: Int, CaseIterable, Codable, Sendable {
     case takeALoan
 }
 
+public enum EDThinkingState: Int, CaseIterable, Codable, Sendable {
+    case idle, thinking, waiting, playing, done
+}
 
 public class ExecutiveDecisionGame {
     public var currentMonth: Int

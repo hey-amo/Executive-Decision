@@ -19,9 +19,9 @@ public enum EDPlayerAvatar: String, CaseIterable, Sendable {
 public class EDPlayer: GKPlayer, Identifiable {
     public var name: String
     public var avatar: Avatar?
-    public var tallySheet = EDTallySheet()
-    private var coins: Int = 0
-    public var isBankrupt: Bool = false // not implemented
+    public var tallySheet: EDTallySheet = EDTallySheet()
+    private var coins: Int
+    public var isBankrupt: Bool
     public var loans: [EDLoanEntry] = []
 
     public init(name: String, 
