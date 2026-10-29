@@ -35,9 +35,9 @@ public enum Transaction {
     case debit(_ amount: Int)
 }
 
-public typealias Bank = WalletAPI
+public typealias Wallet = EDWalletAPI
 
-public struct WalletAPI {    
+public struct EDWalletAPI {    
     public static let allowNegativeBalance: Bool = false
     public static let minimumBalance = -5000
     public static let maximumBalance = 100_000
