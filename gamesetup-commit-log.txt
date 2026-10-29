@@ -1,8 +1,0 @@
-Branch: gamesetup
-
-Step 1 completed: game setup configuration and validation
-- Added EDGameSetupManager initialized by player count, duration, and settings.
-- Validated player counts from 2 through 6 without requiring player objects.
-- Accepted only the supported 6- and 12-month game durations.
-- Added XCTest coverage for valid and invalid counts, durations, defaults, and settings.
-- Marked TODO item 1.1 complete; items 1.2–1.4 and session initialization remain for later steps.
