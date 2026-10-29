@@ -20,7 +20,8 @@ public class EDPlayer: GKPlayer, Identifiable {
     public var name: String
     public var avatar: Avatar?
     public var tallySheet: EDTallySheet = EDTallySheet()
-    private var coins: Int
+    private var _coins: Int
+    public var coins: Int { get { return self._coins} }
     public var isBankrupt: Bool
     public var loans: [EDLoanEntry] = []
 
@@ -31,7 +32,7 @@ public class EDPlayer: GKPlayer, Identifiable {
         loans: [EDLoanEntry] = []) {
         self.name = name
         self.avatar = avatar
-        self.coins = coins
+        self._coins = coins
         self.isBankrupt = isBankrupt
         self.loans = loans
     }
@@ -43,7 +44,7 @@ public class EDPlayer: GKPlayer, Identifiable {
 
 extension EDPlayer: UpdateWalletDelegate {
     public func walletDidUpdate(balance: Int) {
-        self.coins = balance
+        self._coins = balance
     }
 
 }

@@ -48,21 +48,21 @@ public struct EDWalletAPI {
         get { return self._balance }
     }
     
-    public init(_balance: Int, allowNegativeBalance: Bool = false) throws {
+    public init(_ balance: Int = 0, allowNegativeBalance: Bool = false) throws {
         if allowNegativeBalance {
             guard _balance >= Self.minimumBalance else {
                 throw IntegerError.minBalancedReached
             }
         } else {
-            guard _balance >= 0 else {
+            guard balance >= 0 else {
                 throw IntegerError.negativeNumber
             }
         }
-        guard _balance <= Self.maximumBalance else {
+        guard balance <= Self.maximumBalance else {
             throw IntegerError.maxBalancedReached
         }
         self.allowsNegativeBalance = allowNegativeBalance
-        self._balance = _balance
+        self._balance = balance
     }
 
     public mutating func apply(t: Transaction) throws {
