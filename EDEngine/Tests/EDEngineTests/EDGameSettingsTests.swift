@@ -28,7 +28,13 @@ final class EDGameSettingsTests: XCTestCase {
         XCTAssertFalse(settings.soundEnabled)
 
         settings.musicEnabled = false
-        XCTAssertFalse(settings.musicEnabled)   
+        XCTAssertFalse(settings.musicEnabled)
+
+        settings.darkModeEnabled = false
+        XCTAssertFalse(settings.darkModeEnabled)
+
+        settings.hapticFeedbackEnabled = false
+        XCTAssertFalse(settings.hapticFeedbackEnabled) 
     }
 
     func testGameUsesProvidedSettingsAndAllowsToggling() {
