@@ -196,3 +196,20 @@ When enabled, a bid below the Market Price may still purchase part of the order 
  Tally management based on the rules: each monthly entry tracks bid quantities and prices alongside quantities actually purchased or sold, so totals reflect successful transactions at the player’s bid/asking price.
 
  Each player gets their own tally sheet
+
+## Debugging game state
+
+To print a formatted game-state snapshot automatically after setup, enable the
+`GAME_STATE_DEBUG_LOGGING` Swift compilation condition. In Xcode, add it to
+**Build Settings > Swift Compiler - Custom Flags > Active Compilation
+Conditions**. With Swift Package Manager, pass it to the compiler, for example:
+
+```sh
+cd EDEngine
+swift test -Xswiftc -D -Xswiftc GAME_STATE_DEBUG_LOGGING
+```
+
+Call `game.printDebugState()` to print a snapshot at any point in the game. The
+method prints nothing when the compilation condition is disabled. The current
+engine does not yet model a deck, player card inventory, or the active player;
+the snapshot labels those values as untracked rather than guessing.
