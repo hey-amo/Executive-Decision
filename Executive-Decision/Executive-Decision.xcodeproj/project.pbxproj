@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		4D503B4D3094EF160086AF08 /* EDEngine in Frameworks */ = {isa = PBXBuildFile; productRef = 4D503B4C3094EF160086AF08 /* EDEngine */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		4D503B2F3094EE8B0086AF08 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -39,6 +43,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4D503B4D3094EF160086AF08 /* EDEngine in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -90,6 +95,7 @@
 			);
 			name = "Executive-Decision";
 			packageProductDependencies = (
+				4D503B4C3094EF160086AF08 /* EDEngine */,
 			);
 			productName = "Executive-Decision";
 			productReference = 4D503B1D3094EE8A0086AF08 /* Executive-Decision.app */;
@@ -146,6 +152,9 @@
 			);
 			mainGroup = 4D503B143094EE8A0086AF08;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				4D503B4B3094EF160086AF08 /* XCLocalSwiftPackageReference "../EDEngine" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 4D503B1E3094EE8A0086AF08 /* Products */;
 			projectDirPath = "";
@@ -475,6 +484,20 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		4D503B4B3094EF160086AF08 /* XCLocalSwiftPackageReference "../EDEngine" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../EDEngine;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		4D503B4C3094EF160086AF08 /* EDEngine */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = EDEngine;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 4D503B153094EE8A0086AF08 /* Project object */;
 }
