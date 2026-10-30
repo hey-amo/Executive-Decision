@@ -44,9 +44,5 @@ public class ExecutiveDecisionGame {
         self.players = players
         self.gameState = gameState
         self.settings = settings
-
-        print ("@created game with \(players.count) players, duration: \(duration) months")
-        let _ = (1...players.count).map { print ("Player \($0)") }
-
     }
 }

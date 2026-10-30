@@ -108,4 +108,25 @@ final class EDGameSetupManagerTests: XCTestCase {
         firstGame.gameState = .gameOver
         secondGame.gameState = .gameOver
     }
+
+    func testDebugStateDescriptionIncludesGameAndPlayerState() throws {
+        let manager = EDGameSetupManager()
+        let game = try manager.startGame(playerCount: 2, durationMonths: kConstants.durationShortGame)
+        defer { game.gameState = .gameOver }
+
+        game.currentMonth = 3
+        game.gameState = .purchaseRawMaterials
+
+        let description = game.debugStateDescription
+
+        XCTAssertTrue(description.contains("Month: 3/6"))
+        XCTAssertTrue(description.contains("Players: 2"))
+        XCTAssertTrue(description.contains("Current player: Not assigned"))
+        XCTAssertTrue(description.contains("Deck: Not tracked"))
+        XCTAssertTrue(description.contains("Game state: purchaseRawMaterials"))
+        XCTAssertTrue(description.contains("Game phase: Purchase raw materials"))
+        XCTAssertTrue(description.contains("Player 1"))
+        XCTAssertTrue(description.contains("Coins: $0"))
+        XCTAssertTrue(description.contains("Cards held: Not tracked"))
+    }
 }

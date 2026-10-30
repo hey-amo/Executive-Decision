@@ -52,6 +52,7 @@ public final class EDGameSetupManager {
             settings: settings
         )
         storedActiveGame = game        
+        game.printDebugState()
         return game
     }
 
