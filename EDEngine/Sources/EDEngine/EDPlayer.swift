@@ -7,6 +7,21 @@ public typealias Player = EDPlayer
 
 public typealias Avatar = EDPlayerAvatar
 
+public enum EDPlayerCharacter: String, CaseIterable, Sendable {
+    case tom, alex, sarah, saxon, milo, manos
+    
+    public static func getAvatar(for name: EDPlayerCharacter) -> String {
+        switch name {
+        case .tom: return EDPlayerAvatar.avt1.rawValue
+        case .alex: return EDPlayerAvatar.avt2.rawValue
+        case .sarah: return EDPlayerAvatar.avt3.rawValue
+        case .saxon: return EDPlayerAvatar.avt4.rawValue
+        case .milo: return EDPlayerAvatar.avt5.rawValue
+        case .manos: return EDPlayerAvatar.avt6.rawValue
+        }
+    }
+}
+
 public enum EDPlayerAvatar: String, CaseIterable, Sendable {
     case avt1 = "avt-1"
     case avt2 = "avt-2"
@@ -24,17 +39,20 @@ public class EDPlayer: GKPlayer, Identifiable {
     public var coins: Int { get { return self._coins} }
     public var isBankrupt: Bool
     public var loans: [EDLoanEntry] = []
+    public var isAI: Bool
 
-    public init(name: String, 
-        avatar: Avatar? = nil, 
-        coins: Int = 0, 
-        isBankrupt: Bool = false,
-        loans: [EDLoanEntry] = []) {
+    public init(name: String,
+                avatar: Avatar? = nil,
+                coins: Int = 0,
+                isBankrupt: Bool = false,
+                loans: [EDLoanEntry]  = [],
+                isAI: Bool = false) {
         self.name = name
         self.avatar = avatar
         self._coins = coins
         self.isBankrupt = isBankrupt
         self.loans = loans
+        self.isAI = isAI
     }
 
     public static func == (lhs: EDPlayer, rhs: EDPlayer) -> Bool {
