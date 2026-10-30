@@ -1,5 +1,5 @@
 //
-//  WalletAPI.swift
+//  Wallet.swift
 //  EDEngine
 //
 //  Created by Amarjit on 28/10/2026.
@@ -35,9 +35,9 @@ public enum Transaction {
     case debit(_ amount: Int)
 }
 
-public typealias Wallet = EDWalletAPI
+public typealias Wallet = EDWallet
 
-public struct EDWalletAPI {    
+public struct EDWallet {    
     public static let allowNegativeBalance: Bool = false
     public static let minimumBalance = -5000
     public static let maximumBalance = 100_000
