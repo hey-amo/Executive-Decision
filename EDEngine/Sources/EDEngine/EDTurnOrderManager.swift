@@ -1,61 +1,41 @@
-// TurnOrderManager.swift
-
 import Foundation
 
-public protocol TurnOrderPlayer: Sendable, Equatable {
-    associatedtype ID: Hashable
-    var id: ID { get }
+public enum TurnOrderError: Error, Equatable {
+    case invalidPlayerCount
 }
 
-public enum TurnOrderDirection: Sendable, Equatable {
-    case forward
-    case reverse
-}
+public struct EDTurnOrderManager {
+    public private(set) var turnOrder: [Int]
+    public private(set) var currentPlayerNumber: Int
+    public private(set) var completedRounds = 0
 
-public struct TurnOrderManager<Player: TurnOrderPlayer> {
-    private let players: [Player]
-    private var index: Int
-    private let direction: TurnOrderDirection
+    private var currentTurnIndex = 0
 
-    public init(players: [Player], direction: TurnOrderDirection = .forward) {
-        precondition(players.count >= 2, "Turn order requires at least 2 players")
-        self.players = players
-        self.index = 0
-        self.direction = direction
-    }
-
-    public var currentPlayer: Player {
-        players[index]
-    }
-
-    public var allPlayers: [Player] {
-        players
-    }
-
-    public var totalPlayers: Int {
-        players.count
-    }
-
-    public var currentPlayerIsTurn: Bool {
-        true
-    }
-
-    @discardableResult
-    public mutating func advance() -> Player {
-        let nextIndex: Int
-        switch direction {
-        case .forward:
-            nextIndex = (index + 1) % players.count
-        case .reverse:
-            nextIndex = (index + players.count - 1) % players.count
+    public init(playerCount: Int, shuffle: Bool = true) throws {
+        guard playerCount > 0 else {
+            throw TurnOrderError.invalidPlayerCount
         }
 
-        index = nextIndex
-        return currentPlayer
+        var players = Array(1...playerCount)
+        if shuffle {
+            players.shuffle()
+        }
+        self.turnOrder = players
+        self.currentPlayerNumber = players[0]
     }
 
+    /// Advances to the next player and returns true when the turn order wraps to a new round.
     @discardableResult
-    public mutating func skipCurrentPlayer() -> Player {
-        advance()
+    public mutating func advanceTurn() -> Bool {
+        currentTurnIndex += 1
+        let roundCompleted = currentTurnIndex == turnOrder.count
+
+        if roundCompleted {
+            currentTurnIndex = 0
+            completedRounds += 1
+        }
+
+        currentPlayerNumber = turnOrder[currentTurnIndex]
+        return roundCompleted
     }
 }

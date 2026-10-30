@@ -1,61 +1,117 @@
 import Foundation
 
-public struct EDRawMaterialBid: Codable, Equatable, Sendable {
-    public let material: RawMaterial
-    public let units: Int
+public enum EDTallyMonth: Int, CaseIterable, Sendable {
+    case january = 1
+    case february
+    case march
+    case april
+    case may
+    case june
+    case july
+    case august
+    case september
+    case october
+    case november
+    case december
+}
+
+public struct EDOrderEntry: Sendable {
+    public let unitsOrdered: Int
     public let bidPrice: Int
+    public let unitsPurchased: Int
 
-    public init(material: RawMaterial, units: Int, bidPrice: Int) {
-        self.material = material
-        self.units = units
+    public var amountPaid: Int {
+        unitsPurchased * bidPrice
+    }
+
+    public init(unitsOrdered: Int, bidPrice: Int, unitsPurchased: Int) {
+        self.unitsOrdered = unitsOrdered
         self.bidPrice = bidPrice
+        self.unitsPurchased = unitsPurchased
     }
 }
 
-public struct EDFinishedGoodsOffer: Codable, Equatable, Sendable {
-    public let product: ProductType
-    public let units: Int
-    public let askPrice: Int
+public struct EDSaleEntry: Sendable {
+    public let unitsOffered: Int
+    public let askingPrice: Int
+    public let unitsSold: Int
 
-    public init(product: ProductType, units: Int, askPrice: Int) {
-        self.product = product
-        self.units = units
-        self.askPrice = askPrice
+    public var amountReceived: Int {
+        unitsSold * askingPrice
+    }
+
+    public init(unitsOffered: Int, askingPrice: Int, unitsSold: Int) {
+        self.unitsOffered = unitsOffered
+        self.askingPrice = askingPrice
+        self.unitsSold = unitsSold
     }
 }
 
-public struct EDMonthlyTallyRecord: Codable, Equatable {
-    public let monthName: String
-    public let monthIndex: Int
-    public var rawMaterialOrders: [EDRawMaterialBid]
-    public var finishedGoodsOffers: [EDFinishedGoodsOffer]
+public struct EDTallyTotals: Equatable, Sendable {
+    public let orders: Int
+    public let sales: Int
 
-    public init(monthName: String, monthIndex: Int, rawMaterialOrders: [EDRawMaterialBid] = [], finishedGoodsOffers: [EDFinishedGoodsOffer] = []) {
-        self.monthName = monthName
-        self.monthIndex = monthIndex
-        self.rawMaterialOrders = rawMaterialOrders
-        self.finishedGoodsOffers = finishedGoodsOffers
+    public var net: Int {
+        sales - orders
+    }
+
+    public init(orders: Int, sales: Int) {
+        self.orders = orders
+        self.sales = sales
     }
 }
 
-public struct EDTallySheet: Codable, Equatable {
-    public var monthlyRecords: [EDMonthlyTallyRecord]
+public struct EDMonthlyTally: Sendable {
+    public let month: EDTallyMonth
+    public let orders: [RawMaterial: EDOrderEntry]
+    public let sales: [FinishedGood: EDSaleEntry]
 
-    public init(monthlyRecords: [EDMonthlyTallyRecord] = []) {
-        self.monthlyRecords = monthlyRecords
+    public var totals: EDTallyTotals {
+        EDTallyTotals(
+            orders: orders.values.reduce(0) { $0 + $1.amountPaid },
+            sales: sales.values.reduce(0) { $0 + $1.amountReceived }
+        )
     }
 
-    public init(months: [EDGameMonth]) {
-        self.monthlyRecords = months.map { EDMonthlyTallyRecord(monthName: $0.name, monthIndex: $0.index) }
+    public init(
+        month: EDTallyMonth,
+        orders: [RawMaterial: EDOrderEntry] = [:],
+        sales: [FinishedGood: EDSaleEntry] = [:]
+    ) {
+        self.month = month
+        self.orders = orders
+        self.sales = sales
+    }
+}
+
+public enum EDTallySheetError: Error, Equatable {
+    case monthAlreadyRecorded(EDTallyMonth)
+}
+
+public struct EDTallySheet: Sendable {
+    public private(set) var monthlyTallies: [EDTallyMonth: EDMonthlyTally]
+
+    public var yearlyTotals: EDTallyTotals {
+        monthlyTallies.values.reduce(into: EDTallyTotals(orders: 0, sales: 0)) { totals, tally in
+            totals = EDTallyTotals(
+                orders: totals.orders + tally.totals.orders,
+                sales: totals.sales + tally.totals.sales
+            )
+        }
     }
 
-    public mutating func recordRawMaterialBid(_ bid: EDRawMaterialBid, forMonth index: Int) {
-        guard let offset = monthlyRecords.firstIndex(where: { $0.monthIndex == index }) else { return }
-        monthlyRecords[offset].rawMaterialOrders.append(bid)
+    public init() {
+        monthlyTallies = [:]
     }
 
-    public mutating func recordFinishedGoodsOffer(_ offer: EDFinishedGoodsOffer, forMonth index: Int) {
-        guard let offset = monthlyRecords.firstIndex(where: { $0.monthIndex == index }) else { return }
-        monthlyRecords[offset].finishedGoodsOffers.append(offer)
+    public func totals(for month: EDTallyMonth) -> EDTallyTotals {
+        monthlyTallies[month]?.totals ?? EDTallyTotals(orders: 0, sales: 0)
+    }
+
+    public mutating func record(_ tally: EDMonthlyTally) throws {
+        guard monthlyTallies[tally.month] == nil else {
+            throw EDTallySheetError.monthAlreadyRecorded(tally.month)
+        }
+        monthlyTallies[tally.month] = tally
     }
 }

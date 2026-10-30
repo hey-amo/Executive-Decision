@@ -54,7 +54,7 @@ The goal is to maximise profit by making strategic decisions about raw material 
 
 # Rules
 
-## SETUP 
+## SETUP
 
 The game is for 2-6 players.
 
@@ -73,16 +73,16 @@ Each player receives a `Tally sheet` and the following amount of money:
 One player is chosen to be the Broker; throughout the game, he handles the Raw Material Certificates and money and posts the current Market Prices on the Price Level Board.
 
 ### Raw Materials
-- XFine, Opening price: $40
-- Fine, Opening price: $30
-- Standard, Opening price: $20
+- XFine, Opening price: $40, 28 cards
+- Fine, Opening price: $30, 28 cards
+- Standard, Opening price: $20, 28 cards
 
 ### Finished Goods
 - A, Opening price: 140
 - B, Opening price: 115
 - C, Opening price: 90
 
-### Recipes
+### Recipes
 Good A is made up of { XFine, XFine, Fine }
 Good B is made up of { Fine, Fine, Standard }
 Good C is made up of { Fine, Standard, Standard }
@@ -111,7 +111,7 @@ MONTH I (January) consists of the following, in order:
 
 I. PURCHASING RAW MATERIAL CERTIFICATES. 
 
-After consulting the Price Level Board (Opening Price column and Market Calculator), each player enters his January order for Raw Materials in the Bid columns on his Tally sheet -secretly recording how many units of each grade he wishes to purchase and the price per unit he is willing to pay. 
+After consulting the Price Level Board (Opening Price column and Market Calculator), each player enters his January order for Raw Materials in the Bid columns on his `Tally sheet` -secretly recording how many units of each grade he wishes to purchase and the price per unit he is willing to pay. 
 
 The minimum bid price a player may bid for a grade of Raw Materials is the price that grade would change to if only that player ordered it. 
 
@@ -138,7 +138,7 @@ PLAYER'S BID 					PLAYER'S PURCHASE
 Equal to or higher than Market Price 		All Units at Bid Price
 Lower than Market Price 			No Units
  
-After adjusting his Tally sheet by crossing out any unsuccessful bids, each player totals his purchases, pays the Broker and receives one Raw Material Certificate for each unit purchased. 
+After adjusting his `Tally sheet` by crossing out any unsuccessful bids, each player totals his purchases, pays the Broker and receives one Raw Material Certificate for each unit purchased. 
 
 These Certificates are placed face up in front of player so all other players may see them.
  
@@ -150,9 +150,9 @@ Three units of Raw Material are required to manufacture one unit of Finished Goo
 
 If a player is unable to supply the Raw Materials specified on the Chart, he may still manufacture his Goods by substituting an equal number of units of another Raw Material. 
 
-He may either substitute X -FINE for FINE or FINE for STANDARD; these are the only substitutions permitted.
+He may either substitute X-FINE for FINE or FINE for STANDARD; these are the only substitutions permitted.
 
-3. SELLING THE FINISHED GOODS. After consulting the Price Level Board (Opening Price column and Market Calculator), each player enters his January offering of Finished Goods in the Bid columns of his Tally sheet secretly recording how many units of each of the Finished Goods he wishes to sell and the price per unit he is willing to accept. 
+3. SELLING THE FINISHED GOODS. After consulting the Price Level Board (Opening Price column and Market Calculator), each player enters his January offering of Finished Goods in the Bid columns of his `Tally sheet` secretly recording how many units of each of the Finished Goods he wishes to sell and the price per unit he is willing to accept. 
 
 A player may not offer more units of Finished Goods than he is able to manufacture from Raw Materials he has on hand. 
 
@@ -164,7 +164,7 @@ PLAYER'S BID 					GOODS SOLD
 Equal to or lower than Market Price 		All Units at Bid Price
 Higher than Market Price 			No Units
 
-After adjusting their Tally sheets by crossing out any overestimated bids, players total their sales. 
+After adjusting their `Tally sheets` by crossing out any overestimated bids, players total their sales. 
 
 The Broker pays each player for units sold and collects the Raw Materials Certificates used in manufacturing the sold Goods.
  
@@ -181,12 +181,35 @@ Whe the number of months agreed upon has been reached, players sell any unused R
 
 The player who has made the most money for their corporation is the winner.
 
-## VARIATIONS
-When players become familiar with the basic game, they may wish to try the following variations (which may be used separately or together):
+## OPTIONAL GAME SETTINGS
+These optional rules can be enabled or disabled independently for each game. Both are off by default.
  
-### VARIATION I: PURCHASING RAW MATERIAL CERTIFICATES.
-If a player does not have sufficient funds to pay for the total amount of his purchase, he must take a loan from the Broker. Loans are made only in increments of $100 ($100, $200, $300, etc.). A player may only borrow enough to cover the remainder of his payment. 
+### Allow loans
+When enabled, a player who cannot afford the full cost of a raw-material purchase must take a `loan` from the Broker. Loans are made in increments of $100, and the player may borrow only enough to cover the shortfall.
 A record of all loans is kept by the Broker and, at the end of the game, he collects $125 for each $100 borrowed.
  
-### VARIATION 2: PURCHASING RAW MATERIAL CERTIFICATES.
-If a player's  bid is lower than Market Price, he is not successful in purchasing his entire order of that grade. He may, however, purchase some of that order at his bid price. He loses one unit for each dollar his Bid Price is below the Market Price. 
+### Allow partial raw-material purchases (Variation II)
+When enabled, a bid below the Market Price may still purchase part of the order at the bid price. The player loses one unit from the order for each dollar the bid is below the Market Price.
+
+## Tally sheet info
+
+ Tally management based on the rules: each monthly entry tracks bid quantities and prices alongside quantities actually purchased or sold, so totals reflect successful transactions at the player’s bid/asking price.
+
+ Each player gets their own tally sheet
+
+## Debugging game state
+
+To print a formatted game-state snapshot automatically after setup, enable the
+`GAME_STATE_DEBUG_LOGGING` Swift compilation condition. In Xcode, add it to
+**Build Settings > Swift Compiler - Custom Flags > Active Compilation
+Conditions**. With Swift Package Manager, pass it to the compiler, for example:
+
+```sh
+cd EDEngine
+swift test -Xswiftc -D -Xswiftc GAME_STATE_DEBUG_LOGGING
+```
+
+Call `game.printDebugState()` to print a snapshot at any point in the game. The
+method prints nothing when the compilation condition is disabled. The current
+engine does not yet model a deck, player card inventory, or the active player;
+the snapshot labels those values as untracked rather than guessing.
