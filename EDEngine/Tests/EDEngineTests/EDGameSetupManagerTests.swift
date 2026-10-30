@@ -46,7 +46,7 @@ final class EDGameSetupManagerTests: XCTestCase {
         }
     }
 
-    func testStartGameSpawnsConfiguredGameAndRejectsAnotherUntilGameOver() throws {
+    func testRejectNewGameAnotherUntilGameOver() throws {
         let settings = EDGameSettings(
             allowLoans: true,
             allowPartialRawMaterialPurchases: true,
@@ -60,7 +60,7 @@ final class EDGameSetupManagerTests: XCTestCase {
 
         XCTAssertTrue(manager.activeGame === game)
         XCTAssertEqual(game.currentMonth, 1)
-        XCTAssertEqual(game.maxMonths, kConstants.durationLongGame)
+        XCTAssertEqual(game.duration, kConstants.durationLongGame)
         XCTAssertEqual(game.gameState, .setup)
         XCTAssertEqual(game.players.count, 3)
         XCTAssertEqual(game.players.map(\.name), ["Player 1", "Player 2", "Player 3"])
@@ -91,7 +91,7 @@ final class EDGameSetupManagerTests: XCTestCase {
         XCTAssertFalse(firstGame === secondGame)
         XCTAssertTrue(manager.activeGame === secondGame)
         XCTAssertEqual(secondGame.players.count, 4)
-        XCTAssertEqual(secondGame.maxMonths, kConstants.durationShortGame)
+        XCTAssertEqual(secondGame.duration, kConstants.durationShortGame)
     }
 
     func testSeparateSetupManagersManageSeparateGames() throws {

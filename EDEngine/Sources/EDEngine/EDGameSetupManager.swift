@@ -52,6 +52,12 @@ public final class EDGameSetupManager {
             settings: settings
         )
         storedActiveGame = game
+        
+        // Print to comsole game started
+        print("Created game with:")
+        print("players: \(players.count). duration: \(game.duration)")
+        let _ = (1...playerCount).map { print ("Player \($0)") }
+        
         return game
     }
 
