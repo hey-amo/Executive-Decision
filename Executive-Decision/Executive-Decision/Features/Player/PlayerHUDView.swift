@@ -1,9 +1,6 @@
 //
 //  PlayerHUDView.swift
 //  Executive-Decision
-//
-//  Created by Amarjit on 02/11/2026.
-//
 
 // Display a single player's info - avatar, coins, on turn, name, etc
 
