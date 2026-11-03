@@ -4,6 +4,7 @@ import SwiftUI
 struct PlayerRosterSelectScreen: View {
     @State private var viewModel: PlayerRosterViewModel
     @State private var isShowingPlayerDrawer = false
+    @State private var editingPlayerID: UUID?
     private let onContinue: ([EDPlayer]) -> Void
 
     init(
@@ -24,13 +25,22 @@ struct PlayerRosterSelectScreen: View {
 
                 LazyVStack(spacing: 14) {
                     ForEach(Array(viewModel.players.enumerated()), id: \.element.id) { index, player in
-                        PlayerRosterRowView(player: player, isFirstPlayer: index == 0) {
-                            viewModel.removePlayer(id: player.id)
-                        }
+                        PlayerRosterRowView(
+                            player: player,
+                            isFirstPlayer: index == 0,
+                            onEdit: {
+                                editingPlayerID = player.id
+                                isShowingPlayerDrawer = true
+                            },
+                            onRemove: {
+                                viewModel.removePlayer(id: player.id)
+                            }
+                        )
                     }
 
                     if viewModel.players.count < kConstants.maxPlayers {
                         AddPlayerButtonView {
+                            editingPlayerID = nil
                             isShowingPlayerDrawer = true
                         }
                     }
@@ -48,9 +58,21 @@ struct PlayerRosterSelectScreen: View {
             .padding(.bottom, 10)
             .background(PlayerRosterStyle.parchment)
         }
-        .sheet(isPresented: $isShowingPlayerDrawer) {
-            AvailablePlayersDrawer(availablePlayers: viewModel.availableCharacters) { character, kind in
-                viewModel.addPlayer(character, isAI: kind.isAI)
+        .sheet(isPresented: $isShowingPlayerDrawer, onDismiss: {
+            editingPlayerID = nil
+        }) {
+            let editingID = editingPlayerID
+            let editingPlayer = viewModel.players.first { $0.id == editingID }
+            AvailablePlayersDrawer(
+                availablePlayers: viewModel.availableCharacters(excludingPlayerID: editingID),
+                isEditing: editingID != nil,
+                initialPlayerKind: editingPlayer?.isAI == true ? .bot : .human
+            ) { character, kind in
+                if let editingID {
+                    viewModel.updatePlayer(id: editingID, to: character, isAI: kind.isAI)
+                } else {
+                    viewModel.addPlayer(character, isAI: kind.isAI)
+                }
             }
             .presentationDetents([.medium, .large])
             .presentationDragIndicator(.visible)

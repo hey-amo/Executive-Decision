@@ -70,6 +70,28 @@ final class Executive_DecisionTests: XCTestCase {
         XCTAssertTrue(viewModel.players.contains { !$0.isAI })
     }
 
+    func testPlayerRosterCanEditNonFirstPlayerCharacterAndType() throws {
+        let firstPlayer = EDPlayer(name: "Vivian", avatar: .avt5)
+        let viewModel = PlayerRosterViewModel(firstPlayer: firstPlayer)
+        let rex = try XCTUnwrap(viewModel.availableCharacters.first { $0.avatar == .avt1 })
+        viewModel.addPlayer(rex, isAI: false)
+        let playerID = try XCTUnwrap(viewModel.players.last?.id)
+        let saxon = try XCTUnwrap(viewModel.availableCharacters.first { $0.avatar == .avt2 })
+
+        viewModel.updatePlayer(id: playerID, to: saxon, isAI: true)
+
+        XCTAssertEqual(viewModel.players.last?.id, playerID)
+        XCTAssertEqual(viewModel.players.last?.name, saxon.name)
+        XCTAssertEqual(viewModel.players.last?.avatarResource, saxon.avatar)
+        XCTAssertTrue(viewModel.players.last?.isAI == true)
+        XCTAssertTrue(viewModel.availableCharacters.contains { $0.avatar == rex.avatar })
+        XCTAssertFalse(viewModel.availableCharacters.contains { $0.avatar == saxon.avatar })
+
+        viewModel.updatePlayer(id: firstPlayer.id, to: rex, isAI: true)
+        XCTAssertFalse(firstPlayer.isAI)
+        XCTAssertEqual(firstPlayer.avatarResource, .avt5)
+    }
+
     func testPerformanceExample() throws {
         // This is an example of a performance test case.
         measure {

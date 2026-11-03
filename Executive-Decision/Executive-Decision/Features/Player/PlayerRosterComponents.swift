@@ -67,29 +67,52 @@ struct PlayerRosterHeaderView: View {
 struct PlayerRosterRowView: View {
     let player: EDPlayer
     let isFirstPlayer: Bool
+    let onEdit: () -> Void
     let onRemove: () -> Void
 
     var body: some View {
-        HStack(spacing: 14) {
-            avatar
-                .frame(width: 64, height: 64)
-                .overlay {
-                    Rectangle()
-                        .stroke(PlayerRosterStyle.ink, lineWidth: 2)
+        ZStack(alignment: .trailing) {
+            Button(action: onEdit) {
+                HStack(spacing: 14) {
+                    avatar
+                        .frame(width: 64, height: 64)
+                        .overlay {
+                            Rectangle()
+                                .stroke(PlayerRosterStyle.ink, lineWidth: 2)
+                        }
+
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text(player.name)
+                            .font(.system(size: 23, weight: .black, design: .serif))
+                            .foregroundStyle(PlayerRosterStyle.ink)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.8)
+                        Text(isFirstPlayer ? "You · Human" : (player.isAI ? "Bot" : "Human"))
+                            .font(.system(size: 15, weight: .bold, design: .rounded))
+                            .foregroundStyle(PlayerRosterStyle.ink)
+                    }
+
+                    Spacer(minLength: 4)
+
+                    if !isFirstPlayer {
+                        Color.clear
+                            .frame(width: 44, height: 44)
+                    }
                 }
-
-            VStack(alignment: .leading, spacing: 3) {
-                Text(player.name)
-                    .font(.system(size: 23, weight: .black, design: .serif))
-                    .foregroundStyle(PlayerRosterStyle.ink)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.8)
-                Text(isFirstPlayer ? "You · Human" : (player.isAI ? "Bot" : "Human"))
-                    .font(.system(size: 15, weight: .bold, design: .rounded))
-                    .foregroundStyle(PlayerRosterStyle.ink)
+                .padding(12)
+                .frame(maxWidth: .infinity, minHeight: 92, alignment: .leading)
+                .background(isFirstPlayer ? PlayerRosterStyle.selected : Color.white.opacity(0.6))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .overlay {
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(PlayerRosterStyle.ink, lineWidth: isFirstPlayer ? 3 : 2)
+                }
+                .contentShape(RoundedRectangle(cornerRadius: 8))
             }
-
-            Spacer(minLength: 4)
+            .buttonStyle(.plain)
+            .disabled(isFirstPlayer)
+            .accessibilityLabel(isFirstPlayer ? "You, Human" : "Edit \(player.name)")
+            .accessibilityHint(isFirstPlayer ? "" : "Change this player's character or type")
 
             if !isFirstPlayer {
                 Button(action: onRemove) {
@@ -103,15 +126,6 @@ struct PlayerRosterRowView: View {
                 .accessibilityLabel("Remove \(player.name)")
             }
         }
-        .padding(12)
-        .frame(maxWidth: .infinity, minHeight: 92, alignment: .leading)
-        .background(isFirstPlayer ? PlayerRosterStyle.selected : Color.white.opacity(0.6))
-        .clipShape(RoundedRectangle(cornerRadius: 8))
-        .overlay {
-            RoundedRectangle(cornerRadius: 8)
-                .stroke(PlayerRosterStyle.ink, lineWidth: isFirstPlayer ? 3 : 2)
-        }
-        .shadow(color: PlayerRosterStyle.ink, radius: 0, x: 4, y: 4)
     }
 
     @ViewBuilder
@@ -180,7 +194,6 @@ struct ContinuePlayersButton: View {
                     RoundedRectangle(cornerRadius: 8)
                         .stroke(PlayerRosterStyle.ink, lineWidth: 3)
                 }
-                .shadow(color: PlayerRosterStyle.ink, radius: 0, x: 5, y: 5)
         }
         .buttonStyle(.plain)
         .disabled(!isEnabled)
@@ -191,14 +204,28 @@ struct ContinuePlayersButton: View {
 struct AvailablePlayersDrawer: View {
     @Environment(\.dismiss) private var dismiss
     let availablePlayers: [PlayerCharacter]
+    let isEditing: Bool
     let onSelect: (PlayerCharacter, PlayerKind) -> Void
-    @State private var playerKind: PlayerKind = .human
+    @State private var playerKind: PlayerKind
+    @State private var isDraggingPlayer = false
+
+    init(
+        availablePlayers: [PlayerCharacter],
+        isEditing: Bool = false,
+        initialPlayerKind: PlayerKind = .human,
+        onSelect: @escaping (PlayerCharacter, PlayerKind) -> Void
+    ) {
+        self.availablePlayers = availablePlayers
+        self.isEditing = isEditing
+        self.onSelect = onSelect
+        _playerKind = State(initialValue: initialPlayerKind)
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 18) {
             HStack(alignment: .top) {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("Add a player")
+                    Text(isEditing ? "Edit player" : "Add a player")
                         .font(.system(size: 28, weight: .black, design: .serif))
                         .foregroundStyle(PlayerRosterStyle.ink)
                     Text("Choose a character and player type.")
@@ -237,6 +264,7 @@ struct AvailablePlayersDrawer: View {
                     LazyVStack(spacing: 10) {
                         ForEach(availablePlayers) { player in
                             Button {
+                                guard !isDraggingPlayer else { return }
                                 onSelect(player, playerKind)
                                 dismiss()
                             } label: {
@@ -263,7 +291,20 @@ struct AvailablePlayersDrawer: View {
                                 .contentShape(RoundedRectangle(cornerRadius: 8))
                             }
                             .buttonStyle(.plain)
-                            .accessibilityLabel("Add \(player.name) as \(playerKind.rawValue)")
+                            .simultaneousGesture(
+                                DragGesture(minimumDistance: 8)
+                                    .onChanged { _ in
+                                        isDraggingPlayer = true
+                                    }
+                                    .onEnded { _ in
+                                        DispatchQueue.main.async {
+                                            isDraggingPlayer = false
+                                        }
+                                    }
+                            )
+                            .accessibilityLabel(
+                                "\(isEditing ? "Change to" : "Add") \(player.name) as \(playerKind.rawValue)"
+                            )
                         }
                     }
                 }

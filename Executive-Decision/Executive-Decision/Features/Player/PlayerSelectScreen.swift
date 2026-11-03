@@ -60,7 +60,6 @@ struct PlayerSelectScreen: View {
                         RoundedRectangle(cornerRadius: 8)
                             .stroke(ink, lineWidth: 3)
                     }
-                    .shadow(color: ink, radius: 0, x: 5, y: 5)
             }
             .buttonStyle(.plain)
             .padding(.horizontal, 22)
@@ -110,7 +109,6 @@ struct PlayerSelectScreen: View {
                 RoundedRectangle(cornerRadius: 8)
                     .stroke(isSelected ? buttonColor : ink, lineWidth: isSelected ? 4 : 3)
             }
-            .shadow(color: ink, radius: 0, x: 4, y: 4)
             .contentShape(RoundedRectangle(cornerRadius: 8))
         }
         .buttonStyle(.plain)

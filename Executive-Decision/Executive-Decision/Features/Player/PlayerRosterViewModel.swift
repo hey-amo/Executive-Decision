@@ -7,9 +7,14 @@ final class PlayerRosterViewModel {
     private(set) var players: [EDPlayer]
 
     var availableCharacters: [PlayerCharacter] {
+        availableCharacters(excludingPlayerID: nil)
+    }
+
+    func availableCharacters(excludingPlayerID playerID: UUID?) -> [PlayerCharacter] {
         PlayerCharacter.all.filter { character in
             !players.contains {
-                $0.avatarResource == character.avatar || $0.name == character.name
+                $0.id != playerID
+                    && ($0.avatarResource == character.avatar || $0.name == character.name)
             }
         }
     }
@@ -30,6 +35,20 @@ final class PlayerRosterViewModel {
         }
 
         players.append(EDPlayer(name: character.name, avatar: character.avatar, isAI: isAI))
+    }
+
+    func updatePlayer(id: UUID, to character: PlayerCharacter, isAI: Bool) {
+        guard players.first?.id != id,
+              let index = players.firstIndex(where: { $0.id == id }),
+              availableCharacters(excludingPlayerID: id).contains(where: { $0.id == character.id }) else {
+            return
+        }
+
+        let player = players[index]
+        player.name = character.name
+        player.avatarResource = character.avatar
+        player.isAI = isAI
+        players[index] = player
     }
 
     func removePlayer(id: UUID) {
