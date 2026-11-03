@@ -10,7 +10,7 @@ struct PlayerHUDView: View {
     let player: EDPlayer
     var body: some View {
         VStack {
-            PlayerAvatarView(avatarResource: player.avatar.rawValue, isHighlighted: true)
+            PlayerAvatarView(avatarResource: player.avatarResource?.rawValue ?? "avt-1", isHighlighted: true)
             CoinView(coins: player.coins)
         }
     }

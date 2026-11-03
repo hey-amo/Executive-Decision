@@ -6,11 +6,15 @@ struct CoinView: View {
     let coins: Int
 
     var body: some View {        
-        if coins < 0 {  
-            Text(coins.formatted(.currency(code: "USD")))
+        if coins < 0 {
+            Text("$\(coins.formatted(.number.precision(.fractionLength(0))))")
                 .foregroundColor(.red)
         } else {
-            Text(coins.formatted(.currency(code: "USD")))
+            Text("$\(coins.formatted(.number.precision(.fractionLength(0))))")
         }
     }
+}
+
+#Preview {
+    CoinView(coins: 101)
 }
