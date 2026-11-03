@@ -17,6 +17,10 @@ This will be a minimalist game, with no multiplayer mode.
 - Multiplayer via Internet
 - Clouddata backups
 
+# AI usage
+
+LLMs were used in the in the programming, development and art of this game, specifically OpenAI Codex (gpt-5.4 medium) and Claude Code (Sonnet 4.6).
+
 --
 
 # Game Overview
