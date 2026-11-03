@@ -5,25 +5,9 @@
 import SwiftUI
 import EDEngine
 
-private struct SelectableCharacter: Identifiable {
-    let name: String
-    let avatar: Avatar
-
-    var id: String { avatar.rawValue }
-
-    static let all: [SelectableCharacter] = [
-        SelectableCharacter(name: "Rex", avatar: .avt1),
-        SelectableCharacter(name: "Saxon", avatar: .avt2),
-        SelectableCharacter(name: "Gordon", avatar: .avt3),
-        SelectableCharacter(name: "Dean", avatar: .avt4),
-        SelectableCharacter(name: "Vivian", avatar: .avt5),
-        SelectableCharacter(name: "Nanish", avatar: .avt6)
-    ]
-}
-
 struct PlayerSelectScreen: View {
     private let onContinue: (EDPlayer) -> Void
-    @State private var selectedCharacter = SelectableCharacter.all[0]
+    @State private var selectedCharacter = PlayerCharacter.all[0]
 
     private let columns = [
         GridItem(.flexible(), spacing: 14),
@@ -53,7 +37,7 @@ struct PlayerSelectScreen: View {
                 }
 
                 LazyVGrid(columns: columns, spacing: 18) {
-                    ForEach(SelectableCharacter.all) { character in
+                    ForEach(PlayerCharacter.all) { character in
                         characterCard(character)
                     }
                 }
@@ -86,7 +70,7 @@ struct PlayerSelectScreen: View {
         }
     }
 
-    private func characterCard(_ character: SelectableCharacter) -> some View {
+    private func characterCard(_ character: PlayerCharacter) -> some View {
         let isSelected = selectedCharacter.id == character.id
 
         return Button {
