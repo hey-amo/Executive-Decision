@@ -11,7 +11,7 @@ import SwiftUI
 struct Executive_DecisionApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            MainMenuView()
         }
     }
 }
