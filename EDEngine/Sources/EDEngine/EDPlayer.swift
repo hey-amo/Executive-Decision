@@ -17,14 +17,16 @@ public enum EDAvatarToResourceName: String, CaseIterable, Sendable {
 }
 
 public class EDPlayer: GKPlayer, Identifiable {
+    public let id: UUID = UUID()
+    override public var playerID: String { return self.id.uuidString }
     public var name: String
-    public var avatar: Avatar?
+    public var avatarResource: Avatar?
     public var tallySheet: EDTallySheet = EDTallySheet()
     private var _coins: Int
     public var coins: Int { get { return self._coins} }
-    public var isBankrupt: Bool
+    public var isBankrupt: Bool = false
     public var loans: [EDLoanEntry] = []
-    public var isAI: Bool
+    public var isAI: Bool = false
 
     public init(name: String,
                 avatar: Avatar? = nil,
@@ -33,7 +35,7 @@ public class EDPlayer: GKPlayer, Identifiable {
                 loans: [EDLoanEntry]  = [],
                 isAI: Bool = false) {
         self.name = name
-        self.avatar = avatar
+        self.avatarResource = avatar
         self._coins = coins
         self.isBankrupt = isBankrupt
         self.loans = loans
