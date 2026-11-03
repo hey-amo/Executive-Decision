@@ -201,6 +201,8 @@ When enabled, a bid below the Market Price may still purchase part of the order 
 
  Each player gets their own tally sheet
 
+ ---------
+
 ## Debugging game state
 
 To print a formatted game-state snapshot automatically after setup, enable the
