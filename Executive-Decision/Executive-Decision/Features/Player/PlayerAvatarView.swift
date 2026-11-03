@@ -6,6 +6,7 @@ import SwiftUI
 import Foundation
 
 // Shows a single player avatar
+// TODO: Add greyed out style
 struct PlayerAvatarView: View {
     var avatarResource: String
     var isHighlighted = false
@@ -19,7 +20,7 @@ struct PlayerAvatarView: View {
             .clipShape(Circle())
             .overlay {
                 Circle()
-                    .stroke(isHighlighted ? Color.blue : Color.clear, lineWidth: 3)
+                    .stroke(isHighlighted ? Color.blue : Color.clear, lineWidth: 4)
             }
             .accessibilityLabel("Player avatar")
     }
