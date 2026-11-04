@@ -45,7 +45,8 @@ public final class EDGameSetupManager {
     public func startGame(
         playerCount: Int,
         durationMonths: Int = kConstants.durationLongGame,
-        settings: EDGameSettings = EDGameSettings()
+        settings: EDGameSettings = EDGameSettings(),
+        shuffleTurnOrder: Bool = true
     ) throws -> ExecutiveDecisionGame {
         try Self.validate(playerCount: playerCount, durationMonths: durationMonths)
 
@@ -60,9 +61,14 @@ public final class EDGameSetupManager {
         let players = (1...playerCount).map {
             EDPlayer(name: "Player \($0)", coins: startingCoins)
         }
+        let turnOrderManager = try EDTurnOrderManager(
+            playerCount: playerCount,
+            shuffle: shuffleTurnOrder
+        )
         let game = ExecutiveDecisionGame(
             maxMonths: durationMonths,
             players: players,
+            turnOrderManager: turnOrderManager,
             settings: settings
         )
         storedActiveGame = game        

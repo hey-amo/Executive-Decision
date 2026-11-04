@@ -138,14 +138,16 @@ final class EDGameSetupManagerTests: XCTestCase {
         let game = try manager.startGame(playerCount: 2, durationMonths: kConstants.durationShortGame)
 
         for _ in 0..<7 {
-            try game.advancePhase()
+            try advancePhase(game)
         }
 
         let description = game.debugStateDescription
 
         XCTAssertTrue(description.contains("Month: 3/6"))
         XCTAssertTrue(description.contains("Players: 2"))
-        XCTAssertTrue(description.contains("Current player: Not assigned"))
+        XCTAssertTrue(description.contains("Turn order:"))
+        XCTAssertTrue(description.contains("Current player: Player"))
+        XCTAssertTrue(description.contains("Phase barrier reached: No"))
         XCTAssertTrue(description.contains("Deck: Not tracked"))
         XCTAssertTrue(description.contains("Game state: purchaseRawMaterials"))
         XCTAssertTrue(description.contains("Game phase: Purchase raw materials"))
@@ -159,7 +161,14 @@ final class EDGameSetupManagerTests: XCTestCase {
 
     private func advanceToGameOver(_ game: ExecutiveDecisionGame) throws {
         while game.gameState != .gameOver {
-            try game.advancePhase()
+            try advancePhase(game)
         }
+    }
+
+    private func advancePhase(_ game: ExecutiveDecisionGame) throws {
+        while let activePlayer = game.activePlayer {
+            try game.markPlayerReady(activePlayer)
+        }
+        try game.advancePhase()
     }
 }

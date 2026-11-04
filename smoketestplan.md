@@ -180,9 +180,9 @@ These are source-review findings, not results from a smoke-test run:
   carried between months.
 
   Still outstanding:
-  - **8.2.1** `advancePhase()` advances the state sequence without requiring
-    phase actions to be submitted or resolved first. It is phase progression,
-    not yet an orchestrated game loop.
+  - **8.2.1** Readiness is an explicit player acknowledgement, but is not yet
+    tied to a submitted order or completed phase action. Players can currently
+    mark themselves ready without a transaction to verify.
   - **8.2.2** Raw-material purchases are not resolved against bids, available
     certificate stock, player funds, or player inventory as one game
     transaction.
@@ -196,13 +196,19 @@ These are source-review findings, not results from a smoke-test run:
     each player's tally sheet.
   - **8.2.6** The final transition to `gameOver` does not liquidate unused raw
     materials or repay enabled loans.
-  - **8.2.7** The game does not yet enforce a single active player or wait for
-    all players at a simultaneous-order phase barrier.
-- **8.3** `EDTurnOrderManager` can track a turn order, but it is not connected to the
-  game and does not model player readiness or phase barriers.
-- **8.4** `EDGameDebugLogger` now renders market prices, player raw-material holdings,
-  and the current month's production/offering/sales. It still does not report
-  the active player or print tally sheets.
+  - ~~**8.2.7** The game does not yet enforce a single active player or wait
+    for all players at a simultaneous-order phase barrier.~~
+- ~~**8.3** `EDTurnOrderManager` can track a turn order, but it is not connected
+  to the game and does not model player readiness or phase barriers.~~ The
+  manager is now owned by the game. One active player follows the configured
+  order in each purchase, manufacture, and sale phase. `advancePhase()` waits
+  until every player is marked ready, then clears readiness for the next phase.
+  For concealed purchase orders, this barrier represents collecting every
+  player's order before market resolution; it does not mean players act at the
+  same time.~~
+- **8.4** `EDGameDebugLogger` now renders market prices, player raw-material
+  holdings, the current month's production/offering/sales, active player, turn
+  order, and readiness barrier. It still does not print tally sheets.
 - **8.5** The README market calculator supports raw-material totals from 0 to 24.
   Six players may each order up to six units, so a valid combined total could
   exceed that table’s range. The smoke-test bot policy must keep each grade’s
@@ -224,9 +230,9 @@ These are source-review findings, not results from a smoke-test run:
    ambiguities above.
 2. Fill the engine prerequisites needed for a real full-game run: correct
    starting cash, game state for prices/inventories, and explicit,
-   testable phase/turn transitions. Starting cash, board/player state, and
-   phase/month progression are implemented; transaction operations and player
-   turn integration remain.
+   testable phase/turn transitions. Starting cash, board/player state,
+   phase/month progression, turn order, and readiness barriers are implemented;
+   transaction operations and action-verified readiness remain.
 3. Implement and unit-test the purchase, manufacture, sale, month-close, and
    finalization operations using existing rule helpers where possible.
 4. Complete `EDGameDebugLogger` with phase snapshots and per-player

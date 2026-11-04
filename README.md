@@ -234,5 +234,9 @@ month-scoped production, offerings, and sales. Finished goods are not retained
 as player inventory: each month's goods ledger is cleared when the next month
 begins. Phase progression is available through `advancePhase()`, from setup
 through purchase, manufacture, sale, month progression, and end of game. Player
-turn order and transaction resolution are not yet connected to this lifecycle.
-The engine does not model a deck or active player.
+turn order is connected to purchase, manufacture, and sale phases: only the
+current player can be marked ready, and the phase cannot advance until all
+players are ready. For concealed orders, this barrier collects each player's
+submission before resolution; it does not mean players act simultaneously.
+Readiness is currently an acknowledgement and is not yet validated against a
+completed transaction. The engine does not model a deck.

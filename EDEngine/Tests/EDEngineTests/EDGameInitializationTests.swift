@@ -125,23 +125,24 @@ final class EDGameInitializationTests: XCTestCase {
     func testGameAdvancesMonthsInOrderAndResetsMonthlyGoods() throws {
         let game = try EDGameSetupManager().startGame(
             playerCount: 2,
-            durationMonths: kConstants.durationShortGame
+            durationMonths: kConstants.durationShortGame,
+            shuffleTurnOrder: false
         )
         let player = try XCTUnwrap(game.players.first)
         try player.monthlyGoods.recordProduction([.a: 1])
         try player.monthlyGoods.recordOffer([.a: 1])
 
-        XCTAssertEqual(try game.advancePhase(), .purchaseRawMaterials)
-        XCTAssertEqual(try game.advancePhase(), .manufactureProducts)
-        XCTAssertEqual(try game.advancePhase(), .sellingFinishedGoods)
-        XCTAssertEqual(try game.advancePhase(), .purchaseRawMaterials)
+        XCTAssertEqual(try advancePhase(game), .purchaseRawMaterials)
+        XCTAssertEqual(try advancePhase(game), .manufactureProducts)
+        XCTAssertEqual(try advancePhase(game), .sellingFinishedGoods)
+        XCTAssertEqual(try advancePhase(game), .purchaseRawMaterials)
         XCTAssertEqual(game.currentMonth, 2)
         XCTAssertTrue(player.monthlyGoods.produced.isEmpty)
         XCTAssertTrue(player.monthlyGoods.offered.isEmpty)
 
         var transitions: [EDGameState] = []
         while game.gameState != .gameOver {
-            transitions.append(try game.advancePhase())
+            transitions.append(try advancePhase(game))
         }
 
         XCTAssertEqual(game.currentMonth, kConstants.durationShortGame)
@@ -166,9 +167,111 @@ final class EDGameInitializationTests: XCTestCase {
         }
     }
 
+    func testGameRequiresPlayersInTurnOrderToCompletePhaseBeforeAdvancing() throws {
+        let game = try EDGameSetupManager().startGame(
+            playerCount: 3,
+            shuffleTurnOrder: false
+        )
+        let players = game.players
+
+        XCTAssertEqual(game.turnOrder, [1, 2, 3])
+        XCTAssertNil(game.activePlayer)
+        XCTAssertThrowsError(try game.markPlayerReady(players[0])) { error in
+            XCTAssertEqual(
+                error as? EDGameReadinessError,
+                .notActionablePhase(.setup)
+            )
+        }
+        XCTAssertEqual(try game.advancePhase(), .purchaseRawMaterials)
+        XCTAssertTrue(game.activePlayer === players[0])
+
+        XCTAssertThrowsError(try game.advancePhase()) { error in
+            XCTAssertEqual(
+                error as? EDGameTransitionError,
+                .phaseNotReady(remainingPlayerNumbers: [1, 2, 3])
+            )
+        }
+        XCTAssertThrowsError(try game.markPlayerReady(players[1])) { error in
+            XCTAssertEqual(
+                error as? EDGameReadinessError,
+                .notActivePlayer(expectedPlayerNumber: 1, receivedPlayerNumber: 2)
+            )
+        }
+
+        try game.markPlayerReady(players[0])
+        XCTAssertEqual(game.readyPlayerNumbers, [1])
+        XCTAssertTrue(game.activePlayer === players[1])
+        XCTAssertThrowsError(try game.advancePhase()) { error in
+            XCTAssertEqual(
+                error as? EDGameTransitionError,
+                .phaseNotReady(remainingPlayerNumbers: [2, 3])
+            )
+        }
+
+        try game.markPlayerReady(players[1])
+        try game.markPlayerReady(players[2])
+        XCTAssertTrue(game.isPhaseBarrierReached)
+        XCTAssertNil(game.activePlayer)
+        XCTAssertThrowsError(try game.markPlayerReady(players[0])) { error in
+            XCTAssertEqual(error as? EDGameReadinessError, .phaseBarrierReached)
+        }
+
+        XCTAssertEqual(try game.advancePhase(), .manufactureProducts)
+        XCTAssertTrue(game.readyPlayerNumbers.isEmpty)
+        XCTAssertTrue(game.activePlayer === players[0])
+    }
+
+    func testPlayerOutsideGameCannotMarkReadiness() throws {
+        let game = try EDGameSetupManager().startGame(
+            playerCount: 2,
+            shuffleTurnOrder: false
+        )
+        try game.advancePhase()
+
+        XCTAssertThrowsError(try game.markPlayerReady(EDPlayer(name: "Outsider"))) { error in
+            XCTAssertEqual(error as? EDGameReadinessError, .playerNotInGame)
+        }
+    }
+
+    func testEveryPlayerActionPhaseUsesReadinessBarrier() throws {
+        let game = try EDGameSetupManager().startGame(
+            playerCount: 2,
+            durationMonths: kConstants.durationShortGame,
+            shuffleTurnOrder: false
+        )
+        try game.advancePhase()
+
+        for expectedNextPhase in [
+            EDGameState.manufactureProducts,
+            .sellingFinishedGoods,
+            .purchaseRawMaterials
+        ] {
+            XCTAssertThrowsError(try game.advancePhase()) { error in
+                XCTAssertEqual(
+                    error as? EDGameTransitionError,
+                    .phaseNotReady(remainingPlayerNumbers: [1, 2])
+                )
+            }
+            while let activePlayer = game.activePlayer {
+                try game.markPlayerReady(activePlayer)
+            }
+            XCTAssertTrue(game.isPhaseBarrierReached)
+            XCTAssertEqual(try game.advancePhase(), expectedNextPhase)
+            XCTAssertFalse(game.isPhaseBarrierReached)
+        }
+    }
+
     private func advanceToGameOver(_ game: ExecutiveDecisionGame) throws {
         while game.gameState != .gameOver {
-            try game.advancePhase()
+            try advancePhase(game)
         }
+    }
+
+    @discardableResult
+    private func advancePhase(_ game: ExecutiveDecisionGame) throws -> EDGameState {
+        while let activePlayer = game.activePlayer {
+            try game.markPlayerReady(activePlayer)
+        }
+        return try game.advancePhase()
     }
 }

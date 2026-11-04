@@ -30,6 +30,10 @@ public extension ExecutiveDecisionGame {
         let finishedGoodPrices = FinishedGood.allCases.map {
             "\($0.debugName): $\(marketBoard.price(for: $0))"
         }.joined(separator: ", ")
+        let activePlayerDescription = activePlayer?.name
+            ?? (isPhaseBarrierReached ? "None (phase barrier reached)" : "None (no active turn)")
+        let turnOrderDescription = turnOrder.map(String.init).joined(separator: " -> ")
+        let readyPlayersDescription = readyPlayerNumbers.sorted().map(String.init).joined(separator: ", ")
 
         return """
         \(divider)
@@ -37,7 +41,10 @@ public extension ExecutiveDecisionGame {
         \(divider)
         Month: \(currentMonth)/\(duration)
         Players: \(players.count)
-        Current player: Not assigned (turn order is not connected to the game)
+        Turn order: \(turnOrderDescription)
+        Current player: \(activePlayerDescription)
+        Ready players: \(readyPlayersDescription.isEmpty ? "None" : readyPlayersDescription)
+        Phase barrier reached: \(isPhaseBarrierReached ? "Yes" : "No")
         Deck: Not tracked (card deck is not implemented)
 
         Game state: \(gameState)
