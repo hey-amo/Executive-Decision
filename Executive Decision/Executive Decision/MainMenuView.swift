@@ -6,7 +6,11 @@ import SwiftUI
 
 struct MainMenuView: View {
     var body: some View {
-        Text("Hello world")
+        VStack {
+            Text("Executive Decision")
+            Button("Offline Play", action: {}
+            )
+        }
     }
 }
 
