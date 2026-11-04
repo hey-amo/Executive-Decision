@@ -31,7 +31,7 @@ final class EDGameSetupManagerTests: XCTestCase {
                 Array(repeating: startingCoins, count: playerCount),
                 "Unexpected starting cash for \(playerCount) players"
             )
-            game.gameState = .gameOver
+            try advanceToGameOver(game)
         }
     }
 
@@ -80,7 +80,6 @@ final class EDGameSetupManagerTests: XCTestCase {
         )
         let manager = EDGameSetupManager()
         let game = try manager.startGame(playerCount: 3, settings: settings)
-        defer { game.gameState = .gameOver }
 
         XCTAssertTrue(manager.activeGame === game)
         XCTAssertEqual(game.currentMonth, 1)
@@ -98,24 +97,25 @@ final class EDGameSetupManagerTests: XCTestCase {
             XCTAssertEqual(error as? EDGameSetupError, .gameAlreadyInProgress)
         }
         XCTAssertTrue(manager.activeGame === game)
+        try advanceToGameOver(game)
     }
 
     func testCanStartNewGameAfterCurrentGameIsOver() throws {
         let manager = EDGameSetupManager()
 
         let firstGame = try manager.startGame(playerCount: 2)
-        firstGame.gameState = .gameOver
+        try advanceToGameOver(firstGame)
 
         let secondGame = try manager.startGame(
             playerCount: 4,
             durationMonths: kConstants.durationShortGame
         )
-        defer { secondGame.gameState = .gameOver }
 
         XCTAssertFalse(firstGame === secondGame)
         XCTAssertTrue(manager.activeGame === secondGame)
         XCTAssertEqual(secondGame.players.count, 4)
         XCTAssertEqual(secondGame.duration, kConstants.durationShortGame)
+        try advanceToGameOver(secondGame)
     }
 
     func testSeparateSetupManagersManageSeparateGames() throws {
@@ -129,28 +129,46 @@ final class EDGameSetupManagerTests: XCTestCase {
         XCTAssertTrue(firstManager.activeGame === firstGame)
         XCTAssertTrue(secondManager.activeGame === secondGame)
 
-        firstGame.gameState = .gameOver
-        secondGame.gameState = .gameOver
+        try advanceToGameOver(firstGame)
+        try advanceToGameOver(secondGame)
     }
 
     func testDebugStateDescriptionIncludesGameAndPlayerState() throws {
         let manager = EDGameSetupManager()
         let game = try manager.startGame(playerCount: 2, durationMonths: kConstants.durationShortGame)
-        defer { game.gameState = .gameOver }
 
-        game.currentMonth = 3
-        game.gameState = .purchaseRawMaterials
+        for _ in 0..<7 {
+            try advancePhase(game)
+        }
 
         let description = game.debugStateDescription
 
         XCTAssertTrue(description.contains("Month: 3/6"))
         XCTAssertTrue(description.contains("Players: 2"))
-        XCTAssertTrue(description.contains("Current player: Not assigned"))
+        XCTAssertTrue(description.contains("Turn order:"))
+        XCTAssertTrue(description.contains("Current player: Player"))
+        XCTAssertTrue(description.contains("Phase barrier reached: No"))
         XCTAssertTrue(description.contains("Deck: Not tracked"))
         XCTAssertTrue(description.contains("Game state: purchaseRawMaterials"))
         XCTAssertTrue(description.contains("Game phase: Purchase raw materials"))
+        XCTAssertTrue(description.contains("Raw-material market:"))
+        XCTAssertTrue(description.contains("Raw materials: Standard: 0, Fine: 0, Extra Fine: 0"))
         XCTAssertTrue(description.contains("Player 1"))
         XCTAssertTrue(description.contains("Coins: $900"))
-        XCTAssertTrue(description.contains("Cards held: Not tracked"))
+        XCTAssertTrue(description.contains("This month's production: A: 0, B: 0, C: 0"))
+        try advanceToGameOver(game)
+    }
+
+    private func advanceToGameOver(_ game: ExecutiveDecisionGame) throws {
+        while game.gameState != .gameOver {
+            try advancePhase(game)
+        }
+    }
+
+    private func advancePhase(_ game: ExecutiveDecisionGame) throws {
+        while let activePlayer = game.activePlayer {
+            try game.markPlayerReady(activePlayer)
+        }
+        try game.advancePhase()
     }
 }

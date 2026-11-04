@@ -50,4 +50,21 @@ final class EDTurnOrderManagerTests: XCTestCase {
         XCTAssertEqual(manager.currentPlayerNumber, 1)
         XCTAssertEqual(manager.completedRounds, 1)
     }
+
+    func testUsesProvidedTurnOrder() throws {
+        var manager = try EDTurnOrderManager(turnOrder: [3, 1, 2])
+
+        XCTAssertEqual(manager.turnOrder, [3, 1, 2])
+        XCTAssertEqual(manager.currentPlayerNumber, 3)
+        XCTAssertFalse(manager.advanceTurn())
+        XCTAssertEqual(manager.currentPlayerNumber, 1)
+    }
+
+    func testRejectsInvalidExplicitTurnOrders() {
+        for order in [[], [1, 1], [0, 1], [1, 3]] {
+            XCTAssertThrowsError(try EDTurnOrderManager(turnOrder: order)) { error in
+                XCTAssertEqual(error as? TurnOrderError, .invalidTurnOrder(order))
+            }
+        }
+    }
 }

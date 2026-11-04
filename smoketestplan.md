@@ -165,28 +165,62 @@ accounting effects.
 
 These are source-review findings, not results from a smoke-test run:
 
+### 8.1 Starting capital
+
 - ~~`EDGameSetupManager.startGame` creates players with zero coins; it does not
   apply the six-player $300 starting-capital rule.~~
-- `ExecutiveDecisionGame` currently stores only month, duration, players,
-  phase, and settings. There is no game-loop/phase-transition API, market
-  board state, raw-material or finished-goods inventory, or finished-goods
-  production/sale state.
-- `EDTurnOrderManager` can track a turn order, but it is not connected to the
-  game and does not model player readiness or phase barriers.
-- `EDGameDebugLogger` currently reports active player, deck, and inventory as
-  untracked; it does not render the market board or tally sheets.
-- The README market calculator supports raw-material totals from 0 to 24.
+
+### 8.2 Executive Decision Game
+
+- `ExecutiveDecisionGame` advances through setup, purchase, manufacture,
+  selling, month boundaries, end-of-year, and game-over via `advancePhase()`.
+  The market board tracks prices and 28 certificates per raw-material grade;
+  players track raw-material holdings and a month-scoped production/offering/
+  sales ledger. The ledger is not a finished-goods inventory: goods are not
+  carried between months.
+
+  Still outstanding:
+  - **8.2.1** Readiness is an explicit player acknowledgement, but is not yet
+    tied to a submitted order or completed phase action. Players can currently
+    mark themselves ready without a transaction to verify.
+  - **8.2.2** Raw-material purchases are not resolved against bids, available
+    certificate stock, player funds, or player inventory as one game
+    transaction.
+  - **8.2.3** Production is not yet resolved by applying recipes and permitted
+    substitutions to raw-material holdings; recording production does not
+    consume those materials.
+  - **8.2.4** Finished-good offerings and sales are not yet resolved against
+    market prices, and sales do not credit player funds or consume the
+    corresponding production.
+  - **8.2.5** Month close does not record a completed month's transactions on
+    each player's tally sheet.
+  - **8.2.6** The final transition to `gameOver` does not liquidate unused raw
+    materials or repay enabled loans.
+  - ~~**8.2.7** The game does not yet enforce a single active player or wait
+    for all players at a simultaneous-order phase barrier.~~
+- ~~**8.3** `EDTurnOrderManager` can track a turn order, but it is not connected
+  to the game and does not model player readiness or phase barriers.~~ The
+  manager is now owned by the game. One active player follows the configured
+  order in each purchase, manufacture, and sale phase. `advancePhase()` waits
+  until every player is marked ready, then clears readiness for the next phase.
+  For concealed purchase orders, this barrier represents collecting every
+  player's order before market resolution; it does not mean players act at the
+  same time.~~
+- **8.4** `EDGameDebugLogger` now renders market prices, player raw-material
+  holdings, the current month's production/offering/sales, active player, turn
+  order, and readiness barrier. It still does not print tally sheets.
+- **8.5** The README market calculator supports raw-material totals from 0 to 24.
   Six players may each order up to six units, so a valid combined total could
   exceed that table’s range. The smoke-test bot policy must keep each grade’s
   total in range, or the rules/engine behavior for larger totals must be
   resolved before broader stress coverage.
-- The stated 28 certificates per grade and the engine’s 12-unit
+- **8.6** The stated 28 certificates per grade and the engine’s 12-unit
   `maxMaterialUnitsCanHold` constant need a clear distinction between market
   stock and per-player carrying capacity.
-- `EDGameState.endOfYear` exists, but the README describes final liquidation
-  when the agreed game duration is reached. The intended state transition
-  between month close, `endOfYear`, and `gameOver` needs confirmation.
-- Existing tests cover setup validation, market calculations, recipes,
+- **8.7** `EDGameState.endOfYear` is now reached after the final month's sale phase and
+  advances to `gameOver`. Final raw-material liquidation and loan repayment
+  are not implemented yet.
+- **8.8** Existing tests cover setup validation, market calculations, recipes,
   substitutions, tallies, wallets, and loans individually. They do not yet
   exercise a complete playable month or game.
 
@@ -196,11 +230,14 @@ These are source-review findings, not results from a smoke-test run:
    ambiguities above.
 2. Fill the engine prerequisites needed for a real full-game run: correct
    starting cash, game state for prices/inventories, and explicit,
-   testable phase/turn transitions.
+   testable phase/turn transitions. Starting cash, board/player state,
+   phase/month progression, turn order, and readiness barriers are implemented;
+   transaction operations and action-verified readiness remain.
 3. Implement and unit-test the purchase, manufacture, sale, month-close, and
    finalization operations using existing rule helpers where possible.
-4. Extend `EDGameDebugLogger` for phase snapshots, board rendering, and
-   per-player tally-sheet printing.
+4. Complete `EDGameDebugLogger` with phase snapshots and per-player
+   tally-sheet printing. Market-board and current player-inventory rendering
+   are now present.
 5. Add a deterministic six-bot `EDSmokeTests` scenario that runs all months,
    awaits one active player at a time, logs decisions, and asserts state and
    accounting invariants.

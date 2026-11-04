@@ -37,9 +37,12 @@ final class EDGameSettingsTests: XCTestCase {
         XCTAssertFalse(settings.hapticFeedbackEnabled) 
     }
 
-    func testGameUsesProvidedSettingsAndAllowsToggling() {
+    func testGameUsesProvidedSettingsAndAllowsToggling() throws {
         let settings = EDGameSettings(allowLoans: true)
-        let game = ExecutiveDecisionGame(players: [], settings: settings)
+        let game = try EDGameSetupManager().startGame(
+            playerCount: 2,
+            settings: settings
+        )
 
         XCTAssertTrue(game.settings.allowLoans)
         XCTAssertFalse(game.settings.allowPartialRawMaterialPurchases)

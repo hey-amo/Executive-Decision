@@ -22,6 +22,9 @@ public class EDPlayer: GKPlayer, Identifiable {
     public var name: String
     public var avatarResource: Avatar?
     public var tallySheet: EDTallySheet = EDTallySheet()
+    public private(set) var rawMaterialInventory: [RawMaterial: Int] = [:]
+    /// Month-scoped production and sale records; finished goods are not carried forward.
+    public var monthlyGoods = EDMonthlyGoodsState()
     private var _coins: Int
     public var coins: Int { get { return self._coins} }
     public var isBankrupt: Bool = false
@@ -45,6 +48,48 @@ public class EDPlayer: GKPlayer, Identifiable {
     public static func == (lhs: EDPlayer, rhs: EDPlayer) -> Bool {
         return lhs.id == rhs.id
     }
+
+    public func addRawMaterials(_ quantities: [RawMaterial: Int]) throws {
+        var updatedInventory = rawMaterialInventory
+        for (material, quantity) in quantities {
+            guard quantity >= 0 else {
+                throw EDPlayerInventoryError.negativeQuantity(material)
+            }
+            let (total, overflow) = updatedInventory[material, default: 0]
+                .addingReportingOverflow(quantity)
+            guard !overflow else {
+                throw EDPlayerInventoryError.quantityOverflow(material)
+            }
+            updatedInventory[material] = total
+        }
+        rawMaterialInventory = updatedInventory
+    }
+
+    public func consumeRawMaterials(_ quantities: [RawMaterial: Int]) throws {
+        var updatedInventory = rawMaterialInventory
+        for (material, quantity) in quantities {
+            guard quantity >= 0 else {
+                throw EDPlayerInventoryError.negativeQuantity(material)
+            }
+            let available = updatedInventory[material, default: 0]
+            guard quantity <= available else {
+                throw EDPlayerInventoryError.insufficientMaterials(material)
+            }
+            let remaining = available - quantity
+            if remaining == 0 {
+                updatedInventory.removeValue(forKey: material)
+            } else {
+                updatedInventory[material] = remaining
+            }
+        }
+        rawMaterialInventory = updatedInventory
+    }
+}
+
+public enum EDPlayerInventoryError: Error, Equatable {
+    case negativeQuantity(RawMaterial)
+    case insufficientMaterials(RawMaterial)
+    case quantityOverflow(RawMaterial)
 }
 
 extension EDPlayer: UpdateWalletDelegate {
