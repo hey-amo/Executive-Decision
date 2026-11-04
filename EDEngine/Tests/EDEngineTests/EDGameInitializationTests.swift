@@ -128,11 +128,11 @@ final class EDGameInitializationTests: XCTestCase {
             durationMonths: kConstants.durationShortGame,
             shuffleTurnOrder: false
         )
+        try game.advancePhase()
         let player = try XCTUnwrap(game.players.first)
         try player.monthlyGoods.recordProduction([.a: 1])
         try player.monthlyGoods.recordOffer([.a: 1])
 
-        XCTAssertEqual(try advancePhase(game), .purchaseRawMaterials)
         XCTAssertEqual(try advancePhase(game), .manufactureProducts)
         XCTAssertEqual(try advancePhase(game), .sellingFinishedGoods)
         XCTAssertEqual(try advancePhase(game), .purchaseRawMaterials)
@@ -191,6 +191,12 @@ final class EDGameInitializationTests: XCTestCase {
                 .phaseNotReady(remainingPlayerNumbers: [1, 2, 3])
             )
         }
+        XCTAssertThrowsError(try game.markPlayerReady(players[0])) { error in
+            XCTAssertEqual(
+                error as? EDGameReadinessError,
+                .phaseActionNotSubmitted(.purchaseRawMaterials)
+            )
+        }
         XCTAssertThrowsError(try game.markPlayerReady(players[1])) { error in
             XCTAssertEqual(
                 error as? EDGameReadinessError,
@@ -198,6 +204,7 @@ final class EDGameInitializationTests: XCTestCase {
             )
         }
 
+        try game.submitRawMaterialOrder([:], for: players[0])
         try game.markPlayerReady(players[0])
         XCTAssertEqual(game.readyPlayerNumbers, [1])
         XCTAssertTrue(game.activePlayer === players[1])
@@ -208,7 +215,9 @@ final class EDGameInitializationTests: XCTestCase {
             )
         }
 
+        try game.submitRawMaterialOrder([:], for: players[1])
         try game.markPlayerReady(players[1])
+        try game.submitRawMaterialOrder([:], for: players[2])
         try game.markPlayerReady(players[2])
         XCTAssertTrue(game.isPhaseBarrierReached)
         XCTAssertNil(game.activePlayer)
@@ -219,6 +228,94 @@ final class EDGameInitializationTests: XCTestCase {
         XCTAssertEqual(try game.advancePhase(), .manufactureProducts)
         XCTAssertTrue(game.readyPlayerNumbers.isEmpty)
         XCTAssertTrue(game.activePlayer === players[0])
+    }
+
+    func testReadinessRequiresValidSubmissionInEachActionPhase() throws {
+        let game = try EDGameSetupManager().startGame(
+            playerCount: 2,
+            shuffleTurnOrder: false
+        )
+        try game.advancePhase()
+        let player = try XCTUnwrap(game.activePlayer)
+
+        XCTAssertThrowsError(try game.markPlayerReady(player)) { error in
+            XCTAssertEqual(
+                error as? EDGameReadinessError,
+                .phaseActionNotSubmitted(.purchaseRawMaterials)
+            )
+        }
+
+        XCTAssertThrowsError(
+            try game.submitRawMaterialOrder(
+                [.fine: EDRawMaterialOrder(units: -1, bidPrice: 30)],
+                for: player
+            )
+        ) { error in
+            XCTAssertEqual(
+                error as? EDGameReadinessError,
+                .invalidOrderQuantity(.fine)
+            )
+        }
+        XCTAssertThrowsError(try game.markPlayerReady(player)) { error in
+            XCTAssertEqual(
+                error as? EDGameReadinessError,
+                .phaseActionNotSubmitted(.purchaseRawMaterials)
+            )
+        }
+
+        try game.submitRawMaterialOrder(
+            [.fine: EDRawMaterialOrder(units: 2, bidPrice: 30)],
+            for: player
+        )
+        let submittedOrder = try XCTUnwrap(
+            game.submittedRawMaterialOrders[game.currentMonth]?[player.id]?[.fine]
+        )
+        XCTAssertEqual(submittedOrder.units, 2)
+        XCTAssertEqual(submittedOrder.bidPrice, 30)
+        XCTAssertThrowsError(
+            try game.submitRawMaterialOrder([:], for: player)
+        ) { error in
+            XCTAssertEqual(
+                error as? EDGameReadinessError,
+                .phaseActionAlreadySubmitted(.purchaseRawMaterials)
+            )
+        }
+        try game.markPlayerReady(player)
+
+        let secondPlayer = try XCTUnwrap(game.activePlayer)
+        try submitEmptyAction(for: secondPlayer, in: game)
+        try game.markPlayerReady(secondPlayer)
+        XCTAssertEqual(try game.advancePhase(), .manufactureProducts)
+
+        let manufacturingPlayer = try XCTUnwrap(game.activePlayer)
+        XCTAssertThrowsError(
+            try game.submitProduction([.a: -1], for: manufacturingPlayer)
+        ) { error in
+            XCTAssertEqual(error as? EDMonthlyGoodsError, .negativeQuantity(.a))
+        }
+        XCTAssertThrowsError(try game.markPlayerReady(manufacturingPlayer)) { error in
+            XCTAssertEqual(
+                error as? EDGameReadinessError,
+                .phaseActionNotSubmitted(.manufactureProducts)
+            )
+        }
+        try game.submitProduction([:], for: manufacturingPlayer)
+        try game.markPlayerReady(manufacturingPlayer)
+
+        let otherManufacturingPlayer = try XCTUnwrap(game.activePlayer)
+        try submitEmptyAction(for: otherManufacturingPlayer, in: game)
+        try game.markPlayerReady(otherManufacturingPlayer)
+        XCTAssertEqual(try game.advancePhase(), .sellingFinishedGoods)
+
+        let salesPlayer = try XCTUnwrap(game.activePlayer)
+        XCTAssertThrowsError(try game.markPlayerReady(salesPlayer)) { error in
+            XCTAssertEqual(
+                error as? EDGameReadinessError,
+                .phaseActionNotSubmitted(.sellingFinishedGoods)
+            )
+        }
+        try game.submitSales([:], for: salesPlayer)
+        try game.markPlayerReady(salesPlayer)
     }
 
     func testPlayerOutsideGameCannotMarkReadiness() throws {
@@ -253,6 +350,7 @@ final class EDGameInitializationTests: XCTestCase {
                 )
             }
             while let activePlayer = game.activePlayer {
+                try submitEmptyAction(for: activePlayer, in: game)
                 try game.markPlayerReady(activePlayer)
             }
             XCTAssertTrue(game.isPhaseBarrierReached)
@@ -270,8 +368,33 @@ final class EDGameInitializationTests: XCTestCase {
     @discardableResult
     private func advancePhase(_ game: ExecutiveDecisionGame) throws -> EDGameState {
         while let activePlayer = game.activePlayer {
+            try submitEmptyAction(for: activePlayer, in: game)
             try game.markPlayerReady(activePlayer)
         }
         return try game.advancePhase()
+    }
+
+    private func submitEmptyAction(for player: Player, in game: ExecutiveDecisionGame) throws {
+        switch game.gameState {
+        case .purchaseRawMaterials:
+            try game.submitRawMaterialOrder([:], for: player)
+        case .manufactureProducts:
+            try game.submitProduction(player.monthlyGoods.produced, for: player)
+        case .sellingFinishedGoods:
+            let sales = Dictionary(
+                uniqueKeysWithValues: FinishedGood.allCases.compactMap { good -> (FinishedGood, EDSaleEntry)? in
+                    let offered = player.monthlyGoods.offered[good, default: 0]
+                    let sold = player.monthlyGoods.sold[good, default: 0]
+                    guard offered > 0 || sold > 0 else { return nil }
+                    return (
+                        good,
+                        EDSaleEntry(unitsOffered: offered, askingPrice: 0, unitsSold: sold)
+                    )
+                }
+            )
+            try game.submitSales(sales, for: player)
+        case .setup, .bidding, .endOfYear, .gameOver, .takeALoan:
+            XCTFail("No player action can be submitted during \(game.gameState)")
+        }
     }
 }

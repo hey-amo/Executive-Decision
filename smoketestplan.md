@@ -180,9 +180,9 @@ These are source-review findings, not results from a smoke-test run:
   carried between months.
 
   Still outstanding:
-  - **8.2.1** Readiness is an explicit player acknowledgement, but is not yet
-    tied to a submitted order or completed phase action. Players can currently
-    mark themselves ready without a transaction to verify.
+  - ~~**8.2.1** Readiness requires a submitted raw-material order, production
+    result, or sales entry for the active phase; an explicitly submitted empty
+    action is allowed. Players cannot mark themselves ready before submitting.~~
   - **8.2.2** Raw-material purchases are not resolved against bids, available
     certificate stock, player funds, or player inventory as one game
     transaction.
