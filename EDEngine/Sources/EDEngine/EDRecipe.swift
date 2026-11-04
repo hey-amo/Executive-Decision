@@ -1,12 +1,12 @@
 /// Raw material grades used by finished-good recipes.
-public enum EDRawMaterialGrade: CaseIterable, Hashable, Sendable {
+public enum EDRawMaterialGrade: CaseIterable, Codable, Hashable, Sendable {
     case extraFine
     case fine
     case standard
 }
 
 /// Required raw materials for one unit of a finished good.
-public enum EDRecipe: CaseIterable, Hashable, Sendable {
+public enum EDRecipe: CaseIterable, Codable, Hashable, Sendable {
     case a
     case b
     case c
