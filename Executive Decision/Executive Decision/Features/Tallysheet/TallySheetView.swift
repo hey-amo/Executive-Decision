@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-// To hold the players tally sheet in a lazy, scrollable way
+// To hold the players tally sheet in a lazy, scrollable way, memory safe way 
 
 struct TallySheetView: View {
     var body: some View {
