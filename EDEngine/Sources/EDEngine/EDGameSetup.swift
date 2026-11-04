@@ -11,22 +11,48 @@ public struct EDGameSetup: Equatable, Sendable {
     public let playerCount: Int
     public let startingCashPerPlayer: Int
 
+    /// Raw-material order limits for this game's player count.
+    ///
+    /// Rules: Raw order limits. Monthly unit limits depend on player count.
+    public let rawOrderLimits: EDRawOrderLimits
+
     /// Creates setup for a supported player count.
     ///
     /// Rules: Setup. Games have 2–6 players, with starting cash determined by
     /// player count.
     public init(playerCount: Int) throws(EDGameSetupError) {
-        let startingCash: Int
+        let setupValues: (startingCash: Int, rawOrderLimits: EDRawOrderLimits)
         switch playerCount {
-        case 2: startingCash = 900
-        case 3: startingCash = 600
-        case 4: startingCash = 450
-        case 5: startingCash = 350
-        case 6: startingCash = 300
+        case 2:
+            setupValues = (
+                900,
+                EDRawOrderLimits(maximumTotalUnitsPerPlayer: 18, maximumUnitsPerGrade: 12)
+            )
+        case 3:
+            setupValues = (
+                600,
+                EDRawOrderLimits(maximumTotalUnitsPerPlayer: 12, maximumUnitsPerGrade: nil)
+            )
+        case 4:
+            setupValues = (
+                450,
+                EDRawOrderLimits(maximumTotalUnitsPerPlayer: 9, maximumUnitsPerGrade: nil)
+            )
+        case 5:
+            setupValues = (
+                350,
+                EDRawOrderLimits(maximumTotalUnitsPerPlayer: 7, maximumUnitsPerGrade: nil)
+            )
+        case 6:
+            setupValues = (
+                300,
+                EDRawOrderLimits(maximumTotalUnitsPerPlayer: 6, maximumUnitsPerGrade: nil)
+            )
         default: throw .invalidPlayerCount(playerCount)
         }
 
         self.playerCount = playerCount
-        self.startingCashPerPlayer = startingCash
+        self.startingCashPerPlayer = setupValues.startingCash
+        self.rawOrderLimits = setupValues.rawOrderLimits
     }
 }
