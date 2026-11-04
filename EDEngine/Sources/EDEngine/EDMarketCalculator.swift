@@ -39,6 +39,17 @@ public enum EDMarketCalculator {
         return max(1, updatedPrice)
     }
 
+    /// Returns the minimum bid for a player's raw-material order.
+    ///
+    /// Rules: FR-6 Minimum raw bid. The minimum bid is the price the grade
+    /// reaches using only that player's units, with a $1 floor.
+    public static func minimumRawBidPrice(
+        previousPrice: Int,
+        playerOrderedUnits: Int
+    ) throws(EDMarketCalculatorError) -> Int {
+        try rawMaterialPrice(previousPrice: previousPrice, orderedUnits: playerOrderedUnits)
+    }
+
     /// Returns the updated finished-good price.
     ///
     /// Rules: Finished Goods. The movement is added to the previous market price.

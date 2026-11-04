@@ -47,6 +47,47 @@ struct EDMarketCalculatorTests {
         #expect(try EDMarketCalculator.rawMaterialPrice(previousPrice: 1, orderedUnits: 0) == 1)
     }
 
+    @Test("Minimum raw bid uses only the player's units")
+    func minimumRawBidUsesPlayerOrder() throws {
+        #expect(try EDMarketCalculator.minimumRawBidPrice(
+            previousPrice: 40,
+            playerOrderedUnits: 3
+        ) == 33)
+    }
+
+    @Test("Minimum raw bid is floored at one dollar")
+    func minimumRawBidHasDollarFloor() throws {
+        #expect(try EDMarketCalculator.minimumRawBidPrice(
+            previousPrice: 5,
+            playerOrderedUnits: 0
+        ) == 1)
+        #expect(try EDMarketCalculator.minimumRawBidPrice(
+            previousPrice: 1,
+            playerOrderedUnits: 0
+        ) == 1)
+    }
+
+    @Test("Minimum raw bid honors the raw movement range")
+    func minimumRawBidCapsUnitsToCalculatorRange() throws {
+        #expect(try EDMarketCalculator.minimumRawBidPrice(
+            previousPrice: 40,
+            playerOrderedUnits: 25
+        ) == 54)
+    }
+
+    @Test("Minimum raw bid reports price overflow")
+    func minimumRawBidReportsOverflow() {
+        do {
+            _ = try EDMarketCalculator.minimumRawBidPrice(
+                previousPrice: Int.min,
+                playerOrderedUnits: 0
+            )
+            Issue.record("Expected price overflow.")
+        } catch {
+            #expect(error == .priceOverflow)
+        }
+    }
+
     @Test("Price overflow is reported")
     func priceOverflowIsReported() {
         do {
