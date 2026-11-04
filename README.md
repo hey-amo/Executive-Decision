@@ -23,6 +23,18 @@ This will be a minimalist game, with no multiplayer mode.
 
 In Executive Decision, each player takes the role of a CEO of a manufacturing firm . You need to decide how much of each type of raw materialto buy, how much you are willing to pay for it, how much of each product you are going to make using those raw materials, and how much you are going to sell them for.
 
+Your decisions begin with your available capital. First, choose which finished goods you want to sell and determine how much to make. Then purchase the raw materials required for that plan, combine those materials to create finished goods, and sell what you have produced.
+
+Decide which finished goods to sell and how much to make.
+Bid on the raw materials needed for production.
+Combine raw materials to create finished goods.
+Bid on sales prices and sell the finished goods.
+Both purchasing and selling require careful bidding. When supply exceeds demand, prices drop; when demand exceeds supply, prices rise. A bid below the going price gets you nothing, so choosing when and how much to bid is central to the game.
+
+This changing relationship between supply, demand, and price creates room for interesting strategies while keeping the rules easy to learn. You must connect your production plans with the materials you can obtain and the prices available for finished goods.
+
+There are no finished good cards, You own the raw materials once you've purchased them. If you don't use them to create and sell finished goods, you retain the raw materials.
+
 In the game Executive Decision, players manage a business by bidding on raw materials and finished goods, aiming to make the most profit. 
 
 Prices fluctuate based on supply and demand, making strategic decision-making crucial. 

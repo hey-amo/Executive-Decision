@@ -26,6 +26,14 @@ extension EDGameSetupError: LocalizedError {
 }
 
 public final class EDGameSetupManager {
+    private static let startingCoinsByPlayerCount = [
+        2: 900,
+        3: 600,
+        4: 450,
+        5: 350,
+        6: 300
+    ]
+
     private var storedActiveGame: ExecutiveDecisionGame?
 
     public init() {}
@@ -45,7 +53,13 @@ public final class EDGameSetupManager {
             throw EDGameSetupError.gameAlreadyInProgress
         }
 
-        let players = (1...playerCount).map { EDPlayer(name: "Player \($0)") }
+        guard let startingCoins = Self.startingCoinsByPlayerCount[playerCount] else {
+            throw EDGameSetupError.invalidPlayerCount(playerCount)
+        }
+
+        let players = (1...playerCount).map {
+            EDPlayer(name: "Player \($0)", coins: startingCoins)
+        }
         let game = ExecutiveDecisionGame(
             maxMonths: durationMonths,
             players: players,
