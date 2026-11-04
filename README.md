@@ -17,6 +17,10 @@ This will be a minimalist game, with no multiplayer mode.
 - Multiplayer via Internet
 - Clouddata backups
 
+# AI usage
+
+LLMs were used in the in the programming, development and art of this game, specifically OpenAI Codex (gpt-5.4 medium) and Claude Code (Sonnet 4.6).
+
 --
 
 # Game Overview
@@ -208,6 +212,8 @@ When enabled, a bid below the Market Price may still purchase part of the order 
  Tally management based on the rules: each monthly entry tracks bid quantities and prices alongside quantities actually purchased or sold, so totals reflect successful transactions at the player’s bid/asking price.
 
  Each player gets their own tally sheet
+
+ ---------
 
 ## Debugging game state
 

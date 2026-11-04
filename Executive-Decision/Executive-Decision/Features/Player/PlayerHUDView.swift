@@ -2,17 +2,27 @@
 //  PlayerHUDView.swift
 //  Executive-Decision
 
-// Display a single player's info - avatar, coins, on turn, name, etc
-
+// Displays a single player avatar and their current money amount
 import SwiftUI
+import EDEngine
 
 struct PlayerHUDView: View {
+    let player: EDPlayer
     var body: some View {
-        Image("avt-1")
-        Text("$100")
+        VStack {
+            PlayerAvatarView(avatarResource: player.avatarResource?.rawValue ?? "avt-1", isHighlighted: true)
+            CoinView(coins: player.coins)
+        }
     }
 }
 
 #Preview {
-    PlayerHUDView()
+    // Use EDPlayer model for a single player
+    PlayerHUDView(
+        player: EDPlayer(
+            name: "Player 1",
+            avatar: .avt1,
+            coins: 100
+        )
+    )
 }
