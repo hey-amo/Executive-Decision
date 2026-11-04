@@ -115,3 +115,47 @@ public struct EDTallySheet: Sendable {
         monthlyTallies[tally.month] = tally
     }
 }
+
+public enum EDMonthlyGoodsError: Error, Equatable {
+    case negativeQuantity(FinishedGood)
+    case offerExceedsProduction(FinishedGood)
+    case saleExceedsOffer(FinishedGood)
+}
+
+public struct EDMonthlyGoodsState: Sendable {
+    public private(set) var produced: [FinishedGood: Int] = [:]
+    public private(set) var offered: [FinishedGood: Int] = [:]
+    public private(set) var sold: [FinishedGood: Int] = [:]
+
+    public init() {}
+
+    public mutating func recordProduction(_ quantities: [FinishedGood: Int]) throws {
+        try Self.validateNonnegative(quantities)
+        for good in FinishedGood.allCases where offered[good, default: 0] > quantities[good, default: 0] {
+            throw EDMonthlyGoodsError.offerExceedsProduction(good)
+        }
+        produced = quantities
+    }
+
+    public mutating func recordOffer(_ quantities: [FinishedGood: Int]) throws {
+        try Self.validateNonnegative(quantities)
+        for good in FinishedGood.allCases where quantities[good, default: 0] > produced[good, default: 0] {
+            throw EDMonthlyGoodsError.offerExceedsProduction(good)
+        }
+        offered = quantities
+    }
+
+    public mutating func recordSales(_ quantities: [FinishedGood: Int]) throws {
+        try Self.validateNonnegative(quantities)
+        for good in FinishedGood.allCases where quantities[good, default: 0] > offered[good, default: 0] {
+            throw EDMonthlyGoodsError.saleExceedsOffer(good)
+        }
+        sold = quantities
+    }
+
+    private static func validateNonnegative(_ quantities: [FinishedGood: Int]) throws {
+        for good in FinishedGood.allCases where quantities[good, default: 0] < 0 {
+            throw EDMonthlyGoodsError.negativeQuantity(good)
+        }
+    }
+}

@@ -152,3 +152,96 @@ public struct MarketCalculator {
         return calculatedPrice
     }
 }
+
+public enum EDMarketBoardError: Error, Equatable {
+    case invalidCertificateQuantity(Int)
+    case insufficientCertificates(RawMaterial)
+    case certificateSupplyExceeded(RawMaterial)
+}
+
+public struct EDMarketBoard {
+    public static let rawMaterialCertificatesPerGrade = 28
+
+    public private(set) var rawMaterialPrices: [RawMaterial: Int]
+    public private(set) var finishedGoodPrices: [FinishedGood: Int]
+    public private(set) var availableRawMaterialCertificates: [RawMaterial: Int]
+
+    public init() {
+        rawMaterialPrices = Dictionary(
+            uniqueKeysWithValues: RawMaterial.allCases.map { ($0, $0.openingPrice) }
+        )
+        finishedGoodPrices = Dictionary(
+            uniqueKeysWithValues: FinishedGood.allCases.map { ($0, $0.openingPrice) }
+        )
+        availableRawMaterialCertificates = Dictionary(
+            uniqueKeysWithValues: RawMaterial.allCases.map {
+                ($0, Self.rawMaterialCertificatesPerGrade)
+            }
+        )
+    }
+
+    public func price(for material: RawMaterial) -> Int {
+        rawMaterialPrices[material, default: material.openingPrice]
+    }
+
+    public func price(for good: FinishedGood) -> Int {
+        finishedGoodPrices[good, default: good.openingPrice]
+    }
+
+    public mutating func updateRawMaterialPrices(
+        orderTotals: [RawMaterial: Int]
+    ) throws {
+        let calculator = MarketCalculator()
+        var updatedPrices: [RawMaterial: Int] = [:]
+        for material in RawMaterial.allCases {
+            updatedPrices[material] = try calculator.price(
+                for: material,
+                units: orderTotals[material, default: 0],
+                previousPrice: price(for: material)
+            )
+        }
+        rawMaterialPrices = updatedPrices
+    }
+
+    public mutating func updateFinishedGoodPrices(
+        offeringTotals: [FinishedGood: Int]
+    ) throws {
+        let calculator = MarketCalculator()
+        var updatedPrices: [FinishedGood: Int] = [:]
+        for good in FinishedGood.allCases {
+            updatedPrices[good] = try calculator.price(
+                for: good,
+                units: offeringTotals[good, default: 0],
+                previousPrice: price(for: good)
+            )
+        }
+        finishedGoodPrices = updatedPrices
+    }
+
+    public mutating func takeCertificates(
+        of material: RawMaterial,
+        units: Int
+    ) throws {
+        guard units >= 0 else {
+            throw EDMarketBoardError.invalidCertificateQuantity(units)
+        }
+        guard units <= availableRawMaterialCertificates[material, default: 0] else {
+            throw EDMarketBoardError.insufficientCertificates(material)
+        }
+        availableRawMaterialCertificates[material, default: 0] -= units
+    }
+
+    public mutating func returnCertificates(
+        of material: RawMaterial,
+        units: Int
+    ) throws {
+        guard units >= 0 else {
+            throw EDMarketBoardError.invalidCertificateQuantity(units)
+        }
+        let available = availableRawMaterialCertificates[material, default: 0]
+        guard units <= Self.rawMaterialCertificatesPerGrade - available else {
+            throw EDMarketBoardError.certificateSupplyExceeded(material)
+        }
+        availableRawMaterialCertificates[material, default: 0] += units
+    }
+}

@@ -228,6 +228,11 @@ swift test -Xswiftc -D -Xswiftc GAME_STATE_DEBUG_LOGGING
 ```
 
 Call `game.printDebugState()` to print a snapshot at any point in the game. The
-method prints nothing when the compilation condition is disabled. The current
-engine does not yet model a deck, player card inventory, or the active player;
-the snapshot labels those values as untracked rather than guessing.
+method prints nothing when the compilation condition is disabled. The engine
+tracks market prices, raw-material certificate supply and player holdings, and
+month-scoped production, offerings, and sales. Finished goods are not retained
+as player inventory: each month's goods ledger is cleared when the next month
+begins. Phase progression is available through `advancePhase()`, from setup
+through purchase, manufacture, sale, month progression, and end of game. Player
+turn order and transaction resolution are not yet connected to this lifecycle.
+The engine does not model a deck or active player.
