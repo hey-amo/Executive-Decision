@@ -22,6 +22,7 @@ public actor EDPlayer: Identifiable, Hashable {
     public nonisolated let id: UUID
     public private(set) var _name: String
     public private(set) var _coins: Int
+    private var tallySheet: EDTallySheet
 
     public nonisolated static func == (lhs: EDPlayer, rhs: EDPlayer) -> Bool {
         lhs.id == rhs.id
@@ -39,6 +40,7 @@ public actor EDPlayer: Identifiable, Hashable {
         self.id = id
         self._name = name
         self._coins = coins
+        self.tallySheet = try EDTallySheet()
     }
 
     public init(snapshot: EDPlayerSnapshot) throws {
@@ -71,6 +73,36 @@ public actor EDPlayer: Identifiable, Hashable {
         }
 
         _coins -= amount
+    }
+
+    /// Records a raw-material bid on this player's private tally sheet.
+    ///
+    /// Rules: Purchasing Raw Materials.
+    public func recordRawOrder(
+        _ order: EDRawMaterialTally,
+        for grade: EDRawMaterialGrade,
+        inMonth monthNumber: Int
+    ) throws(EDTallySheetError) {
+        try tallySheet.recordRawOrder(order, for: grade, inMonth: monthNumber)
+    }
+
+    /// Records a finished-good offer on this player's private tally sheet.
+    ///
+    /// Rules: Selling Finished Goods.
+    public func recordFinishedGoodSale(
+        _ sale: EDFinishedGoodTally,
+        for good: EDRecipe,
+        inMonth monthNumber: Int
+    ) throws(EDTallySheetError) {
+        try tallySheet.recordFinishedGoodSale(sale, for: good, inMonth: monthNumber)
+    }
+
+    /// Returns this player's tally sheet for their private game view.
+    ///
+    /// Rules: Hidden information. Bids and planned offers are private to the
+    /// player whose tally sheet is returned.
+    public func tallySheetSnapshot() -> EDTallySheet {
+        tallySheet
     }
 
     public func snapshot() -> EDPlayerSnapshot {
