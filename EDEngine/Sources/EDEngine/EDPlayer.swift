@@ -22,6 +22,8 @@ public class EDPlayer: GKPlayer, Identifiable {
     public var name: String
     public var avatarResource: Avatar?
     public var tallySheet: EDTallySheet = EDTallySheet()
+    @MainActor public private(set) var rawMaterialHand: [EDRawMaterialCard] = []
+    @MainActor public private(set) lazy var handManager = EDHandManager(delegate: self)
     public private(set) var rawMaterialInventory: [RawMaterial: Int] = [:]
     /// Month-scoped production and sale records; finished goods are not carried forward.
     public var monthlyGoods = EDMonthlyGoodsState()
@@ -97,4 +99,11 @@ extension EDPlayer: UpdateWalletDelegate {
         self._coins = balance
     }
 
+}
+
+extension EDPlayer: EDHandManagerDelegate {
+    @MainActor
+    public func handManager(_ manager: EDHandManager, didUpdate cards: [EDRawMaterialCard]) {
+        rawMaterialHand = cards
+    }
 }
