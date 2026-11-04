@@ -165,8 +165,8 @@ accounting effects.
 
 These are source-review findings, not results from a smoke-test run:
 
-- `EDGameSetupManager.startGame` creates players with zero coins; it does not
-  apply the six-player $300 starting-capital rule.
+- ~~`EDGameSetupManager.startGame` creates players with zero coins; it does not
+  apply the six-player $300 starting-capital rule.~~
 - `ExecutiveDecisionGame` currently stores only month, duration, players,
   phase, and settings. There is no game-loop/phase-transition API, market
   board state, raw-material or finished-goods inventory, or finished-goods

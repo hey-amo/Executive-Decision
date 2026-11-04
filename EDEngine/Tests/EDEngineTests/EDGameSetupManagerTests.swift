@@ -11,6 +11,30 @@ final class EDGameSetupManagerTests: XCTestCase {
         }
     }
 
+    func testStartingCashMatchesRulesForEveryValidPlayerCount() throws {
+        let expectedStartingCoins = [
+            2: 900,
+            3: 600,
+            4: 450,
+            5: 350,
+            6: 300
+        ]
+        let manager = EDGameSetupManager()
+
+        for playerCount in kConstants.minPlayers...kConstants.maxPlayers {
+            let game = try manager.startGame(playerCount: playerCount)
+            let startingCoins = try XCTUnwrap(expectedStartingCoins[playerCount])
+
+            XCTAssertEqual(game.players.count, playerCount)
+            XCTAssertEqual(
+                game.players.map(\.coins),
+                Array(repeating: startingCoins, count: playerCount),
+                "Unexpected starting cash for \(playerCount) players"
+            )
+            game.gameState = .gameOver
+        }
+    }
+
     func testRejectsPlayerCountsOutsideSupportedRange() {
         for playerCount in [kConstants.minPlayers - 1, kConstants.maxPlayers + 1] {
             XCTAssertThrowsError(
@@ -126,7 +150,7 @@ final class EDGameSetupManagerTests: XCTestCase {
         XCTAssertTrue(description.contains("Game state: purchaseRawMaterials"))
         XCTAssertTrue(description.contains("Game phase: Purchase raw materials"))
         XCTAssertTrue(description.contains("Player 1"))
-        XCTAssertTrue(description.contains("Coins: $0"))
+        XCTAssertTrue(description.contains("Coins: $900"))
         XCTAssertTrue(description.contains("Cards held: Not tracked"))
     }
 }
