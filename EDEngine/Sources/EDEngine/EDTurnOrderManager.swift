@@ -2,6 +2,7 @@ import Foundation
 
 public enum TurnOrderError: Error, Equatable {
     case invalidPlayerCount
+    case invalidTurnOrder([Int])
 }
 
 public struct EDTurnOrderManager {
@@ -22,6 +23,17 @@ public struct EDTurnOrderManager {
         }
         self.turnOrder = players
         self.currentPlayerNumber = players[0]
+    }
+
+    public init(turnOrder: [Int]) throws {
+        guard !turnOrder.isEmpty,
+              Set(turnOrder).count == turnOrder.count,
+              turnOrder.sorted() == Array(1...turnOrder.count) else {
+            throw TurnOrderError.invalidTurnOrder(turnOrder)
+        }
+
+        self.turnOrder = turnOrder
+        self.currentPlayerNumber = turnOrder[0]
     }
 
     /// Advances to the next player and returns true when the turn order wraps to a new round.

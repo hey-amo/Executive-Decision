@@ -1,18 +1,34 @@
 import Foundation
 
 public enum EDTallyMonth: Int, CaseIterable, Sendable {
-    case january = 1
-    case february
-    case march
-    case april
-    case may
-    case june
-    case july
-    case august
-    case september
-    case october
-    case november
-    case december
+    case january = 1, february, march, april, may, june, july, august, september, october, november, december
+}
+
+extension EDTallyMonth: CustomStringConvertible {
+    public var description: String {
+        localizedDescription
+    }
+
+    public var localizedDescription: String {
+        switch self {
+        case .january: return NSLocalizedString("January", comment: "Month: January")
+        case .february: return NSLocalizedString("February", comment: "Month: February")
+        case .march: return NSLocalizedString("March", comment: "Month: March")
+        case .april: return NSLocalizedString("April", comment: "Month: April")
+        case .may: return NSLocalizedString("May", comment: "Month: May")
+        case .june: return NSLocalizedString("June", comment: "Month: June")
+        case .july: return NSLocalizedString("July", comment: "Month: July")
+        case .august: return NSLocalizedString("August", comment: "Month: August")
+        case .september: return NSLocalizedString("September", comment: "Month: September")
+        case .october: return NSLocalizedString("October", comment: "Month: October")
+        case .november: return NSLocalizedString("November", comment: "Month: November")
+        case .december: return NSLocalizedString("December", comment: "Month: December")
+        }
+    }
+
+    public var shortDescription: String {
+        String(localizedDescription.prefix(3))
+    }
 }
 
 public struct EDOrderEntry: Sendable {
