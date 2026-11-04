@@ -7,7 +7,10 @@
 
 import SwiftUI
 
-// Display a single avatar
+// Display a single avatar:
+// - Avatar in a circle
+// - Active state: Stroke
+// - Inactive state: Greyed out with no stroke
 
 struct PlayerAvatarView: View {
     var body: some View {
