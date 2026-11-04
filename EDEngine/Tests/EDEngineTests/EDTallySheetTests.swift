@@ -1,6 +1,35 @@
 import XCTest
 @testable import EDEngine
 
+private struct TallySheetLogEntries {
+    func tally(for month: EDTallyMonth) -> EDMonthlyTally {
+        switch month {
+        case .january:
+            EDMonthlyTally(
+                month: month,
+                orders: [
+                    .extraFine: EDOrderEntry(unitsOrdered: 2, bidPrice: 70, unitsPurchased: 2)
+                ],
+                sales: [
+                    .a: EDSaleEntry(unitsOffered: 1, askingPrice: 150, unitsSold: 1)
+                ]
+            )
+        case .february:
+            EDMonthlyTally(
+                month: month,
+                orders: [
+                    .standard: EDOrderEntry(unitsOrdered: 3, bidPrice: 25, unitsPurchased: 2)
+                ],
+                sales: [
+                    .b: EDSaleEntry(unitsOffered: 2, askingPrice: 120, unitsSold: 1)
+                ]
+            )
+        default:
+            EDMonthlyTally(month: month)
+        }
+    }
+}
+
 final class EDTallySheetTests: XCTestCase {
     func testMonthlyTotalsUsePurchasedAndSoldUnitsAtBidPrices() {
         let tally = EDMonthlyTally(
@@ -70,5 +99,24 @@ final class EDTallySheetTests: XCTestCase {
 
         XCTAssertEqual(firstPlayer.tallySheet.yearlyTotals.sales, 140)
         XCTAssertEqual(secondPlayer.tallySheet.yearlyTotals.sales, 0)
+    }
+
+    func testDebugDescriptionIncludesOnlyRequestedMonthsTally() throws {
+        let entries = TallySheetLogEntries()
+        var sheet = EDTallySheet()
+        try sheet.record(entries.tally(for: .january))
+        try sheet.record(entries.tally(for: .february))
+
+        let description = debugTallySheetDescription(forMonth: 2, in: sheet)
+
+        XCTAssertTrue(description.contains("Tally sheet — February"))
+        XCTAssertTrue(description.contains("Standard: 3 | $25 | $50"))
+        XCTAssertTrue(description.contains("B: 2 | $120 | $120"))
+        XCTAssertTrue(description.contains("Orders total: $50"))
+        XCTAssertTrue(description.contains("Sales total: $120"))
+        XCTAssertTrue(description.contains("Net: $70"))
+        XCTAssertFalse(description.contains("January"))
+        XCTAssertFalse(description.contains("X-Fine: 2 | $70 | $140"))
+        XCTAssertFalse(description.contains("A: 1 | $150 | $150"))
     }
 }

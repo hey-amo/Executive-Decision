@@ -14,6 +14,10 @@ public extension ExecutiveDecisionGame {
             let sales = FinishedGood.allCases.map {
                 "\($0.debugName): \(player.monthlyGoods.sold[$0, default: 0])"
             }.joined(separator: ", ")
+            let tallySheet = debugTallySheetDescription(
+                forMonth: currentMonth,
+                in: player.tallySheet
+            )
             return """
             \(index + 1). \(player.name)\(player.isAI ? " [AI]" : "")\(player.isBankrupt ? " [BANKRUPT]" : "")
                Coins: $\(player.coins)
@@ -22,6 +26,7 @@ public extension ExecutiveDecisionGame {
                This month's production: \(production)
                This month's offerings: \(offerings)
                This month's sales: \(sales)
+            \(tallySheet)
             """
         }.joined(separator: "\n")
         let rawMaterialPrices = RawMaterial.allCases.map {
@@ -63,6 +68,45 @@ public extension ExecutiveDecisionGame {
         print(debugStateDescription)
         #endif
     }
+}
+
+func debugTallySheetDescription(forMonth monthNumber: Int, in tallySheet: EDTallySheet) -> String {
+    guard let month = EDTallyMonth(rawValue: monthNumber) else {
+        return "Tally sheet: Invalid month \(monthNumber)"
+    }
+    guard let tally = tallySheet.monthlyTallies[month] else {
+        return "Tally sheet — \(month.localizedDescription): Not recorded"
+    }
+
+    let orderRows = RawMaterial.allCases.map { material in
+        let value: String
+        if let entry = tally.orders[material] {
+            value = "\(entry.unitsOrdered) | $\(entry.bidPrice) | $\(entry.amountPaid)"
+        } else {
+            value = "— | — | —"
+        }
+        return "  \(material.debugName): \(value)"
+    }.joined(separator: "\n")
+    let saleRows = FinishedGood.allCases.map { good in
+        let value: String
+        if let entry = tally.sales[good] {
+            value = "\(entry.unitsOffered) | $\(entry.askingPrice) | $\(entry.amountReceived)"
+        } else {
+            value = "— | — | —"
+        }
+        return "  \(good.debugName): \(value)"
+    }.joined(separator: "\n")
+
+    return """
+    Tally sheet — \(month.localizedDescription)
+      Orders (units | bid price | amount paid):
+    \(orderRows)
+      Orders total: $\(tally.totals.orders)
+      Sales (units | asking price | amount received):
+    \(saleRows)
+      Sales total: $\(tally.totals.sales)
+      Net: $\(tally.totals.net)
+    """
 }
 
 private extension EDGameState {

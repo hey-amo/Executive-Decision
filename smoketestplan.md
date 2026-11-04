@@ -205,10 +205,10 @@ These are source-review findings, not results from a smoke-test run:
   until every player is marked ready, then clears readiness for the next phase.
   For concealed purchase orders, this barrier represents collecting every
   player's order before market resolution; it does not mean players act at the
-  same time.~~
-- **8.4** `EDGameDebugLogger` now renders market prices, player raw-material
-  holdings, the current month's production/offering/sales, active player, turn
-  order, and readiness barrier. It still does not print tally sheets.
+  same time.
+~~**8.4** `EDGameDebugLogger` now renders market prices, player raw-material
+holdings, the current month's production/offering/sales, active player, turn
+order, readiness barrier, and only the current month's tally-sheet entries.~~
 - **8.5** The README market calculator supports raw-material totals from 0 to 24.
   Six players may each order up to six units, so a valid combined total could
   exceed that table’s range. The smoke-test bot policy must keep each grade’s
