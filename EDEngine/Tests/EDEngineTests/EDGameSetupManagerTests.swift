@@ -167,6 +167,16 @@ final class EDGameSetupManagerTests: XCTestCase {
 
     private func advancePhase(_ game: ExecutiveDecisionGame) throws {
         while let activePlayer = game.activePlayer {
+            switch game.gameState {
+            case .purchaseRawMaterials:
+                try game.submitRawMaterialOrder([:], for: activePlayer)
+            case .manufactureProducts:
+                try game.submitProduction([:], for: activePlayer)
+            case .sellingFinishedGoods:
+                try game.submitSales([:], for: activePlayer)
+            case .setup, .bidding, .endOfYear, .gameOver, .takeALoan:
+                XCTFail("No player action can be submitted during \(game.gameState)")
+            }
             try game.markPlayerReady(activePlayer)
         }
         try game.advancePhase()
