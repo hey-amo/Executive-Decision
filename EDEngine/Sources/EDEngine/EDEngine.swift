@@ -1,26 +1,25 @@
-// EDEngine.swift
-// Main game engine
-
-public enum EDGameState: Sendable, Codable {
-    case mainMenu
-    case inGame
-    case paused
-    case gameOver
-}
-
+/// Actor boundary for accessing the game’s value-type state.
 public actor EDEngine {
-    public private(set) var _state: EDGameState
-    public var player: [EDPlayer]?
-    public let avatarResource: String
+    private var state: EDGameState
 
-    public init(withState initialState: EDGameState = .mainMenu, 
-        players: [EDPlayer]? = nil, avatarResource: String = "avt-1.png") {
-        self._state = initialState
-        self.player = players
-        self.avatarResource = avatarResource
+    /// Creates an engine around a validated game state.
+    ///
+    /// Rules: FR-16 The engine can resume from a serialized game state.
+    public init(state: EDGameState) {
+        self.state = state
     }
 
+    /// Returns an immutable value snapshot of the current game state.
+    ///
+    /// Rules: FR-16 Persistence snapshots the complete game state.
+    public func snapshot() -> EDGameState {
+        state
+    }
+
+    /// Replaces the current game with a validated value state.
+    ///
+    /// Rules: FR-16 The engine resumes from a complete persisted game state.
     public func changeState(to newState: EDGameState) {
-        _state = newState
+        state = newState
     }
 }

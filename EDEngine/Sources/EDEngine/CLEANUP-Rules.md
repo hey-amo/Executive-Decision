@@ -18,7 +18,7 @@ Domain types and setup
 ~~EDRawOrder.swift — raw-material units and bids.~~
 ~~EDGoodsOffer.swift — goods units and asking prices.~~
 ~~EDMonthResult.swift — the results of resolving a month.~~
-EDGameState.swift — the game’s domain state, if represented as a value type.
+~~EDGameState.swift — the game’s domain state, if represented as a value type.~~
 Pure rules
 
 EDOpeningPrices.swift
@@ -41,7 +41,6 @@ A few existing files need splitting or reconsideration:
 
 EDPlayer.swift: keep player state as a value type in Core; actor-based orchestration belongs in GameFlow.
 EDWallet.swift: I wouldn’t move this actor into Core; represent cash in EDMoney / EDPlayerState and have pure rule functions update values.
-EDGameSettings.swift: sound, music, haptics, and display preferences are app settings, not game rules.
 EDTallySheet.swift: keep it in Core only if it is part of the game’s canonical, persisted record. If it’s mainly a UI ledger, keep it outside Core.
 Your existing setup, market, recipe, and order-limit code is already close to the proposed Core boundary: EDGameSetup.swift, EDMarketCalculator.swift, EDOpeningPrices.swift, EDRawOrderLimits.swift, and EDRecipe.swift. I’d avoid maintaining separate material/goods enums inside opening prices when those concepts already have domain types.
 
