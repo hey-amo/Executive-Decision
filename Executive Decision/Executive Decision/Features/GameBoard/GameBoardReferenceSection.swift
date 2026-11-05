@@ -8,6 +8,7 @@ import SwiftUI
 struct GameBoardReferenceSection<Content: View>: View {
     let title: String
     let helpText: String
+    let dialogHelpText: String?
     private let content: Content
 
     @State private var isExpanded = true
@@ -16,10 +17,12 @@ struct GameBoardReferenceSection<Content: View>: View {
     init(
         title: String,
         helpText: String,
+        dialogHelpText: String? = nil,
         @ViewBuilder content: () -> Content
     ) {
         self.title = title
         self.helpText = helpText
+        self.dialogHelpText = dialogHelpText
         self.content = content()
     }
 
@@ -88,12 +91,37 @@ struct GameBoardReferenceSection<Content: View>: View {
                     .font(.system(size: 14, weight: .bold, design: .rounded))
                 }
                 .padding(.horizontal, 16)
-                .padding(.vertical, 12)
+                .padding(.top, 25)
+                .padding(.bottom, 12)
 
                 ScrollView {
-                    content
-                        .padding(16)
-                        .frame(maxWidth: .infinity, alignment: .leading)
+                    VStack(alignment: .leading, spacing: 16) {
+                        if let dialogHelpText {
+                            HStack(alignment: .top, spacing: 10) {
+                                Text(dialogHelpText)
+                                    .font(.system(size: 13, weight: .medium, design: .rounded))
+                                    .foregroundStyle(PlayerSetupStyle.ink)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+
+                                Button {
+                                    print("\(title) help tapped")
+                                } label: {
+                                    Image(systemName: "questionmark.circle")
+                                        .font(.system(size: 18, weight: .semibold))
+                                        .foregroundStyle(PlayerSetupStyle.tomato)
+                                }
+                                .buttonStyle(.plain)
+                                .accessibilityLabel("Help")
+                            }
+                            .padding(12)
+                            .background(PlayerSetupStyle.card)
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                        }
+
+                        content
+                    }
+                    .padding(16)
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 }
             }
             .background(PlayerSetupStyle.paper.ignoresSafeArea())

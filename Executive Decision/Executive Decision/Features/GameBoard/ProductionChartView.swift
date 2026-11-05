@@ -17,7 +17,7 @@ struct ProductionChartView: View {
             title: "PRODUCTION CHART",
             helpText: "Each finished good requires three raw material units. Higher grades may substitute for lower grades."
         ) {
-            VStack(alignment: .leading, spacing: 12) {
+            VStack(alignment: .leading, spacing: 25) {
                 HStack(spacing: 0) {
                     Text("GOODS")
                         .frame(width: 62, alignment: .leading)

@@ -16,7 +16,8 @@ struct MarketCalculatorView: View {
     var body: some View {
         GameBoardReferenceSection(
             title: "MARKET CALCULATOR",
-            helpText: "Use the number of units ordered or offered to find the price movement."
+            helpText: "Use the number of units ordered or offered to find the price movement.",
+            dialogHelpText: "Find your quantity in the UNITS row. The MOVEMENT row shows the price change: positive values raise the price, while negative values lower it. Scroll horizontally to see more quantities."
         ) {
             VStack(alignment: .leading, spacing: 15) {
                 MarketCalculatorGrid(title: "RAW MATERIALS", entries: rawMaterialEntries)
