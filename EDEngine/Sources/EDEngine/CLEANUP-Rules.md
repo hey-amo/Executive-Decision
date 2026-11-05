@@ -15,7 +15,7 @@ Domain types and setup
 ~~EDInventory.swift — raw certificate counts and inventory operations.~~
 ~~EDPlayerState.swift — a player’s name, cash, inventory, and loan balance.~~
 ~~EDPriceBoard.swift — current raw and goods prices, plus monthly history.~~
-EDRawOrder.swift — raw-material units and bids.
+~~EDRawOrder.swift — raw-material units and bids.~~
 EDGoodsOffer.swift — goods units and asking prices.
 EDMonthResult.swift — the results of resolving a month.
 EDGameState.swift — the game’s domain state, if represented as a value type.
