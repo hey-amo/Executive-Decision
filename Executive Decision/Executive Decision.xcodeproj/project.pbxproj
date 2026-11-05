@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		4D107C6C309B9B68006EC919 /* EDEngine in Frameworks */ = {isa = PBXBuildFile; productRef = 4D107C6B309B9B68006EC919 /* EDEngine */; };
+		4DEBE90A309D138B00932CB7 /* GameSettingsPK in Frameworks */ = {isa = PBXBuildFile; productRef = 4DEBE909309D138B00932CB7 /* GameSettingsPK */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -43,6 +44,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4DEBE90A309D138B00932CB7 /* GameSettingsPK in Frameworks */,
 				4D107C6C309B9B68006EC919 /* EDEngine in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -96,6 +98,7 @@
 			name = "Executive Decision";
 			packageProductDependencies = (
 				4D107C6B309B9B68006EC919 /* EDEngine */,
+				4DEBE909309D138B00932CB7 /* GameSettingsPK */,
 			);
 			productName = "Executive Decision";
 			productReference = 4D107C3B309B9ADF006EC919 /* Executive Decision.app */;
@@ -154,6 +157,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				4D107C6A309B9B68006EC919 /* XCLocalSwiftPackageReference "../EDEngine" */,
+				4DEBE908309D138B00932CB7 /* XCLocalSwiftPackageReference "../../_Common/GameSettingsPK/GameSettingsPK" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 4D107C3C309B9ADF006EC919 /* Products */;
@@ -490,12 +494,20 @@
 			isa = XCLocalSwiftPackageReference;
 			relativePath = ../EDEngine;
 		};
+		4DEBE908309D138B00932CB7 /* XCLocalSwiftPackageReference "../../_Common/GameSettingsPK/GameSettingsPK" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../../_Common/GameSettingsPK/GameSettingsPK;
+		};
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
 		4D107C6B309B9B68006EC919 /* EDEngine */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = EDEngine;
+		};
+		4DEBE909309D138B00932CB7 /* GameSettingsPK */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = GameSettingsPK;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
