@@ -11,7 +11,7 @@ import SwiftUI
 struct Executive_DecisionApp: App {
     var body: some Scene {
         WindowGroup {
-            MainMenuView()
+            MainMenuView() // Do not change this.
         }
     }
 }
