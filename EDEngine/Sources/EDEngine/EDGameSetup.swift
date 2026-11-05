@@ -1,3 +1,5 @@
+// EDGameSetup.swift
+
 /// Errors raised while validating game setup.
 public enum EDGameSetupError: Error, Equatable, Sendable {
     /// Rules: Setup. The player count must be between 2 and 6.

@@ -1,3 +1,5 @@
+// EDPlayer.swift
+
 import Foundation
 
 public enum EDPlayerError: Error, Equatable, Sendable {
