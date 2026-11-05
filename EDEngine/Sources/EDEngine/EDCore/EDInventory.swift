@@ -41,8 +41,18 @@ public struct EDInventory: Codable, Equatable, Hashable, Sendable {
     ///
     /// Rules: Raw-material certificates are counted by grade and cannot be
     /// negative.
+    public init() {
+        extraFineCertificates = 0
+        fineCertificates = 0
+        standardCertificates = 0
+    }
+
+    /// Creates an inventory with the supplied certificate counts.
+    ///
+    /// Rules: Raw-material certificates are counted by grade and cannot be
+    /// negative.
     public init(
-        certificatesByGrade: [EDRawMaterialGrade: Int] = [:]
+        certificatesByGrade: [EDRawMaterialGrade: Int]
     ) throws(EDInventoryError) {
         for grade in EDRawMaterialGrade.allCases {
             let count = certificatesByGrade[grade, default: 0]

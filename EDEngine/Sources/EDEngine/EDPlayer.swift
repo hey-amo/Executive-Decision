@@ -1,27 +1,14 @@
 import Foundation
 
-public enum EDPlayerError: Error, Equatable {
+public enum EDPlayerError: Error, Equatable, Sendable {
     case negativeAmount
     case notEnoughCoins
     case balanceOverflow
 }
 
-public struct EDPlayerSnapshot: Sendable, Codable, Identifiable, Hashable {
-    public let id: UUID
-    public let _name: String
-    public let _coins: Int
-
-    public init(id: UUID, name: String, coins: Int) {
-        self.id = id
-        self._name = name
-        self._coins = coins
-    }
-}
-
 public actor EDPlayer: Identifiable, Hashable {
     public nonisolated let id: UUID
-    public private(set) var _name: String
-    public private(set) var _coins: Int
+    private var state: EDPlayerState
     private var tallySheet: EDTallySheet
 
     public nonisolated static func == (lhs: EDPlayer, rhs: EDPlayer) -> Bool {
@@ -38,17 +25,21 @@ public actor EDPlayer: Identifiable, Hashable {
         }
 
         self.id = id
-        self._name = name
-        self._coins = coins
+        self.state = try EDPlayerState(id: id, name: name, cashBalance: coins)
         self.tallySheet = try EDTallySheet()
     }
 
-    public init(snapshot: EDPlayerSnapshot) throws {
-        try self.init(id: snapshot.id, name: snapshot._name, coins: snapshot._coins)
+    /// Creates an actor around an existing value-type player state.
+    ///
+    /// Rules: FR-16 Persistence restores the player's saved state.
+    public init(state: EDPlayerState) throws {
+        self.id = state.id
+        self.state = state
+        self.tallySheet = try EDTallySheet()
     }
 
     public func rename(to name: String) {
-        _name = name
+        state.rename(to: name)
     }
 
     public func addCoins(_ amount: Int) throws {
@@ -56,23 +47,24 @@ public actor EDPlayer: Identifiable, Hashable {
             throw EDPlayerError.negativeAmount
         }
 
-        let (newBalance, overflow) = _coins.addingReportingOverflow(amount)
-        guard !overflow else {
+        do {
+            try state.addCash(amount)
+        } catch EDPlayerStateError.money(.balanceOverflow) {
             throw EDPlayerError.balanceOverflow
+        } catch {
+            throw error
         }
-
-        _coins = newBalance
     }
 
     public func spendCoins(_ amount: Int) throws {
         guard amount >= 0 else {
             throw EDPlayerError.negativeAmount
         }
-        guard amount <= _coins else {
+        guard amount <= state.cash.balance else {
             throw EDPlayerError.notEnoughCoins
         }
 
-        _coins -= amount
+        try state.subtractCash(amount)
     }
 
     /// Records a raw-material bid on this player's private tally sheet.
@@ -105,7 +97,10 @@ public actor EDPlayer: Identifiable, Hashable {
         tallySheet
     }
 
-    public func snapshot() -> EDPlayerSnapshot {
-        EDPlayerSnapshot(id: id, name: _name, coins: _coins)
+    /// Returns this player's current value-type state.
+    ///
+    /// Rules: FR-16 Persistence snapshots the complete player state.
+    public func snapshot() -> EDPlayerState {
+        state
     }
 }

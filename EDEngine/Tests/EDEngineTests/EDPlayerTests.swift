@@ -21,17 +21,17 @@ final class EDPlayerTests: XCTestCase {
         try await player.spendCoins(40)
 
         let snapshot = await player.snapshot()
-        XCTAssertEqual(snapshot._name, "Sam")
-        XCTAssertEqual(snapshot._coins, 85)
+        XCTAssertEqual(snapshot.name, "Sam")
+        XCTAssertEqual(snapshot.cash.balance, 85)
 
         let data = try JSONEncoder().encode(snapshot)
-        let decoded = try JSONDecoder().decode(EDPlayerSnapshot.self, from: data)
-        let restoredPlayer = try EDPlayer(snapshot: decoded)
+        let decoded = try JSONDecoder().decode(EDPlayerState.self, from: data)
+        let restoredPlayer = try EDPlayer(state: decoded)
         let restoredSnapshot = await restoredPlayer.snapshot()
 
         XCTAssertEqual(restoredSnapshot.id, snapshot.id)
-        XCTAssertEqual(restoredSnapshot._name, "Sam")
-        XCTAssertEqual(restoredSnapshot._coins, 85)
+        XCTAssertEqual(restoredSnapshot.name, "Sam")
+        XCTAssertEqual(restoredSnapshot.cash.balance, 85)
         XCTAssertEqual(restoredPlayer, player)
     }
 
@@ -66,7 +66,7 @@ final class EDPlayerTests: XCTestCase {
         }
 
         let snapshot = await player.snapshot()
-        XCTAssertEqual(snapshot._coins, 10)
+        XCTAssertEqual(snapshot.cash.balance, 10)
     }
 
     func testAddingCoinsAtMaximumBalanceThrowsWithoutOverflow() async throws {
@@ -80,7 +80,7 @@ final class EDPlayerTests: XCTestCase {
         }
 
         let snapshot = await player.snapshot()
-        XCTAssertEqual(snapshot._coins, Int.max)
+        XCTAssertEqual(snapshot.cash.balance, Int.max)
     }
 
     func testConcurrentCoinTransactionsAreSerialized() async throws {
@@ -96,6 +96,6 @@ final class EDPlayerTests: XCTestCase {
         }
 
         let snapshot = await player.snapshot()
-        XCTAssertEqual(snapshot._coins, 500)
+        XCTAssertEqual(snapshot.cash.balance, 500)
     }
 }

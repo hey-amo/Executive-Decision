@@ -13,7 +13,7 @@ Domain types and setup
 ~~EDRawMaterialGrade.swift — XFine, Fine, Standard.~~
 ~~EDRecipe.swift — goods A, B, C; required materials and legal substitutions.~~
 ~~EDInventory.swift — raw certificate counts and inventory operations.~~
-EDPlayerState.swift — a player’s name, cash, inventory, and loan balance.
+~~EDPlayerState.swift — a player’s name, cash, inventory, and loan balance.~~
 EDPriceBoard.swift — current raw and goods prices, plus history if needed.
 EDRawOrder.swift — raw-material units and bids.
 EDGoodsOffer.swift — goods units and asking prices.
