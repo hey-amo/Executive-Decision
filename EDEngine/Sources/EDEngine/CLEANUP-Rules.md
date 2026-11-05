@@ -14,7 +14,7 @@ Domain types and setup
 ~~EDRecipe.swift — goods A, B, C; required materials and legal substitutions.~~
 ~~EDInventory.swift — raw certificate counts and inventory operations.~~
 ~~EDPlayerState.swift — a player’s name, cash, inventory, and loan balance.~~
-EDPriceBoard.swift — current raw and goods prices, plus history if needed.
+~~EDPriceBoard.swift — current raw and goods prices, plus monthly history.~~
 EDRawOrder.swift — raw-material units and bids.
 EDGoodsOffer.swift — goods units and asking prices.
 EDMonthResult.swift — the results of resolving a month.
