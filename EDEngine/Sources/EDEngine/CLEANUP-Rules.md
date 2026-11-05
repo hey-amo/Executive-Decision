@@ -22,9 +22,9 @@ Domain types and setup
 Pure rules
 
 ~~EDOpeningPrices.swift~~
-EDMarketCalculator.swift
-EDRawOrderValidator.swift — order limits and minimum bids.
-EDRawMarketResolver.swift — raw-material price changes.
+~~EDMarketCalculator.swift~~
+~~EDRawOrderValidator.swift — order limits and minimum bids.~~
+~~EDRawMarketResolver.swift — raw-material price changes.~~
 EDRawPurchaseResolver.swift — successful purchases, funds, and the loan / partial-purchase variations.
 EDProductionAllocator.swift — recipes, substitutions, and certificate use.
 EDGoodsOfferValidator.swift — disqualify over-offers and exclude them from price determination.
