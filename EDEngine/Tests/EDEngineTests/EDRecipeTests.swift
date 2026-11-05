@@ -25,4 +25,20 @@ struct EDRecipeTests {
             #expect(recipe.rawMaterials.count == 3)
         }
     }
+
+    @Test("Allows only the two substitutions specified by the rules")
+    func substitutionRulesMatchGameRules() {
+        #expect(EDRecipe.canSubstitute(.extraFine, for: .fine))
+        #expect(EDRecipe.canSubstitute(.fine, for: .standard))
+
+        for suppliedGrade in EDRawMaterialGrade.allCases {
+            for requiredGrade in EDRawMaterialGrade.allCases {
+                let expected = (suppliedGrade == .extraFine && requiredGrade == .fine)
+                    || (suppliedGrade == .fine && requiredGrade == .standard)
+                #expect(
+                    EDRecipe.canSubstitute(suppliedGrade, for: requiredGrade) == expected
+                )
+            }
+        }
+    }
 }
