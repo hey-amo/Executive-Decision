@@ -21,7 +21,7 @@ Domain types and setup
 ~~EDGameState.swift — the game’s domain state, if represented as a value type.~~
 Pure rules
 
-EDOpeningPrices.swift
+~~EDOpeningPrices.swift~~
 EDMarketCalculator.swift
 EDRawOrderValidator.swift — order limits and minimum bids.
 EDRawMarketResolver.swift — raw-material price changes.

@@ -1,3 +1,6 @@
+// EDOpeningPrices.swift
+// Provides the game's starting market prices.
+
 /// Opening market prices defined by the game rules.
 public enum EDOpeningPrices {
     /// Returns the opening price for a raw material.
