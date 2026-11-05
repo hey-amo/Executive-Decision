@@ -1,4 +1,4 @@
-// EDMoney.swift
+// EDMoney.swift — money values and arithmetic
 
 import Foundation
 

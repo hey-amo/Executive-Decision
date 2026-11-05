@@ -1,3 +1,5 @@
+// EDInventory.swift — raw certificate counts and inventory operations. 
+
 /// Errors raised by raw-certificate inventory operations.
 public enum EDInventoryError: Error, Equatable, Sendable {
     /// Rules: Raw-material certificates cannot have negative counts.

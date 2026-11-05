@@ -1,3 +1,5 @@
+// EDPlayerState.swift — a player’s name, cash, inventory, and loan balance.
+
 import Foundation
 
 /// Errors raised while updating a player's game state.

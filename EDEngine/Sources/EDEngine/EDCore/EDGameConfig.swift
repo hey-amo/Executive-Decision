@@ -1,3 +1,6 @@
+// EDGameConfig.swift — player count, month count, and enabled rule variations.
+
+
 /// Optional rules that change how a game is resolved.
 ///
 /// Rules: Variations. The loan and partial-purchase rules may each be used

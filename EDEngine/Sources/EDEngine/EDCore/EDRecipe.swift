@@ -1,3 +1,5 @@
+// EDRecipe.swift — goods A, B, C; required materials and legal substitutions.
+
 /// Required raw materials for one unit of a finished good.
 public enum EDRecipe: CaseIterable, Codable, Hashable, Sendable {
     case a
@@ -10,7 +12,7 @@ public enum EDRecipe: CaseIterable, Codable, Hashable, Sendable {
     /// requires Fine, Fine, Standard; Good C requires Fine, Standard, Standard.
     public var rawMaterials: [EDRawMaterialGrade] {
         switch self {
-        case .a: [.extraFine, .extraFine, .fine]
+        case .a: [.xFine, .xFine, .fine]
         case .b: [.fine, .fine, .standard]
         case .c: [.fine, .standard, .standard]
         }
@@ -21,7 +23,7 @@ public enum EDRecipe: CaseIterable, Codable, Hashable, Sendable {
         for requiredGrade: EDRawMaterialGrade
     ) -> Bool {
         switch (suppliedGrade, requiredGrade) {
-        case (.extraFine, .fine), (.fine, .standard):
+        case (.xFine, .fine), (.fine, .standard):
             true
         default:
             false

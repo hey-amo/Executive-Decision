@@ -1,3 +1,6 @@
+// EDPriceBoard.swift — current raw and goods prices, plus monthly history.
+
+
 /// Errors raised when validating or updating market prices.
 public enum EDPriceBoardError: Error, Equatable, Sendable {
     /// Rules: Market prices and their configured floors must be at least $1.
