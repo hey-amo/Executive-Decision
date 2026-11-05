@@ -13,7 +13,7 @@ import SwiftUI
 // - Inactive state: Greyed out with no stroke
 
 struct PlayerAvatarView: View {
-    var avatarResource: String = "avt-1"
+    var avatarResource: String = MockPlayer.rex.avatarResource
     var isActive = false
     var size: CGFloat = 56
 
@@ -37,7 +37,7 @@ struct PlayerAvatarView: View {
 
 #Preview {
     HStack(spacing: 16) {
-        PlayerAvatarView(avatarResource: "avt-1", isActive: true)
-        PlayerAvatarView(avatarResource: "avt-2", isActive: false)
+        PlayerAvatarView(avatarResource: MockPlayer.rex.avatarResource, isActive: true)
+        PlayerAvatarView(avatarResource: MockPlayer.saxon.avatarResource, isActive: false)
     }
 }

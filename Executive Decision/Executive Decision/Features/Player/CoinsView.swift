@@ -6,7 +6,7 @@
 import SwiftUI
 
 struct CoinsView: View {
-    var coins: Int
+    private(set) var coins: Int
 
     private var formattedCoins: String {
         coins.formatted(IntegerFormatStyle<Int>.number.grouping(.automatic))
@@ -14,7 +14,7 @@ struct CoinsView: View {
 
     var body: some View {
         Text(formattedCoins)
-            .font(.custom("Georgia-Bold", size: 17))
+            .font(.custom("Georgia-Bold", size: 14))
             .foregroundStyle(coins < 0 ? .red : .black)
             .accessibilityLabel("\(formattedCoins) coins")
     }

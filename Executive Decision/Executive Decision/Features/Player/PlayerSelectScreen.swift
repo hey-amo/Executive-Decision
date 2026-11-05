@@ -89,7 +89,7 @@ struct PlayerSelectScreen: View {
         } label: {
             VStack(spacing: 5) {
                 ZStack(alignment: .topTrailing) {
-                    Image(player.imageName)
+                    Image(player.avatarResource)
                         .resizable()
                         .scaledToFit()
                         .frame(height: 136)
@@ -137,22 +137,6 @@ struct PlayerSelectScreen: View {
 
 #Preview {
     PlayerSelectScreen()
-}
-
-private struct MockPlayer: Identifiable, Hashable {
-    let name: String
-    let imageName: String
-
-    var id: String { imageName }
-
-    static let roster = [
-        MockPlayer(name: "Rex", imageName: "avt-1"),
-        MockPlayer(name: "Saxon", imageName: "avt-2"),
-        MockPlayer(name: "Gordon", imageName: "avt-3"),
-        MockPlayer(name: "Dean", imageName: "avt-4"),
-        MockPlayer(name: "Morgan", imageName: "avt-5"),
-        MockPlayer(name: "Alex", imageName: "avt-6")
-    ]
 }
 
 enum PlayerSetupStyle {

@@ -6,7 +6,7 @@
 import SwiftUI
 
 struct PlayerRosterView: View {
-    private let currentPlayer = SetupCharacter.roster[0]
+    private let currentPlayer = MockPlayer.rex
 
     @State private var rivalPlayers: [RivalPlayer] = []
     @State private var editorContext: PlayerEditorContext?
@@ -185,8 +185,8 @@ struct PlayerRosterView: View {
         }
     }
 
-    private func characterPortrait(_ character: SetupCharacter, size: CGFloat) -> some View {
-        Image(character.imageName)
+    private func characterPortrait(_ character: MockPlayer, size: CGFloat) -> some View {
+        Image(character.avatarResource)
             .resizable()
             .scaledToFit()
             .frame(width: size, height: size)
@@ -241,14 +241,14 @@ struct PlayerRosterView: View {
         }
     }
 
-    private func availableCharacters(editing id: UUID? = nil) -> [SetupCharacter] {
+    private func availableCharacters(editing id: UUID? = nil) -> [MockPlayer] {
         let assignedCharacters = Set(
             rivalPlayers
                 .filter { $0.id != id }
                 .map(\.character)
         )
 
-        return SetupCharacter.roster.filter {
+        return MockPlayer.roster.filter {
             $0 != currentPlayer && !assignedCharacters.contains($0)
         }
     }
@@ -258,18 +258,18 @@ private struct PlayerEditorSheet: View {
     @Environment(\.dismiss) private var dismiss
 
     let title: String
-    let availableCharacters: [SetupCharacter]
-    let onSave: (SetupCharacter, RivalType) -> Void
+    let availableCharacters: [MockPlayer]
+    let onSave: (MockPlayer, RivalType) -> Void
 
-    @State private var selectedCharacter: SetupCharacter?
+    @State private var selectedCharacter: MockPlayer?
     @State private var selectedType: RivalType
 
     init(
         title: String,
-        availableCharacters: [SetupCharacter],
-        initialCharacter: SetupCharacter?,
+        availableCharacters: [MockPlayer],
+        initialCharacter: MockPlayer?,
         initialType: RivalType,
-        onSave: @escaping (SetupCharacter, RivalType) -> Void
+        onSave: @escaping (MockPlayer, RivalType) -> Void
     ) {
         self.title = title
         self.availableCharacters = availableCharacters
@@ -345,14 +345,14 @@ private struct PlayerEditorSheet: View {
         .modifier(PlayerEditorPresentationStyle())
     }
 
-    private func characterOption(_ character: SetupCharacter) -> some View {
+    private func characterOption(_ character: MockPlayer) -> some View {
         let isSelected = selectedCharacter == character
 
         return Button {
             selectedCharacter = character
         } label: {
             VStack(spacing: 5) {
-                Image(character.imageName)
+                Image(character.avatarResource)
                     .resizable()
                     .scaledToFit()
                     .frame(height: 76)
@@ -429,25 +429,9 @@ private struct PlayerEditorPresentationStyle: ViewModifier {
     }
 }
 
-private struct SetupCharacter: Identifiable, Hashable {
-    let name: String
-    let imageName: String
-
-    var id: String { imageName }
-
-    static let roster = [
-        SetupCharacter(name: "Rex", imageName: "avt-1"),
-        SetupCharacter(name: "Saxon", imageName: "avt-2"),
-        SetupCharacter(name: "Gordon", imageName: "avt-3"),
-        SetupCharacter(name: "Dean", imageName: "avt-4"),
-        SetupCharacter(name: "Morgan", imageName: "avt-5"),
-        SetupCharacter(name: "Alex", imageName: "avt-6")
-    ]
-}
-
 private struct RivalPlayer: Identifiable {
     let id = UUID()
-    var character: SetupCharacter
+    var character: MockPlayer
     var type: RivalType
 }
 
