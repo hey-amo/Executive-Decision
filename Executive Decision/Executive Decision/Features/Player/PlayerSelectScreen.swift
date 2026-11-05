@@ -12,8 +12,15 @@ struct PlayerSelectScreen: View {
 
     var body: some View {
         ScrollView {
+            
             VStack(alignment: .leading, spacing: 20) {
                 VStack(alignment: .leading, spacing: 5) {
+                    Text("OFFLINE PLAY")
+                        .font(.system(size: 13, weight: .heavy, design: .rounded))
+                        .tracking(1.5)
+                        .foregroundStyle(PlayerSetupStyle.mutedInk)
+
+                    Spacer()
                     Text("Who do you want to play as?")
                         .font(.custom("Georgia-Bold", size: 33))
                         .foregroundStyle(PlayerSetupStyle.ink)
