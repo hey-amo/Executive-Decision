@@ -26,7 +26,7 @@ Pure rules
 ~~EDRawOrderValidator.swift — order limits and minimum bids.~~
 ~~EDRawMarketResolver.swift — raw-material price changes.~~
 ~~EDRawPurchaseResolver.swift — successful purchases, funds, and the loan / partial-purchase variations.~~
-EDProductionAllocator.swift — recipes, substitutions, and certificate use.
+~~EDProductionAllocator.swift — recipes, substitutions, and certificate use.~~
 EDGoodsOfferValidator.swift — disqualify over-offers and exclude them from price determination.
 EDGoodsMarketResolver.swift — finished-goods price changes.
 EDGoodsSalesResolver.swift — sales and certificate consumption.
