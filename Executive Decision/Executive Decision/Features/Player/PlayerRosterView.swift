@@ -16,25 +16,52 @@ struct PlayerRosterView: View {
     }
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 18) {
-                header
-                currentPlayerCard
+        List {
+            header
+                .padding(.top, 18)
+                .listRowInsets(rosterRowInsets)
+                .listRowSeparator(.hidden)
+                .listRowBackground(Color.clear)
 
-                ForEach(rivalPlayers) { rival in
-                    rivalPlayerRow(rival)
-                }
+            currentPlayerCard
+                .listRowInsets(rosterRowInsets)
+                .listRowSeparator(.hidden)
+                .listRowBackground(Color.clear)
 
-                addPlayerButton
+            ForEach(rivalPlayers) { rival in
+                rivalPlayerRow(rival)
+                    .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                        if playerCount > 2 {
+                            Button(role: .destructive) {
+                                withAnimation(.easeInOut(duration: 0.15)) {
+                                    rivalPlayers.removeAll { $0.id == rival.id }
+                                }
+                            } label: {
+                                Label("Delete", systemImage: "trash")
+                            }
+                        }
+                    }
+                    .listRowInsets(rosterRowInsets)
+                    .listRowSeparator(.hidden)
+                    .listRowBackground(Color.clear)
             }
-            .padding(.horizontal, 22)
-            .padding(.top, 18)
-            .padding(.bottom, 24)
+
+            addPlayerButton
+                .padding(.bottom, 24)
+                .listRowInsets(rosterRowInsets)
+                .listRowSeparator(.hidden)
+                .listRowBackground(Color.clear)
         }
+        .listStyle(.plain)
+        .scrollContentBackground(.hidden)
         .background(PlayerSetupStyle.paper.ignoresSafeArea())
         .sheet(item: $editorContext) { context in
             editor(for: context)
         }
+    }
+
+    private var rosterRowInsets: EdgeInsets {
+        EdgeInsets(top: 0, leading: 22, bottom: 18, trailing: 22)
     }
 
     private var header: some View {
@@ -151,30 +178,23 @@ struct PlayerRosterView: View {
                     }
 
                     Spacer(minLength: 0)
+
+                    // Pencil icon
+                    Image(systemName: "pencil")
+                        .font(.system(size: 15, weight: .semibold))
+                        .foregroundStyle(.black)
+                        .frame(width: 36, height: 36)
+                        .background(PlayerSetupStyle.gold)
+                        .clipShape(Circle())
                 }
                 .padding(.leading, 12)
+                .padding(.trailing, 12)
                 .padding(.vertical, 11)
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
+            .accessibilityLabel("Edit \(rival.character.name)")
             .accessibilityHint("Opens this player's settings.")
-
-            if playerCount > 2 {
-                Button {
-                    withAnimation(.easeInOut(duration: 0.15)) {
-                        rivalPlayers.removeAll { $0.id == rival.id }
-                    }
-                } label: {
-                    Image(systemName: "xmark.circle.fill")
-                        .font(.system(size: 25))
-                        .foregroundStyle(PlayerSetupStyle.mutedInk)
-                        .frame(width: 52, height: 72)
-                        .contentShape(Rectangle())
-                }
-                .buttonStyle(.plain)
-                .accessibilityLabel("Remove \(rival.character.name)")
-                .accessibilityHint("Removes this rival player.")
-            }
         }
         .frame(maxWidth: .infinity, minHeight: 94)
         .background(PlayerSetupStyle.card)
@@ -183,6 +203,7 @@ struct PlayerRosterView: View {
             RoundedRectangle(cornerRadius: 12)
                 .stroke(PlayerSetupStyle.ink, lineWidth: 2)
         }
+        .shadow(color: PlayerSetupStyle.ink.opacity(0.12), radius: 3, x: 0, y: 2)
     }
 
     private func characterPortrait(_ character: MockPlayer, size: CGFloat) -> some View {
