@@ -168,7 +168,7 @@ struct EDPlayerStateTests {
             id: id,
             name: "Alex",
             cashBalance: -25,
-            inventory: EDInventory(certificatesByGrade: [.extraFine: 2, .standard: 3]),
+            inventory: EDInventory(certificatesByGrade: [.xfine: 2, .standard: 3]),
             loanBalance: 100
         )
         let data = try JSONEncoder().encode(state)

@@ -63,7 +63,7 @@ public struct EDInventory: Codable, Equatable, Hashable, Sendable {
             }
         }
 
-        extraFineCertificates = certificatesByGrade[.extraFine, default: 0]
+        extraFineCertificates = certificatesByGrade[.xfine, default: 0]
         fineCertificates = certificatesByGrade[.fine, default: 0]
         standardCertificates = certificatesByGrade[.standard, default: 0]
     }
@@ -73,7 +73,7 @@ public struct EDInventory: Codable, Equatable, Hashable, Sendable {
     /// Rules: Raw-material certificates are tracked separately by grade.
     public func count(of grade: EDRawMaterialGrade) -> Int {
         switch grade {
-        case .extraFine: extraFineCertificates
+        case .xfine: extraFineCertificates
         case .fine: fineCertificates
         case .standard: standardCertificates
         }
@@ -84,7 +84,7 @@ public struct EDInventory: Codable, Equatable, Hashable, Sendable {
     /// Rules: Raw-material certificates are tracked separately by grade.
     public var certificatesByGrade: [EDRawMaterialGrade: Int] {
         [
-            .extraFine: extraFineCertificates,
+            .xfine: extraFineCertificates,
             .fine: fineCertificates,
             .standard: standardCertificates
         ]
@@ -176,7 +176,7 @@ public struct EDInventory: Codable, Equatable, Hashable, Sendable {
         do {
             try self.init(
                 certificatesByGrade: [
-                    .extraFine: extraFine,
+                    .xfine: extraFine,
                     .fine: fine,
                     .standard: standard
                 ]
@@ -216,9 +216,9 @@ public struct EDInventory: Codable, Equatable, Hashable, Sendable {
         }
 
         var remaining = certificatesByGrade
-        for requiredGrade in [EDRawMaterialGrade.standard, .fine, .extraFine] {
+        for requiredGrade in [EDRawMaterialGrade.standard, .fine, .xfine] {
             var required = requiredByGrade[requiredGrade, default: 0]
-            for suppliedGrade in [EDRawMaterialGrade.standard, .fine, .extraFine]
+            for suppliedGrade in [EDRawMaterialGrade.standard, .fine, .xfine]
             where canSubstitute(suppliedGrade, for: requiredGrade) {
                 let available = remaining[suppliedGrade, default: 0]
                 let used = min(required, available)
@@ -249,7 +249,7 @@ public struct EDInventory: Codable, Equatable, Hashable, Sendable {
 
     private mutating func setCount(_ count: Int, of grade: EDRawMaterialGrade) {
         switch grade {
-        case .extraFine: extraFineCertificates = count
+        case .xfine: extraFineCertificates = count
         case .fine: fineCertificates = count
         case .standard: standardCertificates = count
         }

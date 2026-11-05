@@ -11,7 +11,7 @@ struct EDTallySheetTests {
         #expect(sheet.months.count == 12)
         #expect(sheet.months[0].rawOrders.count == EDRawMaterialGrade.allCases.count)
         #expect(sheet.months[0].finishedGoodSales.count == EDRecipe.allCases.count)
-        #expect(sheet.months[0].rawOrders[.extraFine] == EDRawMaterialTally())
+        #expect(sheet.months[0].rawOrders[.xfine] == EDRawMaterialTally())
         #expect(sheet.months[0].finishedGoodSales[.a] == EDFinishedGoodTally())
     }
 
@@ -21,13 +21,13 @@ struct EDTallySheetTests {
         let rawOrder = EDRawMaterialTally(units: 3, bidPrice: 40, amountPaid: 120)
         let sale = EDFinishedGoodTally(units: 2, askingPrice: 140, amountReceived: 280)
 
-        try sheet.recordRawOrder(rawOrder, for: .extraFine, inMonth: 1)
+        try sheet.recordRawOrder(rawOrder, for: .xfine, inMonth: 1)
         try sheet.recordFinishedGoodSale(sale, for: .a, inMonth: 6)
 
-        #expect(sheet.months[0].rawOrders[.extraFine] == rawOrder)
+        #expect(sheet.months[0].rawOrders[.xfine] == rawOrder)
         #expect(sheet.months[5].finishedGoodSales[.a] == sale)
         #expect(sheet.months[0].finishedGoodSales[.a] == EDFinishedGoodTally())
-        #expect(sheet.months[5].rawOrders[.extraFine] == EDRawMaterialTally())
+        #expect(sheet.months[5].rawOrders[.xfine] == EDRawMaterialTally())
     }
 
     @Test("Rejects empty sheet and out-of-range months")
@@ -76,13 +76,13 @@ struct EDTallySheetTests {
 
         try await first.recordRawOrder(
             EDRawMaterialTally(units: 2, bidPrice: 40, amountPaid: 80),
-            for: .extraFine,
+            for: .xfine,
             inMonth: 1
         )
 
         let firstSheet = await first.tallySheetSnapshot()
         let secondSheet = await second.tallySheetSnapshot()
-        #expect(firstSheet.months[0].rawOrders[.extraFine]?.units == 2)
-        #expect(secondSheet.months[0].rawOrders[.extraFine] == EDRawMaterialTally())
+        #expect(firstSheet.months[0].rawOrders[.xfine]?.units == 2)
+        #expect(secondSheet.months[0].rawOrders[.xfine] == EDRawMaterialTally())
     }
 }

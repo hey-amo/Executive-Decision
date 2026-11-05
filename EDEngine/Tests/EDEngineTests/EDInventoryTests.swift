@@ -7,14 +7,14 @@ struct EDInventoryTests {
     @Test("Tracks certificate counts independently by grade")
     func tracksCertificateCountsByGrade() throws {
         let inventory = try EDInventory(
-            certificatesByGrade: [.extraFine: 2, .fine: 3]
+            certificatesByGrade: [.xfine: 2, .fine: 3]
         )
 
-        #expect(inventory.count(of: .extraFine) == 2)
+        #expect(inventory.count(of: .xfine) == 2)
         #expect(inventory.count(of: .fine) == 3)
         #expect(inventory.count(of: .standard) == 0)
         #expect(inventory.certificatesByGrade == [
-            .extraFine: 2,
+            .xfine: 2,
             .fine: 3,
             .standard: 0
         ])
@@ -32,15 +32,15 @@ struct EDInventoryTests {
 
     @Test("Adds and removes certificates by grade")
     func addsAndRemovesCertificates() throws {
-        var inventory = try EDInventory(certificatesByGrade: [.extraFine: 2])
+        var inventory = try EDInventory(certificatesByGrade: [.xfine: 2])
 
         try inventory.add(3, of: .fine)
-        try inventory.remove(1, of: .extraFine)
+        try inventory.remove(1, of: .xfine)
         try inventory.add(0, of: .standard)
         try inventory.remove(0, of: .fine)
 
         #expect(inventory.certificatesByGrade == [
-            .extraFine: 1,
+            .xfine: 1,
             .fine: 3,
             .standard: 0
         ])
@@ -87,8 +87,8 @@ struct EDInventoryTests {
 
     @Test("Matches the recipes and legal downward substitutions")
     func checksProductionMaterials() throws {
-        let exactA = try EDInventory(certificatesByGrade: [.extraFine: 2, .fine: 1])
-        let substitutedB = try EDInventory(certificatesByGrade: [.extraFine: 1, .fine: 2])
+        let exactA = try EDInventory(certificatesByGrade: [.xfine: 2, .fine: 1])
+        let substitutedB = try EDInventory(certificatesByGrade: [.xfine: 1, .fine: 2])
         let wrongDirection = try EDInventory(certificatesByGrade: [.standard: 3])
 
         #expect(exactA.canProduce(.a))
@@ -102,13 +102,13 @@ struct EDInventoryTests {
     @Test("Consumes recipe certificates and applies substitutions")
     func consumesSoldGoodsCertificates() throws {
         var inventory = try EDInventory(
-            certificatesByGrade: [.extraFine: 1, .fine: 1, .standard: 1]
+            certificatesByGrade: [.xfine: 1, .fine: 1, .standard: 1]
         )
 
         try inventory.consume(.b)
 
         #expect(inventory.certificatesByGrade == [
-            .extraFine: 0,
+            .xfine: 0,
             .fine: 0,
             .standard: 0
         ])
@@ -116,7 +116,7 @@ struct EDInventoryTests {
 
     @Test("Failed production consumption leaves the inventory unchanged")
     func failedConsumptionIsAtomic() throws {
-        var inventory = try EDInventory(certificatesByGrade: [.extraFine: 1, .fine: 1])
+        var inventory = try EDInventory(certificatesByGrade: [.xfine: 1, .fine: 1])
 
         do {
             try inventory.consume(.a)
@@ -126,7 +126,7 @@ struct EDInventoryTests {
         }
 
         #expect(inventory.certificatesByGrade == [
-            .extraFine: 1,
+            .xfine: 1,
             .fine: 1,
             .standard: 0
         ])
@@ -134,7 +134,7 @@ struct EDInventoryTests {
 
     @Test("Codable round-trips inventory and rejects negative persisted counts")
     func codableValidation() throws {
-        let inventory = try EDInventory(certificatesByGrade: [.extraFine: 4, .standard: 2])
+        let inventory = try EDInventory(certificatesByGrade: [.xfine: 4, .standard: 2])
         let data = try JSONEncoder().encode(inventory)
         #expect(try JSONDecoder().decode(EDInventory.self, from: data) == inventory)
 

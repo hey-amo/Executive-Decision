@@ -12,7 +12,7 @@ public enum EDRecipe: CaseIterable, Codable, Hashable, Sendable {
     /// requires Fine, Fine, Standard; Good C requires Fine, Standard, Standard.
     public var rawMaterials: [EDRawMaterialGrade] {
         switch self {
-        case .a: [.xFine, .xFine, .fine]
+        case .a: [.xfine, .xfine, .fine]
         case .b: [.fine, .fine, .standard]
         case .c: [.fine, .standard, .standard]
         }
@@ -23,7 +23,7 @@ public enum EDRecipe: CaseIterable, Codable, Hashable, Sendable {
         for requiredGrade: EDRawMaterialGrade
     ) -> Bool {
         switch (suppliedGrade, requiredGrade) {
-        case (.xFine, .fine), (.fine, .standard):
+        case (.xfine, .fine), (.fine, .standard):
             true
         default:
             false

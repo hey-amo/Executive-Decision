@@ -5,7 +5,7 @@ public enum EDOpeningPrices {
     /// Rules: Setup, Raw Materials opening prices.
     public static func rawMaterialPrice(for material: EDRawMaterialGrade) -> Int {
         switch material {
-        case .extraFine: 40
+        case .xfine: 40
         case .fine: 30
         case .standard: 20
         }

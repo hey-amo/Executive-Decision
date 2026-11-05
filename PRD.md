@@ -283,3 +283,7 @@ Branches within a phase marked with no dependency between them (for example ED-0
 - No UI imports, no `Date()`, no unseeded randomness, no `@unchecked Sendable`.
 - Tests cite the rule they cover and include at least one rulebook example.
 - Any resolved ambiguity is noted in the PR and matches section 6, or section 6 is updated.
+
+## 12. Hard rules
+
+Do not change raw material certificate enum's.

@@ -5,7 +5,7 @@ import Testing
 struct EDOpeningPricesTests {
     @Test("Raw material prices match the opening-price table")
     func rawMaterialPricesMatchRules() {
-        #expect(EDOpeningPrices.rawMaterialPrice(for: .extraFine) == 40)
+        #expect(EDOpeningPrices.rawMaterialPrice(for: .xfine) == 40)
         #expect(EDOpeningPrices.rawMaterialPrice(for: .fine) == 30)
         #expect(EDOpeningPrices.rawMaterialPrice(for: .standard) == 20)
     }
