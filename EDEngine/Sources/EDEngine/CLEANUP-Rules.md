@@ -14,7 +14,8 @@ Domain types and setup
 ~~EDGoodsOffer.swift — goods units and asking prices.~~
 ~~EDMonthResult.swift — the results of resolving a month.~~
 ~~EDGameState.swift — the game’s domain state, if represented as a value type.~~
-Pure rules
+
+Pure rules:
 
 ~~EDOpeningPrices.swift~~
 ~~EDMarketCalculator.swift~~
@@ -25,32 +26,16 @@ Pure rules
 ~~EDGoodsOfferValidator.swift — disqualify over-offers and exclude them from price determination.~~
 ~~EDGoodsMarketResolver.swift — finished-goods price changes.~~
 ~~EDGoodsSalesResolver.swift — sales and certificate consumption.~~
-~~EDMonthResolver.swift — combines the pure steps to resolve one month.~~
+EDMonthResolver.swift — combines the pure steps to resolve one month.
 ~~EDEndGameScorer.swift — final raw-material sale, profit, rankings, and ties~~
 
 Put in EDGameFlow, not EDCore
-Phase transitions, the session actor, events, and player-specific views belong in EDGameFlow. The current EDEngine.swift is engine/game-flow code.
+Phase transitions, the session actor, events, and player-specific views belong
+in EDGameFlow. The current `EDEngine` actor only stores/replaces a state
+snapshot; the planned `GameSession` should replace or evolve it so there is
+one authoritative owner of mutable session state.
 
-### Legacy player and wallet actors
 
-Use `EDPlayerState` and `EDMoney` directly in Core and pass updated values
-between pure rules. When game flow is implemented, one `GameSession` actor
-should own mutable session state and the private submissions for each player;
-do not recreate an actor per player or a separate wallet actor.
-`EDTallySheet` is a serializable value model in `EDCore/Models`: it records
-monthly order and offer entries and their outcomes, without depending on a
-player actor or UI. GameFlow should own the association between each sheet and
-its player and decide when private entries are revealed. Whether the session
-persists this model is a storage policy, not a reason to move it out of Core.
-`EDGameSetup` was removed because it duplicated setup validation and player-count
-lookup alongside `EDGameConfig`. `EDGameConfig` now owns the single validated
-setup mapping and exposes the starting cash and raw-order limits derived from
-player count. `EDRawOrderLimits` is in `EDCore/Rules`: it expresses the FR-5
-order constraints and is consumed by `EDRawOrderValidator`. Opening prices,
-market calculation, recipe data, and order validation also belong to the Core
-rules boundary; they should use the existing material and good domain types.
-
-This follows the rules in GameRules.md, while leaving out EDAI, EDPersistence, and EDTestSupport.
 
 ## Rule execution: ownership and timing
 
@@ -67,7 +52,10 @@ EDEngine
     └── GameSession / phase controller (planned)
         ├── collects secret player submissions
         ├── decides when submissions are revealed
-        └── calls EDMonthResolver at month resolution
+        ├── runs the raw resolver stage after raw orders are complete
+        ├── exposes safe post-purchase views for goods decisions
+        ├── runs the goods resolver stage after offers are complete
+        └── applies returned state and publishes ordered events
 
 EDCore (currently part of the EDEngine target)
 ├── Models
@@ -82,37 +70,40 @@ EDCore (currently part of the EDEngine target)
     └── month and end-game resolution
 ```
 
-The flow controller owns **when** a rule runs and controls secret information.
-The rule types own **what** the game calculates and should remain deterministic
-and free of I/O. `EDMonthResolver` is intended to compose the monthly rules;
-the phase controller should call it only after the required submissions have
-been collected and revealed.
+`GameSession` is the game-flow coordinator: it owns **when** a rule runs and
+controls secret information. `GamePhaseReducer` decides whether a lifecycle
+transition is legal. `EDMonthResolver` (not yet implemented) is the pure,
+staged monthly coordinator that composes the rule functions. Its raw stage
+must finish before the session requests goods offers, since those decisions
+depend on post-purchase inventory. Its goods stage runs after every offer is
+submitted. Neither coordinator should duplicate the calculations in
+individual rule types.
 
 ### Intended monthly sequence
 
 | Phase | Responsible rule | What it does |
 |---|---|---|
 | Setup | `EDGameConfig`, `EDOpeningPrices` | Validates game options and derives starting cash and raw-order limits; establishes opening prices. |
-| Raw bidding | `EDRawOrderValidator` | Checks each player's submitted order and minimum bids before accepting it. |
-| Raw reveal and market | `EDRawMarketResolver` | Aggregates revealed orders and calculates updated raw prices. |
-| Raw purchases | `EDRawPurchaseResolver` | Applies bids, available cash, and enabled purchase variations to each player. |
-| Manufacturing | `EDProductionAllocator` | Checks whether raw certificates can supply the requested recipes and legal substitutions. |
-| Goods offer reveal | `EDGoodsOfferValidator` | Checks each complete offer against that player's inventory; over-offers are disqualified and excluded from the valid price totals. |
-| Goods market | `EDGoodsMarketResolver` (planned) | Calculates goods prices from the validator's valid per-good totals, never the unfiltered submissions. |
-| Goods sales | `EDGoodsSalesResolver` (planned) | Resolves sales and consumes the certificates used for sold goods. |
-| Month close | `EDMonthResolver` (planned) | Combines the monthly results, updates game state, and records the closing prices. |
+| Raw-order submission | `GameSession` + `EDRawOrderValidator` | Keeps each submission private and accepts it only if limits and minimum bids pass. |
+| Raw resolution | `EDMonthResolver` raw stage, `EDRawMarketResolver`, `EDRawPurchaseResolver` | After all raw orders arrive, calculates prices and purchases; returns the updated inventories used for goods decisions. |
+| Goods-offer submission | `GameSession` | Collects private offers after exposing each player only their permitted post-purchase view. |
+| Manufacturing / offer validation | `EDMonthResolver` goods stage, `EDGoodsOfferValidator`, `EDProductionAllocator` | Jointly checks each complete offer against post-purchase inventory; disqualifies over-offers before pricing. |
+| Goods market | `EDGoodsMarketResolver` | Prices only the valid offered units. |
+| Goods sales | `EDGoodsSalesResolver` | Resolves qualifying offers, consumes certificates, and reports whole-offer delivery failures. |
+| Month close | `EDMonthResolver` goods stage (planned) | Combines the goods results with raw-stage progress, updates game state, and records the closing prices. |
 | Game end | `EDEndGameScorer` | Settles remaining raw materials at final-month prices, repays recorded loans, and calculates final profit, ranks, and ties. |
 
 For example, `EDGoodsOfferValidator` should be called only after all goods
-offers are available and the inventory to validate against is known. Its
-`validOfferedUnitsByGood` output is the input the goods-market rule should use
-for price determination. The validator does not resolve prices or sales itself.
+offers are available and the post-purchase inventory to validate against is
+known. Its `validOfferedUnitsByGood` output is the input the goods-market rule
+should use for price determination. The validator does not resolve prices or
+sales itself.
 
 ### What currently calls the rules
 
 At present, there is no implemented phase controller or `EDMonthResolver`.
 `EDEngine` currently stores and replaces an `EDGameState`; it does not collect
 orders, advance phases, or invoke the rule functions. Existing rule types are
-therefore callable utilities, not an automatically running game. Adding the
-planned `EDGameFlow` phase controller and wiring it to `EDMonthResolver` is
-what will make the sequence above execute during a game.
+therefore callable utilities, not an automatically running game. EDGameFlow
+and `GameSession` will own submission gates and phase control, while
+`EDMonthResolver` will compose the monthly rule functions.
