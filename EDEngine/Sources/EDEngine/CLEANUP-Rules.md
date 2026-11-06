@@ -26,14 +26,13 @@ Pure rules:
 ~~EDGoodsOfferValidator.swift — disqualify over-offers and exclude them from price determination.~~
 ~~EDGoodsMarketResolver.swift — finished-goods price changes.~~
 ~~EDGoodsSalesResolver.swift — sales and certificate consumption.~~
-EDMonthResolver.swift — combines the pure steps to resolve one month.
+~~EDMonthResolver.swift — staged pure coordination of raw purchases, goods offers, market prices, sales, and month close.~~
 ~~EDEndGameScorer.swift — final raw-material sale, profit, rankings, and ties~~
 
 Put in EDGameFlow, not EDCore
-Phase transitions, the session actor, events, and player-specific views belong
-in EDGameFlow. The current `EDEngine` actor only stores/replaces a state
-snapshot; the planned `GameSession` should replace or evolve it so there is
-one authoritative owner of mutable session state.
+~~Phase transitions, the session actor, events, and player-specific views belong
+in EDGameFlow. `GameSession` is the authoritative mutable-state owner; `EDEngine`
+is a compatibility alias to that actor.~~
 
 
 
@@ -48,8 +47,8 @@ boundary, not a scheduler or separate Swift module.
 
 ```text
 EDEngine
-└── EDGameFlow (planned)
-    └── GameSession / phase controller (planned)
+└── EDGameFlow
+    └── GameSession
         ├── collects secret player submissions
         ├── decides when submissions are revealed
         ├── runs the raw resolver stage after raw orders are complete
@@ -71,13 +70,12 @@ EDCore (currently part of the EDEngine target)
 ```
 
 `GameSession` is the game-flow coordinator: it owns **when** a rule runs and
-controls secret information. `GamePhaseReducer` decides whether a lifecycle
-transition is legal. `EDMonthResolver` (not yet implemented) is the pure,
-staged monthly coordinator that composes the rule functions. Its raw stage
-must finish before the session requests goods offers, since those decisions
-depend on post-purchase inventory. Its goods stage runs after every offer is
-submitted. Neither coordinator should duplicate the calculations in
-individual rule types.
+controls secret information. `EDGamePhaseReducer` decides whether a lifecycle
+transition is legal. `EDMonthResolver` is the pure, staged monthly coordinator
+that composes the rule functions. Its raw stage finishes before the session
+requests goods offers, since those decisions depend on post-purchase inventory.
+Its goods stage runs after every offer is submitted. Neither coordinator
+duplicates the calculations in individual rule types.
 
 ### Intended monthly sequence
 
@@ -90,7 +88,7 @@ individual rule types.
 | Manufacturing / offer validation | `EDMonthResolver` goods stage, `EDGoodsOfferValidator`, `EDProductionAllocator` | Jointly checks each complete offer against post-purchase inventory; disqualifies over-offers before pricing. |
 | Goods market | `EDGoodsMarketResolver` | Prices only the valid offered units. |
 | Goods sales | `EDGoodsSalesResolver` | Resolves qualifying offers, consumes certificates, and reports whole-offer delivery failures. |
-| Month close | `EDMonthResolver` goods stage (planned) | Combines the goods results with raw-stage progress, updates game state, and records the closing prices. |
+| Month close | `EDMonthResolver` goods stage + `GameSession` | Combines the goods results with raw-stage progress, updates game state, and records the closing prices. |
 | Game end | `EDEndGameScorer` | Settles remaining raw materials at final-month prices, repays recorded loans, and calculates final profit, ranks, and ties. |
 
 For example, `EDGoodsOfferValidator` should be called only after all goods
@@ -101,9 +99,10 @@ sales itself.
 
 ### What currently calls the rules
 
-At present, there is no implemented phase controller or `EDMonthResolver`.
-`EDEngine` currently stores and replaces an `EDGameState`; it does not collect
-orders, advance phases, or invoke the rule functions. Existing rule types are
-therefore callable utilities, not an automatically running game. EDGameFlow
-and `GameSession` will own submission gates and phase control, while
-`EDMonthResolver` will compose the monthly rule functions.
+`GameSession` is the implemented phase controller and the only actor that owns
+mutable session state. It validates submissions, invokes `EDMonthResolver`
+after each submission gate, returns player-specific views that omit other
+players' pending inputs, and publishes reveal and resolution events through an
+`AsyncStream`. `EDMonthResolver` remains a pure staged coordinator in EDCore;
+it never collects submissions or publishes events. `EDEngine` is retained as
+a compatibility type name for `GameSession`, not as a second state owner.

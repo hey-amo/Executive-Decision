@@ -141,16 +141,14 @@ struct EDGameStateTests {
         #expect(decoded == state)
     }
 
-    @Test("Engine exposes the value state without duplicating it")
-    func engineReturnsGameStateSnapshot() async throws {
+    @Test("Game session exposes a resolved state snapshot")
+    @available(macOS 10.15, *)
+    func sessionReturnsGameStateSnapshot() async throws {
         let state = try makeGameState(monthCount: 1, resolvedMonths: 0)
-        let engine = EDEngine(state: state)
-        let nextState = try makeGameState(monthCount: 1, resolvedMonths: 1)
+        let session = try GameSession(state: state)
 
-        #expect(await engine.snapshot() == state)
-
-        await engine.changeState(to: nextState)
-        #expect(await engine.snapshot() == nextState)
+        #expect(await session.snapshot() == state)
+        #expect(await session.currentPhase() == .rawOrderSubmission(monthNumber: 1))
     }
 
     private func makePlayers(
