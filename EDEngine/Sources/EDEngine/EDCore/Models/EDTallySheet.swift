@@ -62,7 +62,7 @@ public struct EDTallySheetMonth: Codable, Equatable, Hashable, Sendable {
     }
 }
 
-/// Private monthly orders and sales belonging to one player.
+/// Monthly orders and sales associated with one player by the owning game session.
 ///
 /// Rules: Setup and the monthly Purchasing Raw Materials and Selling Finished
 /// Goods steps. Standard games have 12 months; shorter games may choose fewer.
