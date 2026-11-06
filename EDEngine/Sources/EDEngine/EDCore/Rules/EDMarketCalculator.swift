@@ -1,3 +1,5 @@
+// EDMarketCalculator.swift — Calculates unit-driven market movements and prices.
+
 /// Errors raised while applying a market movement to a previous price.
 public enum EDMarketCalculatorError: Error, Equatable, Sendable {
     case priceOverflow
@@ -13,7 +15,8 @@ public enum EDMarketCalculator {
     /// Rules: Market Calculator, Raw Materials. Orders above 24 units count as
     /// 24 units; movement is added to the previous market price.
     public static func rawMaterialMovement(forUnits units: Int) -> Int {
-        min(max(units, 0), maximumRawMaterialUnits) - 10
+        let cappedUnits = min(max(units, 0), maximumRawMaterialUnits)
+        return cappedUnits - 10
     }
 
     /// Returns the finished-good market movement for an offer.
@@ -21,7 +24,8 @@ public enum EDMarketCalculator {
     /// Rules: Market Calculator, Finished Goods. Offers above 16 units count as
     /// 16 units; movement is added to the previous market price.
     public static func finishedGoodMovement(forUnits units: Int) -> Int {
-        11 - 2 * min(max(units, 0), maximumFinishedGoodUnits)
+        let cappedUnits = min(max(units, 0), maximumFinishedGoodUnits)
+        return 11 - 2 * cappedUnits
     }
 
     /// Returns the updated raw-material price, with the rules' $1 minimum.

@@ -5,15 +5,29 @@ import Testing
 struct EDOpeningPricesTests {
     @Test("Raw material prices match the opening-price table")
     func rawMaterialPricesMatchRules() {
-        #expect(EDOpeningPrices.rawMaterialPrice(for: .extraFine) == 40)
-        #expect(EDOpeningPrices.rawMaterialPrice(for: .fine) == 30)
-        #expect(EDOpeningPrices.rawMaterialPrice(for: .standard) == 20)
+        let expectedPrices: [EDRawMaterialGrade: Int] = [
+            .xfine: 40,
+            .fine: 30,
+            .standard: 20
+        ]
+
+        #expect(EDRawMaterialGrade.allCases.count == expectedPrices.count)
+        for grade in EDRawMaterialGrade.allCases {
+            #expect(EDOpeningPrices.rawMaterialPrice(for: grade) == expectedPrices[grade])
+        }
     }
 
     @Test("Finished-good prices match the opening-price table")
     func finishedGoodPricesMatchRules() {
-        #expect(EDOpeningPrices.finishedGoodPrice(for: .a) == 140)
-        #expect(EDOpeningPrices.finishedGoodPrice(for: .b) == 115)
-        #expect(EDOpeningPrices.finishedGoodPrice(for: .c) == 90)
+        let expectedPrices: [EDRecipe: Int] = [
+            .a: 140,
+            .b: 115,
+            .c: 90
+        ]
+
+        #expect(EDRecipe.allCases.count == expectedPrices.count)
+        for good in EDRecipe.allCases {
+            #expect(EDOpeningPrices.finishedGoodPrice(for: good) == expectedPrices[good])
+        }
     }
 }

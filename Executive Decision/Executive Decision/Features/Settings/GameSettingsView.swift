@@ -26,6 +26,10 @@ struct GameSettingsView: View {
             .padding(.bottom, 28)
         }
         .background(PlayerSetupStyle.paper.ignoresSafeArea())
+        .onDisappear {
+            AudioManager.shared.setSoundEnabled(false)
+            AudioManager.shared.setMusicEnabled(false)
+        }
     }
 
     private var header: some View {
@@ -118,6 +122,15 @@ struct GameSettingsView: View {
                     enabledSettings.insert(setting)
                 } else {
                     enabledSettings.remove(setting)
+                }
+
+                switch setting {
+                case .sound:
+                    AudioManager.shared.setSoundEnabled(isEnabled)
+                case .music:
+                    AudioManager.shared.setMusicEnabled(isEnabled)
+                case .haptic, .darkMode:
+                    break
                 }
             }
         )

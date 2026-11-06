@@ -1,8 +1,8 @@
-/// Raw-material order limits for a validated game setup.
+/// Raw-material order limits derived from a validated game configuration.
 ///
-/// Rules: Raw order limits. Total monthly units depend on player count, with an
-/// additional per-grade limit in a two-player game.
-public struct EDRawOrderLimits: Equatable, Sendable {
+/// Rules: FR-5. Monthly order caps depend on player count, with an additional
+/// per-grade cap in two-player games.
+public struct EDRawOrderLimits: Equatable, Hashable, Sendable {
     /// Maximum total raw-material units one player may order in a month.
     ///
     /// Rules: FR-5 Raw order limits.

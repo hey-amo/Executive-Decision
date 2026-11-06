@@ -29,6 +29,18 @@ struct EDMarketCalculatorTests {
         #expect(EDMarketCalculator.finishedGoodMovement(forUnits: Int.max) == -21)
     }
 
+    @Test("Movement boundaries and extreme unit counts are safe")
+    func movementBoundariesAndExtremeUnitsAreSafe() {
+        #expect(EDMarketCalculator.rawMaterialMovement(forUnits: Int.min) == -10)
+        #expect(EDMarketCalculator.rawMaterialMovement(forUnits: 0) == -10)
+        #expect(EDMarketCalculator.rawMaterialMovement(forUnits: 24) == 14)
+        #expect(EDMarketCalculator.rawMaterialMovement(forUnits: Int.max) == 14)
+        #expect(EDMarketCalculator.finishedGoodMovement(forUnits: Int.min) == 11)
+        #expect(EDMarketCalculator.finishedGoodMovement(forUnits: 0) == 11)
+        #expect(EDMarketCalculator.finishedGoodMovement(forUnits: 16) == -21)
+        #expect(EDMarketCalculator.finishedGoodMovement(forUnits: Int.max) == -21)
+    }
+
     @Test("Negative units use the zero-unit movement")
     func negativeUnitsUseZeroUnitMovement() {
         #expect(EDMarketCalculator.rawMaterialMovement(forUnits: -1) == -10)
@@ -93,6 +105,43 @@ struct EDMarketCalculatorTests {
         do {
             _ = try EDMarketCalculator.finishedGoodPrice(previousPrice: Int.max, offeredUnits: 0)
             Issue.record("Expected price overflow.")
+        } catch {
+            #expect(error == .priceOverflow)
+        }
+    }
+
+    @Test("Price arithmetic handles representable extreme results")
+    func extremePriceArithmeticRemainsRepresentable() throws {
+        #expect(try EDMarketCalculator.rawMaterialPrice(
+            previousPrice: Int.min,
+            orderedUnits: 24
+        ) == 1)
+        #expect(try EDMarketCalculator.rawMaterialPrice(
+            previousPrice: Int.max,
+            orderedUnits: 0
+        ) == Int.max - 10)
+        #expect(try EDMarketCalculator.finishedGoodPrice(
+            previousPrice: Int.min,
+            offeredUnits: 0
+        ) == Int.min + 11)
+        #expect(try EDMarketCalculator.finishedGoodPrice(
+            previousPrice: Int.max,
+            offeredUnits: 16
+        ) == Int.max - 21)
+    }
+
+    @Test("Price arithmetic reports overflow in both directions")
+    func priceArithmeticReportsOverflowInBothDirections() {
+        do {
+            _ = try EDMarketCalculator.rawMaterialPrice(previousPrice: Int.max, orderedUnits: 24)
+            Issue.record("Expected positive price overflow.")
+        } catch {
+            #expect(error == .priceOverflow)
+        }
+
+        do {
+            _ = try EDMarketCalculator.finishedGoodPrice(previousPrice: Int.min, offeredUnits: 16)
+            Issue.record("Expected negative price overflow.")
         } catch {
             #expect(error == .priceOverflow)
         }

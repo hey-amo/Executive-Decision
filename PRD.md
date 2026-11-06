@@ -2,35 +2,6 @@
 
 Unofficial hobby Swift implementation of Sid Sackson's *Executive Decision*. Scope of this document: the **game engine only** (no UI). Version 0.1.
 
-## 1. How to use this document with an AI coding agent
-
-The plan below is split into tiny, numbered branches (`ED-001`, `ED-002`, ...). You hand the agent **one branch brief at a time**. Each brief is self-contained, so the agent never needs the whole project in its head.
-
-**Workflow**
-
-1. Put the *Repo Rules* (section 2) in an `AGENTS.md` (or `CLAUDE.md`) at the repo root. Agents read it on every task.
-2. Start from an up-to-date `main`. Create the branch named in the brief: `feature/ED-012-production-allocator`.
-3. Paste the *Branch Brief Template* (section 3) filled in from the branch catalogue (section 8). One branch per prompt.
-4. Agent implements, runs `swift build` and `swift test`, and commits with the prefix `ED-012:`.
-5. You review the diff, merge to `main` (squash or fast-forward), then start the next branch. Do not stack unmerged branches unless the brief says so.
-6. Tick the branch off in the tracker (section 9).
-
-**Size rule:** one concept per branch, roughly 300 changed lines or fewer including tests. If an agent says it needs more, it must stop and propose a split (`ED-012a`, `ED-012b`) instead of growing the branch.
-
-## 2. Repo Rules (paste into AGENTS.md)
-
-- Swift Package, `swift-tools-version: 6.0`, `swiftLanguageModes: [.v6]` on every target. Zero concurrency warnings is a hard requirement.
-- **No UI code.** No SwiftUI, UIKit, AppKit, Combine, or `@MainActor` anywhere in the engine. The engine must build and test on Linux.
-- Domain types are `struct` or `enum`, `Sendable`, `Equatable`, `Hashable` where sensible, and `Codable` where they are persisted. Prefer value semantics.
-- Shared mutable state lives only inside an `actor`. No `@unchecked Sendable`, no `nonisolated(unsafe)`, no global mutable variables, no `DispatchQueue`. Any exception needs a written justification in the PR.
-- Rules logic is **pure functions or value-type reducers**: no I/O, no `Date()`, no `Int.random`. Randomness and time enter through injected protocols.
-- Depend on protocols at module boundaries (dependency inversion). Concrete wiring happens in one composition root.
-- Errors are typed enums (`throws(RulesError)` or a `Result`). No `fatalError` or `try!` in library code.
-- Public API gets doc comments that cite the rule being implemented (for example "Rules: Purchasing step").
-- Tests use Swift Testing (`import Testing`). Every rule has at least one example test taken from the rulebook, plus edge cases.
-- Do not touch files outside the scope listed in the branch brief. Do not rename or reformat unrelated code.
-- Commit style: `ED-###: imperative summary`.
-
 ## 3. Branch Brief Template (paste per task)
 
 ```
@@ -77,24 +48,25 @@ UI of any kind, internet multiplayer, cloud backup, accounts, analytics, monetis
 
 ### 4.5 Functional requirements
 
-- **FR-1 Setup.** Configurable player count (2-6) and month count (default 12). Starting cash by player count: 2 = $900, 3 = $600, 4 = $450, 5 = $350, 6 = $300.
-- **FR-2 Opening prices.** Raw: XFine $40, Fine $30, Standard $20. Goods: A $140, B $115, C $90.
-- **FR-3 Recipes.** A = XFine, XFine, Fine. B = Fine, Fine, Standard. C = Fine, Standard, Standard.
-- **FR-4 Market calculator.** Raw movement = units - 10 for 0...24 units (-10 to +14). Goods movement = 11 - 2 x units for 0...16 units (+11 to -21). Movement is applied to the *previous* market price.
-- **FR-5 Raw order limits.** Total units per player per month: 2p = 18, 3p = 12, 4p = 9, 5p = 7, 6p = 6. In a 2-player game, at most 12 units of any one grade.
-- **FR-6 Minimum raw bid.** The price the grade would move to if only that player ordered it: previous price + movement(player's own units), floored at $1.
-- **FR-7 Raw pricing.** New price per grade = previous + movement(total ordered units), never below $1. Grades are resolved XFine, Fine, Standard.
-- **FR-8 Raw purchase.** Bid >= market: all units bought at the **bid** price. Bid < market: nothing. If cash cannot cover the total, the player buys nothing that month (base rules).
-- **FR-9 Manufacturing.** 3 raw units per good. Only substitutions: XFine for Fine, Fine for Standard (a higher grade may fill a lower slot, never the reverse).
-- **FR-10 Goods offers.** Per type: units and asking price. A player may not offer more goods than their inventory can produce. Over-offering voids all of that player's offers for the month **and** excludes them from price determination.
-- **FR-11 Goods pricing and sales.** Market = previous + movement(total valid offered units). Bid <= market: all units sold at the **bid** price. Bid > market: none. Sold goods consume the raw certificates needed to make them.
-- **FR-12 Game end.** After the final month, leftover raw is sold to the Broker at the final market price. Profit = final cash - starting cash (less loan repayments in Variation 1). Highest profit wins; ties are reported as ties.
-- **FR-13 Variation 1 (loans).** Shortfalls are covered by loans in $100 increments, only as much as needed. Each $100 costs $125 at the end.
-- **FR-14 Variation 2 (partial purchase).** A raw bid below market still buys units, minus one unit per dollar of shortfall (floor at zero).
-- **FR-15 Hidden information.** Bids and production intentions are secret until the reveal. Raw certificates (inventory) are public. Cash is treated as public by default (configurable).
-- **FR-16 Persistence.** Full game state serialises to a versioned snapshot; the engine can resume from one. Autosave after each phase.
-- **FR-17 Agents.** Every seat is driven by a `PlayerAgent`. The engine does not know whether it is a human or an AI.
-- **FR-18 Events.** The engine publishes an ordered stream of immutable events so any UI can animate or log without polling.
+- 4.5.1: **FR-1 Setup.** Configurable player count (2-6) and month count (default 12). Starting cash by player count: 2 = $900, 3 = $600, 4 = $450, 5 = $350, 6 = $300.
+- 4.5.2: **FR-2 Opening prices.** Raw: XFine $40, Fine $30, Standard $20. Goods: A $140, B $115, C $90.
+- 4.5.3: **FR-3 Recipes.** A = XFine, XFine, Fine. B = Fine, Fine, Standard. C = Fine, Standard, Standard.
+- 4.5.4: **FR-4 Market calculator.** Raw movement = units - 10 for 0...24 units (-10 to +14). Goods movement = 11 - 2 x units for 0...16 units (+11 to -21). Movement is applied to the *previous* market price.
+- 4.5.5: **FR-5 Raw order limits.** Total units per player per month: 2p = 18, 3p = 12, 4p = 9, 5p = 7, 6p = 6. In a 2-player game, at most 12 units of any one grade.
+- 4.5.6: **FR-6 Minimum raw bid.** The price the grade would move to if only that player ordered it: previous price + movement(player's own units), floored at $1.
+- 4.5.7: **FR-7 Raw pricing.** New price per grade = previous + movement(total ordered units), never below $1. Grades are resolved XFine, Fine, Standard.
+- 4.5.8: **FR-8 Raw purchase.** Bid >= market: all units bought at the **bid** price. Bid < market: nothing. If cash cannot cover the total, the player buys nothing that month (base rules).
+- 4.5.9: **FR-9 Manufacturing.** 3 raw units per good. Only substitutions: XFine for Fine, Fine for Standard (a higher grade may fill a lower slot, never the reverse).
+- 4.5.10: **FR-10 Goods offers.** Per type: units and asking price. A player may not offer more goods than their inventory can produce. Over-offering voids all of that player's offers for the month **and** excludes them from price determination.
+- 4.5.11: **FR-11 Goods pricing and sales.** Market = previous + movement(total valid offered units). Bid <= market: all units sold at the **bid** price. Bid > market: none. Sold goods consume the raw certificates needed to make them.
+- 4.5.12: **FR-12 Game end.** After the final month, leftover raw is sold to the Broker at the final market price. Profit = final cash - starting cash (less loan repayments in Variation 1). Highest profit wins; ties are reported as ties.
+- 4.5.13: **FR-13 Variation 1 (loans).** Shortfalls are covered by loans in $100 increments, only as much as needed. Each $100 costs $125 at the end.
+- 4.5.14: **FR-14 Variation 2 (partial purchase).** A raw bid below market still buys units, minus one unit per dollar of shortfall (floor at zero).
+- 4.5.15: **FR-15 Hidden information.** Bids and production intentions are secret until the reveal. Raw certificates (inventory) are public. Cash is treated as public by default (configurable).
+- 4.5.16: **FR-16 Persistence.** Full game state serialises to a versioned snapshot; the engine can resume from one. Autosave after each phase.
+- 4.5.17: **FR-17 Agents.** Every seat is driven by a `PlayerAgent`. The engine does not know whether it is a human or an AI.
+- 4.5.18: **FR-18 Events.** The engine publishes an ordered stream of immutable events so any UI can animate or log without polling.
+- 4.5.19: **FR-Wallet-Fixes** In the game, players it is possible that a numeric result can result in a coin value below zero, theresfore we need to be able to support subtract below zero. You may initFromCoder or init from some kind of persistence with less than zero.  But you cannot `add` 0 or a negative number.  There needs to be a hard lower integer, lets go with -5000.
 
 ### 4.6 Non-functional requirements
 
@@ -110,9 +82,12 @@ UI of any kind, internet multiplayer, cloud backup, accounts, analytics, monetis
 
 - **EDCore**: domain types and pure rules. Depends on nothing.
 - **EDEngine**: game flow (phase machine, session actor, events, hidden-info views). Depends on EDCore.
+
+<!--
 - **EDAI**: `PlayerAgent` implementations and personas. Depends on EDCore and EDEngine protocols.
 - **EDPersistence**: snapshot codec and repositories. Depends on EDCore and EDEngine.
 - **EDTestSupport**: fixtures, scripted agents, builders (test-only).
+-->
 
 Dependencies point inward; the UI app (a separate repo or target) depends on EDEngine, EDAI and EDPersistence only through their public protocols.
 
@@ -120,21 +95,124 @@ Dependencies point inward; the UI app (a separate repo or target) depends on EDE
 
 - Value types: `Money`, `RawGrade`, `GoodType`, `Recipe`, `GameConfig`, `Inventory`, `PlayerState`, `PriceBoard`, `RawOrder`, `GoodsOffer`, `MonthResult`, `GameState`.
 - Pure services behind protocols: `MarketCalculating`, `OrderValidating`, `ProductionAllocating`, `RawMarketResolving`, `GoodsMarketResolving`, `Scoring`.
-- Orchestration: `GamePhase` (state machine reducer, a pure value type) and `GameSession` (an `actor` that owns the current `GameState`, collects secret submissions, advances phases, emits events).
+- Orchestration: `GamePhaseReducer` (pure validation of legal phase transitions), `EDMonthResolver` (pure composition of monthly rules), and `GameSession` (the sole session actor; owns state, gates private submissions, invokes resolution at phase boundaries, and publishes events).
 - Edges: `PlayerAgent` (async decisions), `GameRepository` (save/load), `RandomSource` (seedable RNG for AI).
 
-### 5.3 Phase flow per month
+### 5.3 EDGameFlow responsibility and rule coordination
 
-`rawBidding` -> `rawReveal and resolution` -> `goodsBidding` -> `goodsReveal and resolution` -> `monthSummary` -> next month or `finished` (with end-game settlement).
+`EDGameFlow` coordinates play; it does not reimplement game rules. Rule files
+are deterministic operations with explicit inputs and outputs. The flow layer
+decides when each operation may run, who may see its inputs and results, and
+how its result advances the session.
 
-### 5.4 Concurrency design
+```text
+Caller / UI / simulation driver
+    ├── requests a safe view from GameSession
+    ├── asks a PlayerAgent for a decision outside GameSession
+    └── submits the resulting RawOrder or GoodsOffer
+                          │
+                          ▼
+GameSession actor (EDGameFlow; authoritative session coordinator)
+    ├── owns EDGameState, current phase, and pending private submissions
+    ├── validates raw submissions through EDCore rules; gates all submissions
+    ├── withholds submissions until the reveal/resolution gate
+    ├── calls GamePhaseReducer for legal lifecycle transitions
+    ├── calls EDMonthResolver at the raw and goods phase boundaries
+    └── records and publishes ordered GameEvents / safe PlayerViews
+                          │
+                          ▼
+EDMonthResolver (EDCore; pure staged monthly coordinator)
+    ├── raw stage: resolves raw market and purchases
+    │       └── returns intermediate player states and raw prices
+    └── goods stage: validates offers, resolves market and sales
+            └── returns MonthResult + next EDGameState, or a typed error
+                          │
+                          ▼
+Pure EDCore rule functions; no session, agent, event, UI, or I/O dependencies
+```
+
+`GameSession` is responsible for coordinating the game lifecycle, not for
+containing market arithmetic or duplicating validators and resolvers. Do not
+add one actor or coordinator per player, market, or rule file. `GamePhaseReducer`
+decides whether a transition is legal; it does not run rules. `EDMonthResolver`
+coordinates pure rules in two synchronous stages because goods offers are
+chosen only after raw purchases update each player's inventory. It does not
+collect secrets, publish events, or perform persistence I/O.
+
+`GameSession` accepts decisions as values. It does not call `PlayerAgent`
+implementations while holding or mutating session state. A caller obtains a
+`PlayerView`, asks the relevant agent asynchronously, then submits the returned
+value. This avoids awaiting external work inside the actor and keeps agents
+from receiving references to authoritative game state.
+
+The current `EDEngine` is only a state snapshot/replacement wrapper. ED-023
+must replace it or evolve it into `GameSession`; do not leave two actors that
+can independently own and mutate the authoritative game state.
+
+### 5.4 Phase flow and gates
+
+For each month:
+
+1. **Raw-order submission.** Collect one `RawOrder` per seat. Keep pending
+   orders private; reject submissions for the wrong phase, an unknown seat, or
+   a seat that has already submitted.
+2. **Raw resolution.** Validate each order through `EDRawOrderValidator`.
+   Once every seat has submitted a valid order, call the raw stage of
+   `EDMonthResolver`. It derives raw prices from all submitted units and
+   resolves purchases against those prices. Retain the intermediate player
+   states and raw prices as month progress, then publish the reveal and
+   resolved information allowed by `PlayerView` and `GameEvent`.
+3. **Goods-offer submission.** Collect one `GoodsOffer` per seat, again keeping
+   pending offers private and rejecting duplicate or out-of-phase submissions.
+4. **Goods resolution.** Once every seat has submitted, call the goods stage
+   of `EDMonthResolver` with the raw-phase progress and offers. Validate each
+   player's complete offer against the post-purchase inventory.
+   Disqualified players' entire offers are omitted from aggregate market
+   totals. Resolve goods prices and sales; inability to deliver all
+   certificates for a qualifying sale prohibits that player's entire sale, as
+   specified by the amended rules.
+5. **Month summary.** Commit the completed `MonthResult` and next state,
+   publish the summary, discard the transient month progress, then move to the
+   next month's raw-order submission.
+6. **Game end.** After the final summary, invoke `EDEndGameScorer` once, store
+   the final settlement and standings, publish the finished event, and enter
+   the terminal phase. Further submissions or resolution attempts are rejected.
+
+The lifecycle is therefore:
+
+`rawOrderSubmission` -> `rawResolution` -> `goodsOfferSubmission` ->
+`goodsResolution` -> `monthSummary` -> next month or `finished`.
+
+### 5.5 Concurrency and isolation
 
 - All state transitions are pure `(State, Input) -> (State, [Event])` functions, so they need no isolation.
-- `GameSession` is the only actor holding mutable state. Agents are asked for decisions with `async` calls and return `Sendable` values; secrets are held inside the actor until all seats have submitted.
-- Events are delivered through `AsyncStream<GameEvent>`. Events are `Sendable` enums with no references.
+- `GameSession` is the only actor holding mutable session state. Its isolated methods accept and return `Sendable` values; mutable submission dictionaries, intermediate month progress, and event continuations stay actor-isolated.
+- Agents are asked for decisions with `async` calls by the caller/driver, using a safe `PlayerView`; they return `Sendable` values that are submitted to `GameSession`. The session does not await agent work while coordinating a resolution.
+- `GameSession` serializes submissions. A phase resolves exactly once after all seats submit; partial submissions do not advance the phase. If an input fails validation, report a typed error and leave the accepted submissions and phase unchanged.
+- No view may expose another seat's pending orders or offers. Reveal events are emitted only after the corresponding collection gate is complete. Public state follows FR-15; each player's private projection includes only that player's unrevealed data.
+- Events are delivered through `AsyncStream<GameEvent>`. Events are `Sendable` enums with immutable values and no references to session state. Each committed transition appends events in deterministic order before publishing them.
+- Cancellation of an agent decision does not implicitly discard other seats' accepted submissions or advance the phase. The caller may retry that seat; cancellation and retry behavior must be tested without timing-based sleeps.
 - Agents may be `actor`s or `Sendable` structs. No shared class instances cross isolation boundaries.
 
-### 5.5 SOLID mapping
+### 5.6 Session state and persistence boundary
+
+- The session actor owns the current `EDGameState`, current month and `GamePhase`,
+  pending raw orders or goods offers for the active collection phase, and the
+  terminal end-game result once scored.
+- Pending submissions and raw-phase progress are keyed by stable player ID and
+  are not part of a public state view. Snapshot persistence must nevertheless
+  retain enough phase, pending-submission, and intermediate resolution state
+  to resume a game without losing accepted decisions or revealing them early;
+  schema versioning belongs to `EDPersistence`.
+- Rule resolvers are synchronous pure functions and do not perform autosave,
+  emit events, or mutate the input game state. `GameSession` commits each
+  successful result, produces its ordered events, and invokes any repository
+  boundary after the state transition is complete.
+- A failed rule resolution commits neither a partial state nor a partial event
+  sequence. The session returns a typed failure and remains resumable at a
+  well-defined phase.
+
+### 5.7 SOLID mapping
 
 - **S**: calculator, validator, allocator, resolver and scorer are separate types, each with one reason to change.
 - **O**: new variations are new policy types (`LoanPolicy`, `PartialFillPolicy`) injected into resolvers; the base resolver code is not edited.
@@ -161,7 +239,7 @@ The rulebook leaves these open. Each default is implemented behind a policy type
 - **Rulebook examples first**: each branch includes tests derived directly from the text (for example raw price 40 with 15 units ordered becomes $45; goods with 0 units offered gives +11; goods with 6 units gives -1).
 - **Property tests (hand-rolled generators)**: prices never below floor; total cash plus inventory value is conserved across a purchase; a valid allocation never uses more certificates than owned.
 - **Golden game**: a scripted 3-player, 3-month game with fixed bids whose final standings are asserted exactly.
-- **Concurrency**: tests run `GameSession` with scripted async agents that respond out of order to confirm no secret leaks and no deadlocks.
+- **Concurrency**: tests run a driver with scripted async agents that respond out of order, then submit their values to `GameSession`, confirming no secret leaks, lost submissions, duplicate resolutions, or deadlocks.
 - **Simulation harness**: seeded AI-vs-AI batches to catch crashes and degenerate strategies.
 
 ## 8. Branch catalogue
@@ -206,23 +284,18 @@ Each entry lists dependencies, scope and acceptance criteria. Names are the exac
 
 **ED-016 - goods-sales-resolution.** Depends: 008, 013, 015. Bid <= market sells all units at bid; above sells none. Apply allocator to consume certificates for sold goods and pay cash. Done when: sold units equal consumed recipe certificates and cash is conserved.
 
-**ED-017 - month-resolver.** Depends: 012, 016. Pure `MonthResolver` that takes a state plus both sets of submissions and returns a `MonthResult` and next state. Done when: a scripted single month matches hand-calculated numbers.
+**ED-017 - month-resolver.** Depends: 011, 012, 014, 015, 016. Pure staged `EDMonthResolver`. Its raw stage takes the opening state and all raw orders and returns raw market outcomes plus post-purchase player states for the goods decision view. Its goods stage takes that intermediate value and all goods offers, then returns a `MonthResult` and completed next state. It composes existing validators, market, purchase, production/offer eligibility, and sales rules in rulebook order; it does not own phase state, collect submissions, publish events, or perform I/O. Done when: the raw stage supports a goods decision from updated inventory; a scripted full month matches hand-calculated numbers; over-offers are omitted from goods price totals; failed stage resolution returns no partial state.
 
 **ED-018 - endgame-and-scoring.** Depends: 007, 008, 017. Sell leftover raw at final prices, compute profit per player, rank, detect ties. Done when: ranking, tie and zero-profit cases pass.
 
 ### Phase 3: Orchestration
 
-**ED-019 - phase-state-machine.** Depends: 017, 018. `GamePhase` and a pure reducer for legal transitions (raw bidding, raw resolution, goods bidding, goods resolution, summary, finished). Illegal transitions throw. Done when: full-month transition table tested.
-
-**ED-020 - game-events.** Depends: 019. Immutable `GameEvent` enum (phase started, bids revealed, prices posted, purchases made, sales made, month summarised, game finished) and an `EventLog` value. Done when: events round-trip as Codable and ordering is deterministic.
-
-**ED-021 - hidden-information-views.** Depends: 019, 020. `PlayerView` projection: public board and certificates, own secrets only, others' bids hidden until reveal. Done when: leak tests assert no other seat's pending bids appear in any view.
-
-**ED-022 - player-agent-protocol.** Depends: 021. `PlayerAgent` with `func chooseRawOrder(view:) async -> RawOrder`, `func chooseGoodsOffer(view:) async -> GoodsOffer`, plus `ScriptedAgent` in EDTestSupport. Done when: scripted agents drive a deterministic turn in tests.
-
-**ED-023 - game-session-actor.** Depends: 019, 020, 021, 022. `actor GameSession`: owns `GameState`, collects submissions concurrently from agents, reveals when complete, advances phases, publishes `AsyncStream<GameEvent>`. Done when: a full scripted game completes, with a test that submits out of order and a test that cancels cleanly.
-
-**ED-024 - game-factory.** Depends: 023. Composition root: builds a session from `GameConfig` and seat list. Done when: 2- to 6-seat games build and bad configs throw.
+**ED-019 - phase-state-machine.** Depends: 017, 018. `GamePhase` and pure `GamePhaseReducer` for legal transitions (raw-order submission, raw resolution, goods-offer submission, goods resolution, month summary, next month, finished). Illegal transitions throw typed errors. Done when: first, middle, and final month transition tables plus rejected transitions are tested.
+**ED-020 - game-events.** Depends: 019. Immutable `GameEvent` enum (phase started, submissions revealed, prices posted, purchases made, sales made, month summarised, game finished) and an `EventLog` value. Done when: events round-trip as Codable, event ordering is deterministic, and no event exposes pending private submissions.
+**ED-021 - hidden-information-views.** Depends: 019, 020. `PlayerView` projection: public board and certificates, cash according to config, own secrets only, others' pending bids/offers hidden until their reveal gate. Done when: leak tests check every seat before and after each reveal boundary.
+**ED-022 - player-agent-protocol.** Depends: 021. `PlayerAgent` with async raw-order and goods-offer decisions using immutable `PlayerView`; agents return Sendable values and do not receive `GameSession` or `EDGameState`. Include `ScriptedAgent` in EDTestSupport. Done when: scripted callers drive deterministic submissions without embedding rule resolution in agents.
+**ED-023 - game-session-actor.** Depends: 017, 018, 019, 020, 021, 022. `actor GameSession` is the one authoritative session coordinator: owns `EDGameState`, current phase, accepted private submissions, raw-stage month progress, event log/stream, and final score. It validates raw orders through `EDRawOrderValidator`, rejects duplicate/out-of-phase/unknown-seat input without mutation, calls the raw stage only after every seat has submitted, exposes safe updated-inventory views, then calls the goods stage only after all offers arrive. It invokes `EDEndGameScorer` only after the final month. Done when: a complete scripted game runs; concurrent out-of-order submissions produce exactly one resolution per gate and deterministic results/events; views/events reveal no pending secrets; invalid calls preserve state; cancellation/retry does not deadlock or lose accepted submissions.
+**ED-024 - game-factory.** Depends: 023. Composition root: builds a session from validated `EDGameConfig`, seat identities, initial player states, and any session-owned infrastructure dependencies. Agents remain with the external driver; `GameSession` remains the lifecycle coordinator and the factory only wires dependencies. Done when: 2- to 6-seat sessions build, invalid configuration is rejected, and initial player cash matches configuration.
 
 ### Phase 4: Variations
 
@@ -232,7 +305,7 @@ Each entry lists dependencies, scope and acceptance criteria. Names are the exac
 
 ### Phase 5: Persistence
 
-**ED-027 - game-snapshot.** Depends: 023. Codable, versioned `GameSnapshot` (state, config, event log, schema version) with migration hook. Done when: round-trip equality and unknown-version rejection are tested.
+**ED-027 - game-snapshot.** Depends: 023. Codable, versioned `GameSnapshot` (game state, phase, active pending submissions, raw-stage month progress, terminal result/event cursor as required, schema version) with migration hook. Private pending submissions and intermediate progress are stored securely in the snapshot and are never copied into public views/events. Done when: round-trip equality at each phase, resume after raw resolution and mid-submission without loss/leak, and unknown-version rejection are tested.
 
 **ED-028 - repository.** Depends: 027. `GameRepository` protocol, `InMemoryGameRepository` actor and `FileGameRepository` actor (atomic writes, injected directory URL). Done when: save, load, list, delete and corrupted-file handling are tested.
 
@@ -308,3 +381,7 @@ Branches within a phase marked with no dependency between them (for example ED-0
 - No UI imports, no `Date()`, no unseeded randomness, no `@unchecked Sendable`.
 - Tests cite the rule they cover and include at least one rulebook example.
 - Any resolved ambiguity is noted in the PR and matches section 6, or section 6 is updated.
+
+## 12. Hard rules
+
+Do not change raw material certificate enum's.

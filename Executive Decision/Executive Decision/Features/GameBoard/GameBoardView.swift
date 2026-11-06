@@ -2,19 +2,45 @@
 //  GameBoardView.swift
 //  Executive Decision
 //
-//  Created by Amarjit on 04/11/2026.
-//
 
 import SwiftUI
 
-// Shows the game board
-
 struct GameBoardView: View {
+    var mockData: GameBoardMockData = .openingBalances
+
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        ScrollView {
+            VStack(alignment: .leading, spacing: 18) {
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("EXECUTIVE DECISION")
+                        .font(.system(size: 12, weight: .heavy, design: .rounded))
+                        .tracking(1.6)
+                        .foregroundStyle(PlayerSetupStyle.mutedInk)
+
+                    Text("Price level board")
+                        .font(.custom("Georgia-Bold", size: 32))
+                        .foregroundStyle(PlayerSetupStyle.ink)
+                }
+
+                GameBoardStatusBanner(mockData: mockData)
+                GameBoardPriceTable(mockData: mockData)
+                MarketCalculatorView()
+                ProductionChartView()
+            }
+            .padding(20)
+        }
+        .background(PlayerSetupStyle.paper.ignoresSafeArea())
     }
 }
 
-#Preview {
-    GameBoardView()
+#Preview("Opening balances") {
+    GameBoardView(mockData: .openingBalances)
+}
+
+#Preview("January") {
+    GameBoardView(mockData: .january)
+}
+
+#Preview("All months") {
+    GameBoardView(mockData: .allMonths)
 }
