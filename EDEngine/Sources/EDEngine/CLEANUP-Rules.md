@@ -37,10 +37,11 @@ Use `EDPlayerState` and `EDMoney` directly in Core and pass updated values
 between pure rules. When game flow is implemented, one `GameSession` actor
 should own mutable session state and the private submissions for each player;
 do not recreate an actor per player or a separate wallet actor.
-`EDTallySheet` remains a standalone, serializable value model for monthly submissions and
-results until the session design determines whether to store it or replace it
-with dedicated submission state.
-EDTallySheet.swift: keep it in Core only if it is part of the game’s canonical, persisted record. If it’s mainly a UI ledger, keep it outside Core.
+`EDTallySheet` is a serializable value model in `EDCore/Models`: it records
+monthly order and offer entries and their outcomes, without depending on a
+player actor or UI. GameFlow should own the association between each sheet and
+its player and decide when private entries are revealed. Whether the session
+persists this model is a storage policy, not a reason to move it out of Core.
 `EDGameSetup` was removed because it duplicated setup validation and player-count
 lookup alongside `EDGameConfig`. `EDGameConfig` now owns the single validated
 setup mapping and exposes the starting cash and raw-order limits derived from
@@ -72,7 +73,8 @@ EDCore (currently part of the EDEngine target)
 ├── Models
 │   ├── EDGameState, EDPlayerState, EDInventory
 │   ├── EDRawOrder, EDGoodsOffer
-│   └── EDMonthResult, EDPriceBoard
+│   ├── EDMonthResult, EDPriceBoard
+│   └── EDTallySheet
 └── Rules
     ├── input validation
     ├── market and purchase resolution
