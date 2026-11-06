@@ -69,20 +69,18 @@ struct EDTallySheetTests {
         #expect(decoded == sheet)
     }
 
-    @Test("Each player maintains a separate private tally sheet")
-    func playersKeepSeparateTallySheets() async throws {
-        let first = try EDPlayer(name: "Alex")
-        let second = try EDPlayer(name: "Sam")
+    @Test("Independent tally-sheet values do not share updates")
+    func tallySheetsHaveIndependentValueState() throws {
+        var first = try EDTallySheet()
+        let second = try EDTallySheet()
 
-        try await first.recordRawOrder(
+        try first.recordRawOrder(
             EDRawMaterialTally(units: 2, bidPrice: 40, amountPaid: 80),
             for: .xfine,
             inMonth: 1
         )
 
-        let firstSheet = await first.tallySheetSnapshot()
-        let secondSheet = await second.tallySheetSnapshot()
-        #expect(firstSheet.months[0].rawOrders[.xfine]?.units == 2)
-        #expect(secondSheet.months[0].rawOrders[.xfine] == EDRawMaterialTally())
+        #expect(first.months[0].rawOrders[.xfine]?.units == 2)
+        #expect(second.months[0].rawOrders[.xfine] == EDRawMaterialTally())
     }
 }

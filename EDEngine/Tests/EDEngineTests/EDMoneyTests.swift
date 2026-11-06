@@ -112,4 +112,10 @@ struct EDMoneyTests {
             Issue.record("Unexpected decoding error: \(error)")
         }
     }
+
+    @Test("Money validation errors provide localized descriptions")
+    func moneyErrorsHaveLocalizedDescriptions() {
+        #expect(EDMoneyError.additionMustBePositive(0).errorDescription != nil)
+        #expect(EDMoneyError.subtractionMustBeNonnegative(-1).errorDescription != nil)
+    }
 }
