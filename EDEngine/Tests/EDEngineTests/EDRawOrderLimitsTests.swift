@@ -14,7 +14,7 @@ struct EDRawOrderLimitsTests {
         ]
 
         for (playerCount, maximumUnits) in expectedLimits {
-            let limits = try EDGameSetup(playerCount: playerCount).rawOrderLimits
+            let limits = try EDGameConfig(playerCount: playerCount).rawOrderLimits
             #expect(limits.maximumTotalUnitsPerPlayer == maximumUnits)
         }
     }
@@ -22,7 +22,7 @@ struct EDRawOrderLimitsTests {
     @Test("Only two-player games have a per-grade limit")
     func perGradeLimitMatchesRules() throws {
         for playerCount in 2...6 {
-            let limits = try EDGameSetup(playerCount: playerCount).rawOrderLimits
+            let limits = try EDGameConfig(playerCount: playerCount).rawOrderLimits
             #expect(limits.maximumUnitsPerGrade == (playerCount == 2 ? 12 : nil))
         }
     }
@@ -32,7 +32,7 @@ struct EDRawOrderLimitsTests {
         let expectedLimits = [2: 18, 3: 12, 4: 9, 5: 7, 6: 6]
 
         for (playerCount, maximumUnits) in expectedLimits {
-            let limits = try EDGameSetup(playerCount: playerCount).rawOrderLimits
+            let limits = try EDGameConfig(playerCount: playerCount).rawOrderLimits
             let allowedOrder: [EDRawMaterialGrade: Int]
             let excessiveOrder: [EDRawMaterialGrade: Int]
             if playerCount == 2 {
@@ -50,7 +50,7 @@ struct EDRawOrderLimitsTests {
 
     @Test("Two-player orders enforce both total and per-grade limits")
     func twoPlayerLimitsAreEnforced() throws {
-        let limits = try EDGameSetup(playerCount: 2).rawOrderLimits
+        let limits = try EDGameConfig(playerCount: 2).rawOrderLimits
 
         #expect(limits.allowsOrder(unitsByGrade: [.xfine: 12, .fine: 6]))
         #expect(!limits.allowsOrder(unitsByGrade: [.xfine: 13, .fine: 5]))
@@ -59,7 +59,7 @@ struct EDRawOrderLimitsTests {
 
     @Test("Passing and zero-unit orders are allowed")
     func zeroUnitOrdersAreAllowed() throws {
-        let limits = try EDGameSetup(playerCount: 2).rawOrderLimits
+        let limits = try EDGameConfig(playerCount: 2).rawOrderLimits
 
         #expect(limits.allowsOrder(unitsByGrade: [:]))
         #expect(limits.allowsOrder(unitsByGrade: [.standard: 0]))
@@ -67,7 +67,7 @@ struct EDRawOrderLimitsTests {
 
     @Test("Negative and overflowing orders are rejected")
     func invalidUnitCountsAreRejected() throws {
-        let limits = try EDGameSetup(playerCount: 3).rawOrderLimits
+        let limits = try EDGameConfig(playerCount: 3).rawOrderLimits
 
         #expect(!limits.allowsOrder(unitsByGrade: [.fine: -1]))
         #expect(!limits.allowsOrder(unitsByGrade: [.xfine: Int.max, .standard: 1]))

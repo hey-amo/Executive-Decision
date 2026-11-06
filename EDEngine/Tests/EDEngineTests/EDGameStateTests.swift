@@ -157,8 +157,7 @@ struct EDGameStateTests {
         count: Int,
         for configuration: EDGameConfig
     ) throws -> [EDPlayerState] {
-        let startingCash = try EDGameSetup(playerCount: configuration.playerCount)
-            .startingCashPerPlayer
+        let startingCash = configuration.startingCashPerPlayer
         return try (0..<count).map { index in
             try EDPlayerState(name: "Player \(index + 1)", cashBalance: startingCash)
         }

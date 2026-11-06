@@ -5,9 +5,6 @@ public enum EDEndGameScorerError: Error, Equatable, Sendable {
     /// Rules: Ending the Game. Scoring is available only after the final month.
     case gameNotComplete
 
-    /// Rules: Setup. The configured player count must remain valid for scoring.
-    case gameSetup(EDGameSetupError)
-
     /// Rules: Ending the Game. The final raw-material sale must fit a whole-dollar amount.
     case rawMaterialSaleOverflow(playerID: EDPlayerState.ID, grade: EDRawMaterialGrade)
 
@@ -89,14 +86,7 @@ public enum EDEndGameScorer {
             throw .gameNotComplete
         }
 
-        let startingCash: Int
-        do {
-            startingCash = try EDGameSetup(
-                playerCount: gameState.configuration.playerCount
-            ).startingCashPerPlayer
-        } catch {
-            throw .gameSetup(error)
-        }
+        let startingCash = gameState.configuration.startingCashPerPlayer
 
         var scores: [EDPlayerFinalScore] = []
         scores.reserveCapacity(gameState.players.count)

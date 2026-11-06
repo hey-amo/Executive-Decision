@@ -6,12 +6,24 @@ import Testing
 struct EDGameConfigTests {
     @Test("Accepts every supported player count")
     func acceptsSupportedPlayerCounts() throws {
+        let expectedStartingCash = [2: 900, 3: 600, 4: 450, 5: 350, 6: 300]
+        let expectedOrderLimits = [2: 18, 3: 12, 4: 9, 5: 7, 6: 6]
+
         for playerCount in 2...6 {
             let config = try EDGameConfig(playerCount: playerCount)
 
             #expect(config.playerCount == playerCount)
             #expect(config.monthCount == 12)
             #expect(config.enabledVariations.isEmpty)
+            #expect(config.startingCashPerPlayer == expectedStartingCash[playerCount])
+            #expect(
+                config.rawOrderLimits.maximumTotalUnitsPerPlayer
+                    == expectedOrderLimits[playerCount]
+            )
+            #expect(
+                config.rawOrderLimits.maximumUnitsPerGrade
+                    == (playerCount == 2 ? 12 : nil)
+            )
         }
     }
 

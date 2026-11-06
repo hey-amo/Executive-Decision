@@ -1,4 +1,4 @@
-// EDGameConfig.swift — player count, month count, and enabled rule variations.
+// EDGameConfig.swift — game options and settings derived from player count.
 
 
 /// Optional rules that change how a game is resolved.
@@ -18,6 +18,8 @@ public struct EDGameConfig: Codable, Equatable, Hashable, Sendable {
     public let playerCount: Int
     public let monthCount: Int
     public let enabledVariations: Set<EDGameVariation>
+    public let startingCashPerPlayer: Int
+    public let rawOrderLimits: EDRawOrderLimits
 
     /// Creates a game configuration.
     ///
@@ -32,21 +34,37 @@ public struct EDGameConfig: Codable, Equatable, Hashable, Sendable {
             throw .invalidMonthCount(monthCount)
         }
 
-        do {
-            _ = try EDGameSetup(playerCount: playerCount)
-        } catch {
+        guard let setup = Self.setupValues(for: playerCount) else {
             throw .invalidPlayerCount(playerCount)
         }
 
         self.playerCount = playerCount
         self.monthCount = monthCount
         self.enabledVariations = enabledVariations
+        self.startingCashPerPlayer = setup.startingCash
+        self.rawOrderLimits = EDRawOrderLimits(
+            maximumTotalUnitsPerPlayer: setup.maximumTotalUnits,
+            maximumUnitsPerGrade: setup.maximumUnitsPerGrade
+        )
     }
 
     private enum CodingKeys: String, CodingKey {
         case playerCount
         case monthCount
         case enabledVariations
+    }
+
+    private static func setupValues(
+        for playerCount: Int
+    ) -> (startingCash: Int, maximumTotalUnits: Int, maximumUnitsPerGrade: Int?)? {
+        switch playerCount {
+        case 2: (900, 18, 12)
+        case 3: (600, 12, nil)
+        case 4: (450, 9, nil)
+        case 5: (350, 7, nil)
+        case 6: (300, 6, nil)
+        default: nil
+        }
     }
 
     public init(from decoder: Decoder) throws {
@@ -72,6 +90,13 @@ public struct EDGameConfig: Codable, Equatable, Hashable, Sendable {
                 )
             )
         }
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(playerCount, forKey: .playerCount)
+        try container.encode(monthCount, forKey: .monthCount)
+        try container.encode(enabledVariations, forKey: .enabledVariations)
     }
 }
 

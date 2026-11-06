@@ -3,7 +3,7 @@ These hold game data and rule calculations, with no actors, I/O, or UI:
 
 Domain types and setup
 
-~~EDGameConfig.swift — player count, month count, and enabled rule variations.~~
+~~EDGameConfig.swift — player count, month count, variations, starting cash, and order limits.~~
 ~~EDMoney.swift — money values and arithmetic.~~
 ~~EDRawMaterialGrade.swift — XFine, Fine, Standard.~~
 ~~EDRecipe.swift — goods A, B, C; required materials and legal substitutions.~~
@@ -33,21 +33,21 @@ Phase transitions, the session actor, events, and player-specific views belong i
 
 ### Legacy player and wallet actors
 
-`EDPlayer.swift` and `EDWallet.swift` were removed. Neither actor was used by
-the game engine; both were only exercised by their tests. `EDPlayer` duplicated
-the value state in `EDPlayerState` while adding a per-player actor and tally
-sheet. `EDWallet` duplicated cash mutation already provided by `EDMoney` and
-`EDPlayerState`.
-
 Use `EDPlayerState` and `EDMoney` directly in Core and pass updated values
 between pure rules. When game flow is implemented, one `GameSession` actor
 should own mutable session state and the private submissions for each player;
-do not recreate an actor per player or a separate wallet actor. `EDTallySheet`
-remains a standalone, serializable value model for monthly submissions and
+do not recreate an actor per player or a separate wallet actor.
+`EDTallySheet` remains a standalone, serializable value model for monthly submissions and
 results until the session design determines whether to store it or replace it
 with dedicated submission state.
 EDTallySheet.swift: keep it in Core only if it is part of the game’s canonical, persisted record. If it’s mainly a UI ledger, keep it outside Core.
-Your existing setup, market, recipe, and order-limit code is already close to the proposed Core boundary: EDGameSetup.swift, EDMarketCalculator.swift, EDOpeningPrices.swift, EDRawOrderLimits.swift, and EDRecipe.swift. I’d avoid maintaining separate material/goods enums inside opening prices when those concepts already have domain types.
+`EDGameSetup` was removed because it duplicated setup validation and player-count
+lookup alongside `EDGameConfig`. `EDGameConfig` now owns the single validated
+setup mapping and exposes the starting cash and raw-order limits derived from
+player count. `EDRawOrderLimits` is in `EDCore/Rules`: it expresses the FR-5
+order constraints and is consumed by `EDRawOrderValidator`. Opening prices,
+market calculation, recipe data, and order validation also belong to the Core
+rules boundary; they should use the existing material and good domain types.
 
 This follows the rules in GameRules.md, while leaving out EDAI, EDPersistence, and EDTestSupport.
 
@@ -90,7 +90,7 @@ been collected and revealed.
 
 | Phase | Responsible rule | What it does |
 |---|---|---|
-| Setup | `EDGameSetup`, `EDOpeningPrices` | Establishes valid player-count limits and opening prices. |
+| Setup | `EDGameConfig`, `EDOpeningPrices` | Validates game options and derives starting cash and raw-order limits; establishes opening prices. |
 | Raw bidding | `EDRawOrderValidator` | Checks each player's submitted order and minimum bids before accepting it. |
 | Raw reveal and market | `EDRawMarketResolver` | Aggregates revealed orders and calculates updated raw prices. |
 | Raw purchases | `EDRawPurchaseResolver` | Applies bids, available cash, and enabled purchase variations to each player. |
