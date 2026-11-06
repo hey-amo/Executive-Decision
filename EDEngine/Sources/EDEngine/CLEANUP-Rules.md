@@ -28,8 +28,8 @@ Pure rules
 ~~EDRawPurchaseResolver.swift — successful purchases, funds, and the loan / partial-purchase variations.~~
 ~~EDProductionAllocator.swift — recipes, substitutions, and certificate use.~~
 ~~EDGoodsOfferValidator.swift — disqualify over-offers and exclude them from price determination.~~
-EDGoodsMarketResolver.swift — finished-goods price changes.
-EDGoodsSalesResolver.swift — sales and certificate consumption.
+~~EDGoodsMarketResolver.swift — finished-goods price changes.~~
+~~EDGoodsSalesResolver.swift — sales and certificate consumption.~~
 EDMonthResolver.swift — combines the pure steps to resolve one month.
 EDEndGameScorer.swift — final raw-material sale, profit, rankings, and ties.
 A small rules type and its typed errors can share a file; these don’t all need to be one-file-per-type if that feels too fragmented.
