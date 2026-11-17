@@ -18,13 +18,16 @@ struct Executive_DecisionApp: App {
         .onChange(of: scenePhase) { _, phase in
             switch phase {
             case .active:
-                AudioManager.shared.resume()
+                //AudioManager.shared.resume()
+                print ("Resume")
             case .background:
-                AudioManager.shared.stopAll()
+                //AudioManager.shared.stopAll()
+                print ("stopAll")
             case .inactive:
                 break
             @unknown default:
-                AudioManager.shared.stopAll()
+                print ("default - stopAll")
+                //AudioManager.shared.stopAll()
             }
         }
     }

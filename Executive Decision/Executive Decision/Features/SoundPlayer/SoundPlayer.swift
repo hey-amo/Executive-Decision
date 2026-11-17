@@ -10,6 +10,7 @@ public enum AudioEffect: String, CaseIterable, Hashable, Sendable {
     case cardShuffle = "card-shuffle"
 }
 
+/*
 struct AudioCommandSnapshot: Sendable {
     let soundEnabled: Bool
     let musicEnabled: Bool
@@ -35,6 +36,7 @@ private struct AudioCommandState: Sendable {
         )
     }
 }
+
 
 final class AudioCommandMailbox: Sendable {
     private let state = Mutex(AudioCommandState())
@@ -254,3 +256,4 @@ private actor AudioPlayback {
         ) ?? Bundle.main.url(forResource: name, withExtension: fileExtension)
     }
 }
+*/
