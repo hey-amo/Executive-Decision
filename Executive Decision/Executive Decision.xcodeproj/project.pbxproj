@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		4D107C6C309B9B68006EC919 /* EDEngine in Frameworks */ = {isa = PBXBuildFile; productRef = 4D107C6B309B9B68006EC919 /* EDEngine */; };
-		4DEBE90A309D138B00932CB7 /* GameSettingsPK in Frameworks */ = {isa = PBXBuildFile; productRef = 4DEBE909309D138B00932CB7 /* GameSettingsPK */; };
+		4D1EEC4A30ACB8B700A8BF66 /* GameSettingsKit in Frameworks */ = {isa = PBXBuildFile; productRef = 4D1EEC4930ACB8B700A8BF66 /* GameSettingsKit */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -44,7 +44,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4DEBE90A309D138B00932CB7 /* GameSettingsPK in Frameworks */,
+				4D1EEC4A30ACB8B700A8BF66 /* GameSettingsKit in Frameworks */,
 				4D107C6C309B9B68006EC919 /* EDEngine in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -98,7 +98,7 @@
 			name = "Executive Decision";
 			packageProductDependencies = (
 				4D107C6B309B9B68006EC919 /* EDEngine */,
-				4DEBE909309D138B00932CB7 /* GameSettingsPK */,
+				4D1EEC4930ACB8B700A8BF66 /* GameSettingsKit */,
 			);
 			productName = "Executive Decision";
 			productReference = 4D107C3B309B9ADF006EC919 /* Executive Decision.app */;
@@ -157,7 +157,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				4D107C6A309B9B68006EC919 /* XCLocalSwiftPackageReference "../EDEngine" */,
-				4DEBE908309D138B00932CB7 /* XCLocalSwiftPackageReference "../../_Common/GameSettingsPK/GameSettingsPK" */,
+				4D1EEC4830ACB8B700A8BF66 /* XCLocalSwiftPackageReference "../../_Common/GameSettingsKit" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 4D107C3C309B9ADF006EC919 /* Products */;
@@ -352,7 +352,7 @@
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 14.8;
@@ -394,7 +394,7 @@
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 14.8;
@@ -494,9 +494,9 @@
 			isa = XCLocalSwiftPackageReference;
 			relativePath = ../EDEngine;
 		};
-		4DEBE908309D138B00932CB7 /* XCLocalSwiftPackageReference "../../_Common/GameSettingsPK/GameSettingsPK" */ = {
+		4D1EEC4830ACB8B700A8BF66 /* XCLocalSwiftPackageReference "../../_Common/GameSettingsKit" */ = {
 			isa = XCLocalSwiftPackageReference;
-			relativePath = ../../_Common/GameSettingsPK/GameSettingsPK;
+			relativePath = ../../_Common/GameSettingsKit;
 		};
 /* End XCLocalSwiftPackageReference section */
 
@@ -505,9 +505,9 @@
 			isa = XCSwiftPackageProductDependency;
 			productName = EDEngine;
 		};
-		4DEBE909309D138B00932CB7 /* GameSettingsPK */ = {
+		4D1EEC4930ACB8B700A8BF66 /* GameSettingsKit */ = {
 			isa = XCSwiftPackageProductDependency;
-			productName = GameSettingsPK;
+			productName = GameSettingsKit;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

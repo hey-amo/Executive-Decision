@@ -4,7 +4,7 @@ import Foundation
 ///
 /// Rules: FR-15 through FR-17. Pending decisions and intermediate month
 /// progress remain actor-isolated and are never included in public snapshots.
-@available(macOS 10.15, *)
+@available(macOS 13.15, *)
 public actor GameSession {
     private var gameState: EDGameState
     private var phase: EDGamePhase
