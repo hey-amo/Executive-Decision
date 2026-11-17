@@ -10,6 +10,8 @@ public enum AudioEffect: String, CaseIterable, Hashable, Sendable {
     case cardShuffle = "card-shuffle"
 }
 
+
+// This code doesn't work for iOS17
 /*
 struct AudioCommandSnapshot: Sendable {
     let soundEnabled: Bool

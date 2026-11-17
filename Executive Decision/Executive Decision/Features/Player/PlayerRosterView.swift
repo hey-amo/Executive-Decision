@@ -440,10 +440,11 @@ private struct PlayerEditorPresentationStyle: ViewModifier {
                 .presentationDetents([.medium, .large])
                 .presentationDragIndicator(.visible)
                 .presentationCornerRadius(22)
-        } else if #available(iOS 16.0, *) {
+            // issue: Warning with this code
+        /*} else if #available(iOS 16.0, *) {
             content
                 .presentationDetents([.medium, .large])
-                .presentationDragIndicator(.visible)
+                .presentationDragIndicator(.visible)*/
         } else {
             content
         }
