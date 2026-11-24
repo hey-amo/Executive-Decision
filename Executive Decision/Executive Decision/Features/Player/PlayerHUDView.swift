@@ -10,26 +10,23 @@ import SwiftUI
 // Shows 1 avatar, coins, cards
 
 struct PlayerHUDView: View {
-    var avatarResource = MockPlayer.rex.avatarResource
-    var isActive = true
-    var coins = MockPlayer.rex.coins
-    var cardCount = MockPlayer.rex.cardCount
-
+    let player: MockPlayer
+    
     var body: some View {
         HStack(spacing: 14) {
             PlayerAvatarView(
-                avatarResource: avatarResource,
-                isActive: isActive,
+                avatarResource: player.avatarResource,
+                isActive: player.isActive,
                 size: 60
             )
 
             VStack(alignment: .leading, spacing: 6) {
-                CoinsView(coins: coins)
+                CoinsView(coins: player.coins)
 
-                Text("🃏 \(cardCount)")
+                Text("🃏 \(player.cardCount)")
                     .font(.system(size: 17, weight: .semibold, design: .rounded))
                     .foregroundStyle(PlayerSetupStyle.ink)
-                    .accessibilityLabel("\(cardCount) cards")
+                    .accessibilityLabel("\(player.cardCount) cards")
             }
         }
         .padding(12)
@@ -42,20 +39,11 @@ struct PlayerHUDView: View {
     }
 }
 
+
 #Preview {
     VStack(spacing: 12) {
-        PlayerHUDView(
-            avatarResource: MockPlayer.rex.avatarResource,
-            isActive: true,
-            coins: MockPlayer.rex.coins,
-            cardCount: MockPlayer.rex.cardCount
-        )
-        PlayerHUDView(
-            avatarResource: MockPlayer.gordon.avatarResource,
-            isActive: false,
-            coins: MockPlayer.gordon.coins,
-            cardCount: MockPlayer.gordon.cardCount
-        )
+        PlayerHUDView(player: MockPlayer.rex)
+        PlayerHUDView(player: MockPlayer.alex)        
     }
     .padding()
     .background(PlayerSetupStyle.paper)

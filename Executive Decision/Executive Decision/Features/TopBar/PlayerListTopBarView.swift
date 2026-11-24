@@ -31,7 +31,7 @@ struct PlayerListTopBarView: View {
                 HStack(spacing: 5) {
                     Image(systemName: "arrow.left.and.right")
                         .font(.system(size: 10, weight: .bold))
-                    Text("SWIPE TO SEE ALL PLAYERS")
+                    Text("Swipe to see more")
                         .font(.system(size: 10, weight: .heavy, design: .rounded))
                         .tracking(1)
                 }
@@ -44,15 +44,19 @@ struct PlayerListTopBarView: View {
 
     private func playerCard(_ player: MockPlayer) -> some View {
         let isActive = player.id == activePlayerID
-
+        
+        
+        
         return Button {
             guard isActive, !isInteractionLocked else { return }
             print("Clicked on player: \(player.name)")
         } label: {
+            
+            
             VStack(alignment: .leading, spacing: 8) {
                 HStack(spacing: 6) {
                     Circle()
-                        .fill(isActive ? PlayerSetupStyle.tomato : PlayerSetupStyle.mutedInk.opacity(0.35))
+                        .fill(player.isActive ? PlayerSetupStyle.tomato : PlayerSetupStyle.mutedInk.opacity(0.35))
                         .frame(width: 8, height: 8)
 
                     Text(player.name)
@@ -62,13 +66,15 @@ struct PlayerListTopBarView: View {
                         .minimumScaleFactor(0.8)
                 }
                 .padding(.horizontal, 2)
+                
+                PlayerHUDView(player: player)
 
-                PlayerHUDView(
-                    avatarResource: player.avatarResource,
+                /*PlayerHUDView(
+                    player: player, avatarResource: player.avatarResource,
                     isActive: isActive,
                     coins: player.coins,
                     cardCount: player.cardCount
-                )
+                )*/
             }
             .padding(8)
             .frame(width: 184, alignment: .leading)
@@ -78,7 +84,7 @@ struct PlayerListTopBarView: View {
                 RoundedRectangle(cornerRadius: 14)
                     .stroke(
                         isActive ? PlayerSetupStyle.tomato : PlayerSetupStyle.ink.opacity(0.3),
-                        lineWidth: isActive ? 3 : 1
+                        lineWidth: player.isActive ? 3 : 1
                     )
             }
             .contentShape(RoundedRectangle(cornerRadius: 14))
@@ -86,8 +92,8 @@ struct PlayerListTopBarView: View {
         .buttonStyle(.plain)
         .disabled(!isActive || isInteractionLocked)
         .accessibilityLabel("\(player.name), \(player.coins) coins, \(player.cardCount) cards")
-        .accessibilityHint(isActive ? "Current player." : "Not currently active.")
-        .accessibilityAddTraits(isActive ? .isSelected : [])
+        .accessibilityHint(player.isActive ? "Current player." : "Not currently active.")
+        .accessibilityAddTraits(player.isActive ? .isSelected : [])
     }
 }
 

@@ -171,7 +171,8 @@ private struct OtherPlayerCard: View {
             name: MockPlayer.saxon.name,
             avatarResource: MockPlayer.saxon.avatarResource,
             coins: MockPlayer.rex.coins,
-            cardCount: MockPlayer.saxon.cardCount
+            cardCount: MockPlayer.saxon.cardCount,
+            isActive: false
         ),
         MockPlayer.gordon
     ])
@@ -184,7 +185,8 @@ private struct OtherPlayerCard: View {
             name: player.name,
             avatarResource: player.avatarResource,
             coins: MockPlayer.rex.coins,
-            cardCount: player.cardCount
+            cardCount: player.cardCount,
+            isActive: false
         )
     })
 }
