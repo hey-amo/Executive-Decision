@@ -120,7 +120,7 @@ struct GameMessageListView: View {
 #Preview("Empty state") {
     NavigationStack {
         GameMessageListView(store: GameMessageStore())
-            .navigationTitle("Log")
+            .navigationTitle("Messages")
             .background(Color.black)
     }
     .preferredColorScheme(.dark)
